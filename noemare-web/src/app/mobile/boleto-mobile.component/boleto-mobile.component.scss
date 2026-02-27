@@ -287,3 +287,38 @@ $warning-light: #fef3c7;
   color: #2563eb; padding: 0 10px;
   display: flex; align-items: center;
 }
+
+.scanner-container {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+
+  /* A linha vermelha animada */
+  .scan-line {
+    position: absolute;
+    left: 10%;
+    width: 80%;
+    height: 2px;
+    background-color: #ff0000;
+    box-shadow: 0 0 8px 1px #ff0000;
+    z-index: 10;
+    animation: scanMove 2s infinite linear;
+  }
+
+  /* O quadrado de foco azul */
+  .scan-region-highlight {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 85%; height: 160px;
+    border: 2px solid #2563eb;
+    box-shadow: 0 0 0 4000px rgba(0, 0, 0, 0.4);
+    z-index: 5;
+  }
+}
+
+@keyframes scanMove {
+  0% { top: 35%; }
+  50% { top: 65%; }
+  100% { top: 35%; }
+}
