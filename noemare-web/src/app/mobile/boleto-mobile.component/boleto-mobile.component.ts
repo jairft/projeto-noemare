@@ -1,13 +1,17 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core'; // ✅ Corrigido: inject vem de @angular/core
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+
+// 👉 Imports para o Scanner de Boleto
+import { ZXingScannerModule } from '@zxing/ngx-scanner'; 
+import { BarcodeFormat } from '@zxing/library';
 
 import { BoletoService } from '../../services/boleto.service';
 import { NotifyService } from '../../services/notify.service';
 import { identificarBanco } from '../../data/bancos';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 
 @Component({
   selector: 'app-boleto-mobile',
@@ -16,7 +20,8 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
     CommonModule, 
     ReactiveFormsModule, 
     MatIconModule,
-    MatPaginatorModule
+    MatPaginatorModule,
+    ZXingScannerModule // Habilita o uso da câmera no HTML
   ],
   templateUrl: './boleto-mobile.component.html',
   styleUrls: ['./boleto-mobile.component.scss']
@@ -34,7 +39,15 @@ export class BoletoMobileComponent implements OnInit {
   pageIndex = 0;
   boletosPaginados: any[] = [];
 
-  // O formulário mantém as validações, mas valor e data serão preenchidos pela mágica do código de barras
+  // --- CONTROLO DO SCANNER ---
+  isScannerAtivo = false;
+  formatsEnabled: BarcodeFormat[] = [
+    BarcodeFormat.EAN_13, 
+    BarcodeFormat.CODE_128, 
+    BarcodeFormat.ITF, 
+    BarcodeFormat.QR_CODE 
+  ];
+
   form: FormGroup = this.fb.group({
     descricao: ['', Validators.required],
     codigoBarras: ['', Validators.required],
@@ -46,8 +59,32 @@ export class BoletoMobileComponent implements OnInit {
     this.listarBoletos();
   }
 
-  // --- BUSCA E ORDENAÇÃO DOS BOLETOS ---
- listarBoletos(): void {
+  // --- MÉTODOS DO SCANNER ---
+  abrirScanner(): void {
+    this.isScannerAtivo = true;
+    this.notify.sucesso('Câmera ativada!');
+  }
+
+  fecharScanner(): void {
+    this.isScannerAtivo = false;
+  }
+
+  handleScanSuccess(result: string): void {
+    if (result) {
+      this.form.get('codigoBarras')?.setValue(result);
+      this.processarLinhaDigitavel(); 
+      this.fecharScanner();
+      this.notify.sucesso('Código capturado com sucesso!');
+    }
+  }
+
+  handleScanError(error: any): void {
+    this.notify.erro('Erro ao acessar a câmera. Verifique as permissões.');
+    this.fecharScanner();
+  }
+
+  // --- BUSCA E ORDENAÇÃO ---
+  listarBoletos(): void {
     this.boletoService.listarTodos().subscribe({
       next: (dados) => {
         this.boletosSalvos = dados.map(b => ({
@@ -64,7 +101,6 @@ export class BoletoMobileComponent implements OnInit {
           return new Date(a.dataExibicao).getTime() - new Date(b.dataExibicao).getTime();
         });
 
-        // 👉 CHAMA A PAGINAÇÃO LOGO APÓS ORDENAR
         this.atualizarPagina();
       },
       error: () => this.notify.erro('Erro ao carregar boletos.')
@@ -78,12 +114,10 @@ export class BoletoMobileComponent implements OnInit {
     } else {
       this.pageIndex = 0; 
     }
-
     const inicio = this.pageIndex * this.pageSize;
     this.boletosPaginados = this.boletosSalvos.slice(inicio, inicio + this.pageSize);
   }
 
-  // --- MÉTODOS DE DATA E STATUS ---
   parseDateSemFuso(dataStr: string): Date | null {
     if (!dataStr) return null;
     const [ano, mes, dia] = dataStr.split('-');
@@ -101,7 +135,6 @@ export class BoletoMobileComponent implements OnInit {
     return 'PENDENTE';
   }
 
-  // --- MÁGICA DE DECODIFICAÇÃO FEBRABAN ---
   processarLinhaDigitavel(): void {
     let linha = this.form.get('codigoBarras')?.value;
     if (!linha) return;
@@ -131,7 +164,6 @@ export class BoletoMobileComponent implements OnInit {
       const codigoBanco = linha.substring(0, 3);
       const nomeBancoFormatado = identificarBanco(codigoBanco);
 
-      // Preenche silenciosamente os campos ocultos de valor e data
       this.form.patchValue({
         valor: valorFinal > 0 ? valorFinal : this.form.get('valor')?.value,
         dataVencimento: dataVencimentoStr || this.form.get('dataVencimento')?.value,
@@ -153,13 +185,12 @@ export class BoletoMobileComponent implements OnInit {
     }
   }
 
-  // --- AÇÕES DO UTILIZADOR ---
   darBaixa(id: number): void {
     if (confirm('Confirmar o pagamento deste boleto?')) {
       this.boletoService.darBaixa(id).subscribe({
         next: () => {
           this.notify.sucesso('Boleto marcado como pago!');
-          this.listarBoletos(); // Recarrega a lista
+          this.listarBoletos();
         },
         error: (err) => this.notify.erro(err.error?.mensagem || 'Erro ao processar o pagamento.')
       });
@@ -177,8 +208,8 @@ export class BoletoMobileComponent implements OnInit {
         next: () => {
           this.isLoading = false;
           this.notify.sucesso('Boleto cadastrado!');
-          this.form.reset(); // Limpa o formulário
-          this.listarBoletos(); // Atualiza a lista na mesma tela em vez de voltar
+          this.form.reset();
+          this.listarBoletos();
         },
         error: (err) => {
           this.isLoading = false;

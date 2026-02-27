@@ -241,3 +241,49 @@ $warning-light: #fef3c7;
   &--pago     { background: $success-light; color: $success; border: 1px solid rgba($success, 0.3); }
   &--vencido  { background: $danger-light; color: $danger; border: 1px solid rgba($danger, 0.3); }
 }
+
+/* Estilo para o visor da câmera em tela cheia */
+.scanner-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: #000;
+  z-index: 9999; /* Garante que fica por cima de tudo */
+  display: flex;
+  flex-direction: column;
+
+  .scanner-header {
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    color: #fff;
+    gap: 15px;
+    background: rgba(0,0,0,0.5);
+  }
+
+  .scanner-container {
+    flex: 1;
+    position: relative;
+    
+    zxing-scanner {
+      width: 100%; height: 100%;
+      object-fit: cover;
+    }
+
+    /* Quadrado azul de mira */
+    .scan-region-highlight {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 80%; height: 150px;
+      border: 2px solid #2563eb;
+      box-shadow: 0 0 0 4000px rgba(0, 0, 0, 0.5);
+    }
+  }
+}
+
+.btn-icon-scanner {
+  background: none; border: none;
+  color: #2563eb; padding: 0 10px;
+  display: flex; align-items: center;
+}
