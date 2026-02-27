@@ -1,0 +1,291 @@
+<div class="nota-topbar">
+  <div class="nota-topbar__inner">
+    <button class="nota-topbar__back" routerLink="/dashboard">
+      <mat-icon>arrow_back</mat-icon>
+      Voltar ao Dashboard
+    </button>
+    <div class="nota-topbar__breadcrumb">
+      <span class="nota-topbar__crumb nota-topbar__crumb--muted">Dashboard</span>
+      <mat-icon class="nota-topbar__sep">chevron_right</mat-icon>
+      <span class="nota-topbar__crumb nota-topbar__crumb--active">Lançar Compra</span>
+    </div>
+  </div>
+</div>
+
+<div class="nota-wrapper">
+
+  <header class="nota-header">
+    <div>
+      <div class="nota-header__eyebrow">
+        <span class="nota-header__dot"></span>
+        Compras
+      </div>
+      <h1 class="nota-header__title">Lançar Nota</h1>
+      <p class="nota-header__subtitle">Registre a entrada de pescados e notas de fornecedores.</p>
+    </div>
+  </header>
+
+  <div class="nota-grid">
+
+    <div class="nota-forms-col">
+
+      <div class="nota-card">
+        <div class="nota-card__header">
+          <div class="nota-card__header-icon nota-card__header-icon--blue">
+            <mat-icon>store</mat-icon>
+          </div>
+          <div>
+            <h2 class="nota-card__title">Dados da Nota</h2>
+            <p class="nota-card__subtitle">Selecione o fornecedor e adicione uma descrição</p>
+          </div>
+        </div>
+
+        <div class="nota-card__body">
+          <form [formGroup]="notaForm" class="nota-form-header-grid">
+            
+            <mat-form-field appearance="outline" class="nota-field-fornecedor">
+              <mat-label>Fornecedor</mat-label>
+              <mat-select formControlName="fornecedorId">
+                <mat-option *ngFor="let f of fornecedores" [value]="f.id">{{ f.nome }}</mat-option>
+              </mat-select>
+              <mat-icon matPrefix>storefront</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="nota-field-numero">
+              <mat-label>Nº da Nota</mat-label>
+              <input matInput formControlName="numeroNota" placeholder="Ex: 1234">
+              <mat-icon matPrefix>tag</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="nota-field-data" (click)="dateInput.showPicker()">
+              <mat-label>Data da Compra</mat-label>
+              <input matInput 
+                    type="date" 
+                    formControlName="dataNota" 
+                    #dateInput
+                    (click)="$event.stopPropagation(); dateInput.showPicker()">
+              <mat-icon matPrefix>calendar_today</mat-icon>
+           </mat-form-field>
+
+            <mat-form-field appearance="outline" class="nota-field-obs">
+              <mat-label>Observação / Descrição (Opcional)</mat-label>
+              <input matInput formControlName="descricao" placeholder="Ex: Entrega da manhã">
+              <mat-icon matPrefix>notes</mat-icon>
+            </mat-form-field>
+
+          </form>
+        </div>
+      </div>
+
+      <div class="nota-card nota-card--accent">
+        <div class="nota-card__header">
+          <div class="nota-card__header-icon nota-card__header-icon--teal">
+            <mat-icon>set_meal</mat-icon>
+          </div>
+          <div>
+            <h2 class="nota-card__title">Adicionar Pescado / Item</h2>
+            <p class="nota-card__subtitle">Selecione um produto do cardápio e informe o peso</p>
+          </div>
+        </div>
+
+        <div class="nota-card__body">
+          <form [formGroup]="itemForm" class="nota-form-grid">
+
+            <mat-form-field appearance="outline" class="nota-field">
+              <mat-label>Espécie / Produto</mat-label>
+              <mat-select formControlName="produtoId">
+                <mat-option *ngFor="let p of cardapio" [value]="p.id">
+                  {{ p.nome }} - {{ p.tipo }} ({{ p.tamanho }})
+                </mat-option>
+              </mat-select>
+              <mat-icon matPrefix>phishing</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="nota-field">
+              <mat-label>Qtd (Kg)</mat-label>
+              <input matInput type="number" formControlName="quantidadeKg" placeholder="0.00">
+              <mat-icon matPrefix>scale</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="nota-field">
+              <mat-label>Valor Unit. (R$)</mat-label>
+              <input matInput type="text" formControlName="valorUnitario" currencyMask
+                [options]="{ prefix: 'R$ ', thousands: '.', decimal: ',', align: 'left', allowNegative: false }">
+              <mat-icon matPrefix>attach_money</mat-icon>
+            </mat-form-field>
+
+          </form>
+        </div>
+
+        <div class="nota-card__footer">
+          <button class="nota-btn-inserir"
+            (click)="adicionarItem()"
+            [disabled]="itemForm.invalid"
+            [class.nota-btn-inserir--disabled]="itemForm.invalid">
+            <mat-icon>add_shopping_cart</mat-icon>
+            Inserir na Nota
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="nota-summary-col">
+      
+      <div class="nota-card nota-card--summary">
+
+        <div class="nota-summary__header">
+          <div>
+            <h2 class="nota-card__title">Resumo da Nota</h2>
+            <p class="nota-card__subtitle">{{ itensDaNota.length }} item{{ itensDaNota.length !== 1 ? 's' : '' }} adicionado{{ itensDaNota.length !== 1 ? 's' : '' }}</p>
+          </div>
+          <div class="nota-summary__total">
+            <span class="nota-summary__total-label">Total</span>
+            <strong class="nota-summary__total-value">{{ valorTotalNota | currency:'BRL':'symbol':'1.2-2' }}</strong>
+          </div>
+        </div>
+
+        <div class="nota-summary__table-wrapper">
+          <table mat-table [dataSource]="itensDaNota" class="nota-summary-table">
+
+            <ng-container matColumnDef="tipo">
+            <th mat-header-cell *matHeaderCellDef>Produto</th>
+              <td mat-cell *matCellDef="let item">
+                <span class="nota-summary-table__name">{{ item.nomeProduto }}</span>
+                <span class="nota-summary-table__size">{{ item.tipo }} - {{ item.tamanho }}</span>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="quantidadeKg">
+              <th mat-header-cell *matHeaderCellDef>Qtd</th>
+              <td mat-cell *matCellDef="let item">
+                <span class="nota-summary-table__qty">{{ item.quantidadeKg }} kg</span>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="valorUnitario">
+              <th mat-header-cell *matHeaderCellDef>Vlr Unit.</th>
+              <td mat-cell *matCellDef="let item">
+                <span class="nota-summary-table__unit">{{ item.valorUnitario | currency:'BRL' }}</span>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="valorTotal">
+              <th mat-header-cell *matHeaderCellDef>Subtotal</th>
+              <td mat-cell *matCellDef="let item">
+                <span class="nota-summary-table__subtotal">{{ item.valorTotal | currency:'BRL' }}</span>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="acoes">
+              <th mat-header-cell *matHeaderCellDef></th>
+              <td mat-cell *matCellDef="let item; let i = index">
+                <button class="nota-btn-remove" (click)="removerItem(i)" matTooltip="Remover item">
+                  <mat-icon>delete_outline</mat-icon>
+                </button>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="['tipo', 'quantidadeKg', 'valorUnitario', 'valorTotal', 'acoes']"></tr>
+            <tr mat-row *matRowDef="let row; columns: ['tipo', 'quantidadeKg', 'valorUnitario', 'valorTotal', 'acoes'];" class="nota-summary-table__row"></tr>
+
+            <tr class="mat-row" *matNoDataRow>
+              <td class="mat-cell nota-summary-table__empty" colspan="5">
+                <mat-icon>set_meal</mat-icon>
+                <p>Nenhum pescado inserido na nota.</p>
+              </td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="nota-summary__footer">
+          <button class="nota-btn-cancel" (click)="limparTela()">
+            <mat-icon>close</mat-icon>
+            Cancelar
+          </button>
+          <button class="nota-btn-save"
+            (click)="salvarNota()"
+            [disabled]="itensDaNota.length === 0 || notaForm.invalid"
+            [class.nota-btn-save--disabled]="itensDaNota.length === 0 || notaForm.invalid">
+            <mat-icon>{{ notaIdEmEdicao ? 'save_as' : 'check_circle' }}</mat-icon>
+            {{ notaIdEmEdicao ? 'Salvar Alterações' : 'Salvar Nota Oficial' }}
+          </button>
+        </div>
+      </div>
+
+      <div class="nota-card" style="margin-top: 24px;">
+        <div class="nota-card__header">
+          <div class="nota-card__header-icon nota-card__header-icon--blue">
+            <mat-icon>history</mat-icon>
+          </div>
+          <div>
+            <h2 class="nota-card__title">Últimas Notas Lançadas</h2>
+            <p class="nota-card__subtitle">Histórico rápido para conferência</p>
+          </div>
+        </div>
+
+        <div class="nota-card__body">
+         <table mat-table [dataSource]="notasRecentes" class="recent-notes-table">
+          
+          <ng-container matColumnDef="dataHora">
+            <th mat-header-cell *matHeaderCellDef> DATA / HORA </th>
+            <td mat-cell *matCellDef="let element" class="fw-bold"> 
+              {{ element.dataNota | date:'dd/MM/yyyy' }} 
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="fornecedor">
+            <th mat-header-cell *matHeaderCellDef> FORNECEDOR </th>
+            <td mat-cell *matCellDef="let element" class="fw-bold"> 
+              {{ element.fornecedorNome || element.fornecedor?.nome }} 
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef> STATUS </th>
+            <td mat-cell *matCellDef="let element">
+              <span class="status-badge" [ngClass]="'status-' + (element.status ? element.status.toLowerCase() : 'aberta')">
+                {{ element.status || 'ABERTA' }}
+              </span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="valor">
+            <th mat-header-cell *matHeaderCellDef> TOTAL </th>
+            <td mat-cell *matCellDef="let element" class="text-success fw-bold"> 
+              {{ element.valorTotal | currency:'BRL' }} 
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="acoes">
+            <th mat-header-cell *matHeaderCellDef> AÇÕES </th>
+            <td mat-cell *matCellDef="let element">
+              <button mat-icon-button 
+                      (click)="editarNota(element)" 
+                      [disabled]="element.status !== 'ABERTA'"
+                      [matTooltip]="element.status === 'ABERTA' ? 'Editar Nota' : 'Nota bloqueada para edição'">
+                
+                <mat-icon *ngIf="element.status === 'ABERTA' || !element.status" color="primary">edit</mat-icon>
+                <mat-icon *ngIf="element.status !== 'ABERTA'" class="icon-locked">lock</mat-icon>
+                
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="colunasNotasRecentes"></tr>
+          <tr mat-row *matRowDef="let row; columns: colunasNotasRecentes;" [class.row-locked]="row.status !== 'ABERTA'"></tr>
+        </table>
+
+          <mat-paginator [pageSize]="3" 
+                         [pageSizeOptions]="[3, 5, 10]" 
+                         showFirstLastButtons
+                         class="paginador-notas">
+          </mat-paginator>
+
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>

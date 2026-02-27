@@ -1,0 +1,714 @@
+@use 'sass:color';
+
+// ----------------------------------------
+// Variáveis (mesma paleta do sistema)
+// ----------------------------------------
+$surface:       #ffffff;
+$border:        #e4e9f2;
+
+$primary:       #2563eb;
+$primary-light: #eff6ff;
+
+$success:       #059669;
+$success-light: #ecfdf5;
+$orange:        #ef9b2f;
+
+$teal:          #0d9488;
+$teal-light:    #f0fdfa;
+
+$danger:        #dc2626;
+$danger-light:  #fff1f1;
+
+$text-1:        #0f172a;
+$text-2:        #475569;
+$text-3:        #94a3b8;
+
+$shadow-sm:     0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+$shadow-md:     0 4px 16px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04);
+
+$radius:        16px;
+$radius-sm:     10px;
+
+// ----------------------------------------
+// Animações
+// ----------------------------------------
+@keyframes fadeDown {
+  from { opacity: 0; transform: translateY(-16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+@keyframes rowIn {
+  from { opacity: 0; transform: translateX(-6px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+// ----------------------------------------
+// Topbar
+// ----------------------------------------
+.nota-topbar {
+  width: 100%;
+  
+  background: linear-gradient(145deg, #0f172a 0%, #1e3a5f 50%, #1d4ed8 100%);
+  border-bottom: 1px solid $border;
+  box-shadow: $shadow-sm;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+
+  &__inner {
+    max-width: 1350px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    height: 85px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  &__back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem 0.875rem;
+    border-radius: $radius-sm;
+    border: 1.5px solid $border;
+    background: transparent;
+    color: $surface;
+    font-family: 'Sora', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    mat-icon {
+      font-size: 17px !important;
+      width: 17px !important;
+      height: 17px !important;
+      line-height: 17px !important;
+      transition: transform 0.2s;
+    }
+
+    &:hover {
+      background: $primary-light;
+      border-color: $primary;
+      color: $primary;
+      mat-icon { transform: translateX(-3px); }
+    }
+  }
+
+  &__breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  &__sep {
+    font-size: 16px !important;
+    width: 16px !important;
+    height: 16px !important;
+    line-height: 16px !important;
+    color: $text-3;
+  }
+
+  &__crumb {
+    font-size: 0.8rem;
+    font-weight: 600;
+    &--muted  { color: $surface; }
+    &--active { color: $orange; }
+  }
+}
+
+// ----------------------------------------
+// Wrapper
+// ----------------------------------------
+.nota-wrapper {
+  padding: 2.5rem 2rem;
+  max-width: 1350px;
+  margin: 0 auto;
+}
+
+// ----------------------------------------
+// Header
+// ----------------------------------------
+.nota-header {
+  margin-bottom: 2rem;
+  animation: fadeDown 0.5s ease both;
+
+  &__eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: $primary;
+    margin-bottom: 0.4rem;
+  }
+
+  &__dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: $primary;
+    display: inline-block;
+    animation: pulse 2s ease infinite;
+  }
+
+  &__title {
+    font-size: 2rem;
+    font-weight: 800;
+    color: $text-1;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    margin: 0;
+  }
+
+  &__subtitle {
+    color: $text-2;
+    font-size: 0.875rem;
+    margin-top: 0.4rem;
+    font-weight: 400;
+  }
+}
+
+// ----------------------------------------
+// Grid layout
+// ----------------------------------------
+.nota-grid {
+  display: grid;
+  /* 1fr 1fr divide a tela exatamente ao meio */
+  grid-template-columns: 1fr 1fr; 
+  gap: 1.5rem;
+  align-items: start;
+  animation: fadeUp 0.5s 0.1s ease both;
+
+  @media (max-width: 1100px) { 
+    grid-template-columns: 1fr; 
+  }
+}
+
+.nota-forms-col {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.nota-summary-col {
+  position: sticky;
+  top: 72px; // abaixo da topbar
+}
+
+// ----------------------------------------
+// Cards
+// ----------------------------------------
+.nota-card {
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: $radius;
+  box-shadow: $shadow-sm;
+  overflow: hidden;
+
+  &--accent {
+    border-top: 3px solid $teal;
+  }
+
+  &--summary {
+    box-shadow: $shadow-md;
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid $border;
+    background: #fafbfc;
+  }
+
+  &__header-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    mat-icon {
+      font-size: 20px !important;
+      width: 20px !important;
+      height: 20px !important;
+      line-height: 20px !important;
+    }
+
+    &--blue { background: $primary-light; mat-icon { color: $primary; } }
+    &--teal { background: $teal-light;    mat-icon { color: $teal; } }
+  }
+
+  &__title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: $text-1;
+    margin: 0 0 0.15rem;
+  }
+
+  &__subtitle {
+    font-size: 0.75rem;
+    color: $text-3;
+    margin: 0;
+  }
+
+  &__body {
+    padding: 1.5rem;
+  }
+
+  &__footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid $border;
+    display: flex;
+    justify-content: flex-end;
+    background: #fafbfc;
+  }
+}
+
+// ----------------------------------------
+// Formulários
+// ----------------------------------------
+.nota-form-row {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+
+  @media (max-width: 768px) { flex-direction: column; }
+}
+
+.nota-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+
+  @media (max-width: 600px) { grid-template-columns: 1fr; }
+}
+
+.nota-field {
+  width: 100%;
+
+  &--sm { flex: 1; }
+  &--lg { flex: 2; }
+
+  // Ícones prefix do Material
+  mat-icon[matPrefix] {
+    font-size: 18px !important;
+    width: 18px !important;
+    height: 18px !important;
+    color: $text-3;
+    margin-right: 4px;
+  }
+}
+
+// ----------------------------------------
+// Botão Inserir na Nota
+// ----------------------------------------
+.nota-btn-inserir {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.5rem;
+  border-radius: $radius-sm;
+  border: none;
+  background: linear-gradient(135deg, $teal, #0f766e);
+  color: #fff;
+  font-family: 'Sora', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 12px color.change($teal, $alpha: 0.35);
+  transition: all 0.2s;
+
+  mat-icon {
+    font-size: 18px !important;
+    width: 18px !important;
+    height: 18px !important;
+    line-height: 18px !important;
+  }
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px color.change($teal, $alpha: 0.45);
+  }
+
+  &--disabled {
+    background: #e2e8f0 !important;
+    color: $text-3 !important;
+    box-shadow: none !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+  }
+}
+
+// ----------------------------------------
+// Resumo da Nota
+// ----------------------------------------
+.nota-summary {
+
+  &__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid $border;
+    background: #fafbfc;
+    gap: 1rem;
+  }
+
+  &__total {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.2rem;
+    flex-shrink: 0;
+  }
+
+  &__total-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: $text-3;
+  }
+
+  &__total-value {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: $success;
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+
+  &__table-wrapper {
+    overflow-x: auto;
+    min-height: 180px;
+  }
+
+  &__footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    border-top: 1px solid $border;
+    background: #fafbfc;
+  }
+}
+
+// ----------------------------------------
+// Tabela do Resumo
+// ----------------------------------------
+.nota-summary-table {
+  width: 100%;
+  box-shadow: none !important;
+
+  th.mat-mdc-header-cell {
+    background: #f8fafc !important;
+    font-size: 0.68rem !important;
+    font-weight: 700 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: $text-3 !important;
+    padding: 0.75rem 1rem !important;
+    border-bottom: 1px solid $border !important;
+  }
+
+  td.mat-mdc-cell {
+    padding: 0.875rem 1rem !important;
+    border-bottom: 1px solid $border !important;
+    font-size: 0.875rem;
+  }
+
+  &__row {
+    transition: background 0.15s;
+    animation: rowIn 0.3s ease both;
+    &:last-child td { border-bottom: none !important; }
+    &:hover { background: #f8fafc; }
+  }
+
+  &__name {
+    font-weight: 600;
+    color: $text-1;
+    display: block;
+  }
+
+  &__size {
+    font-size: 0.75rem;
+    color: $text-3;
+    display: block;
+  }
+
+  &__qty {
+    color: $text-2;
+    font-size: 0.82rem;
+  }
+
+  &__unit {
+    color: $text-2;
+    font-size: 0.82rem;
+  }
+
+  &__subtotal {
+    font-weight: 700;
+    color: $success;
+    font-size: 0.875rem;
+  }
+
+  &__empty {
+    text-align: center !important;
+    padding: 2.5rem 1rem !important;
+    border-bottom: none !important;
+
+    mat-icon {
+      font-size: 36px !important;
+      width: 36px !important;
+      height: 36px !important;
+      color: $text-3;
+      opacity: 0.4;
+      display: block;
+      margin: 0 auto 0.5rem;
+    }
+
+    p {
+      margin: 0;
+      font-size: 0.875rem;
+      color: $text-3;
+    }
+  }
+}
+
+// ----------------------------------------
+// Botão Remover Item
+// ----------------------------------------
+.nota-btn-remove {
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
+  border: 1.5px solid $border;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: $text-3;
+  transition: all 0.2s;
+
+  mat-icon {
+    font-size: 16px !important;
+    width: 16px !important;
+    height: 16px !important;
+    line-height: 16px !important;
+  }
+
+  &:hover {
+    border-color: $danger;
+    background: $danger-light;
+    color: $danger;
+  }
+}
+
+// ----------------------------------------
+// Botões do Footer
+// ----------------------------------------
+.nota-btn-cancel {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1rem;
+  border-radius: $radius-sm;
+  border: 1.5px solid $border;
+  background: transparent;
+  color: $text-2;
+  font-family: 'Sora', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  mat-icon {
+    font-size: 16px !important;
+    width: 16px !important;
+    height: 16px !important;
+    line-height: 16px !important;
+  }
+
+  &:hover {
+    border-color: $danger;
+    background: $danger-light;
+    color: $danger;
+  }
+}
+
+.nota-btn-save {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.5rem;
+  border-radius: $radius-sm;
+  border: none;
+  background: linear-gradient(135deg, $success, #047857);
+  color: #fff;
+  font-family: 'Sora', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 12px color.change($success, $alpha: 0.35);
+  transition: all 0.2s;
+
+  mat-icon {
+    font-size: 18px !important;
+    width: 18px !important;
+    height: 18px !important;
+    line-height: 18px !important;
+  }
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px color.change($success, $alpha: 0.45);
+  }
+
+  &--disabled {
+    background: #e2e8f0 !important;
+    color: $text-3 !important;
+    box-shadow: none !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+  }
+}
+
+/* =======================================================
+   ESTILO DO PAGINADOR (ÚLTIMAS NOTAS)
+======================================================= */
+.paginador-notas {
+  background: transparent !important;
+  border-top: 1px solid #f1f5f9;
+  margin-top: 4px;
+
+  /* Estiliza o container interno do paginador */
+  ::ng-deep .mat-mdc-paginator-container {
+    min-height: 48px; // Deixa o paginador mais fininho
+    padding: 0 6px;
+    color: #64748b;
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    font-size: 0.85rem;
+  }
+
+  /* Estiliza as setinhas de navegação */
+  ::ng-deep .mat-mdc-icon-button {
+    color: #475569;
+    
+    &:hover:not([disabled]) {
+      background-color: #f8fafc;
+      color: #0284c7; // Fica azul ao passar o mouse
+    }
+
+    &[disabled] {
+      color: #cbd5e1;
+    }
+  }
+
+  /* Estiliza o texto de "Itens por página" e o número selecionado */
+  ::ng-deep .mat-mdc-select-value {
+    color: #0f172a;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+}
+
+.nota-form-header-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1.4fr; 
+  gap: 16px;
+  align-items: start;
+  width: 100%;
+
+  .nota-field-obs {
+    grid-column: 1 / span 3; // Deixa a observação na linha de baixo sozinha
+  }
+}
+
+/* 👉 Correção específica para o input de data do Material */
+.nota-field-data {
+  input[type="date"] {
+    cursor: pointer;
+    width: 100%;
+    min-height: 25px;
+    padding-right: 0; /* Remove o padding extra nativo do navegador */
+  }
+
+  /* Faz o input ocupar 100% da área clicável */
+  input[type="date"] {
+    cursor: pointer;
+    width: 100%;
+    min-height: 25px;
+  }
+}
+
+/* Ajuste do Grid para dar fôlego aos campos */
+.nota-form-header-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr; /* Rebalanceado para caber tudo na linha */
+  gap: 16px;
+  align-items: start;
+}
+
+/* --- ESTILOS DA TABELA WEB --- */
+.recent-notes-table {
+  width: 100%;
+  
+  /* Linha com opacidade reduzida se a nota estiver bloqueada */
+  .row-locked {
+    background-color: #f8fafc;
+    opacity: 0.85;
+    
+    td {
+      color: #64748b !important;
+    }
+    
+    td.text-success {
+      color: #059669 !important; /* Mantém o verde do valor um pouco mais escuro */
+    }
+  }
+}
+
+/* --- BADGES DE STATUS --- */
+.status-badge {
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 4px 8px;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: inline-block;
+
+  &.status-aberta {
+    background-color: #dcfce7;
+    color: #166534;
+  }
+  &.status-parcial {
+    background-color: #fef9c3;
+    color: #854d0e;
+  }
+  &.status-paga {
+    background-color: #e2e8f0;
+    color: #475569;
+  }
+}
+
+/* --- CADEADO --- */
+.icon-locked {
+  color: #94a3b8;
+}

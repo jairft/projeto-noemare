@@ -1,0 +1,197 @@
+<div class="forn-topbar">
+  <div class="forn-topbar__inner">
+    <button class="forn-topbar__back" routerLink="/dashboard">
+      <mat-icon>arrow_back</mat-icon>
+      Voltar ao Dashboard
+    </button>
+    <div class="forn-topbar__breadcrumb">
+      <span class="forn-topbar__crumb forn-topbar__crumb--muted">Dashboard</span>
+      <mat-icon class="forn-topbar__sep">chevron_right</mat-icon>
+      <span class="forn-topbar__crumb forn-topbar__crumb--active">Fornecedores</span>
+    </div>
+  </div>
+</div>
+
+<div class="forn-wrapper">
+
+  <header class="forn-header">
+    <div>
+      <div class="forn-header__eyebrow">
+        <span class="forn-header__dot"></span>
+        Parceiros Comerciais
+      </div>
+      <h1 class="forn-header__title">Fornecedores</h1>
+      <p class="forn-header__subtitle">Gestão de saldos e registros de parceiros comerciais.</p>
+    </div>
+
+    <div class="forn-header__actions" style="display: flex; gap: 16px; align-items: center;">
+      <div class="forn-search">
+        <mat-icon>search</mat-icon>
+        <input (keyup)="aplicarFiltro($event)" placeholder="Pesquisar fornecedor..." #input>
+      </div>
+      
+      <button class="forn-btn-new" (click)="abrirModalNovo()">
+        <mat-icon>add</mat-icon>
+        Novo Fornecedor
+      </button>
+    </div>
+  </header>
+
+  <div class="forn-summary-grid">
+    <div class="forn-summary-card">
+      <div class="forn-summary-card__icon forn-summary-card__icon--blue">
+        <mat-icon>storefront</mat-icon>
+      </div>
+      <div class="forn-summary-card__info">
+        <label>Total de Fornecedores</label>
+        <strong>{{ fornecedores.length }}</strong>
+      </div>
+    </div>
+
+    <div class="forn-summary-card">
+      <div class="forn-summary-card__icon forn-summary-card__icon--green">
+        <mat-icon>check_circle</mat-icon>
+      </div>
+      <div class="forn-summary-card__info">
+        <label>Ativos</label>
+        <strong>{{ totalAtivos }}</strong>
+      </div>
+    </div>
+
+    <div class="forn-summary-card">
+      <div class="forn-summary-card__icon forn-summary-card__icon--red">
+        <mat-icon>account_balance</mat-icon>
+      </div>
+      <div class="forn-summary-card__info">
+        <label>Com Saldo Credor</label>
+        <strong>{{ totalComSaldo }}</strong>
+      </div>
+    </div>
+  </div>
+
+  <div class="forn-table-card">
+    <div class="forn-empty-state" *ngIf="dataSource.data.length === 0">
+      <mat-icon>storefront</mat-icon>
+      <h3>Nenhum fornecedor encontrado</h3>
+      <p>Cadastre um novo fornecedor para começar.</p>
+    </div>
+
+    <div class="forn-table-wrapper" *ngIf="dataSource.data.length > 0">
+      <table mat-table [dataSource]="dataSource" class="forn-table">
+
+        <ng-container matColumnDef="nome">
+          <th mat-header-cell *matHeaderCellDef>Fornecedor</th>
+          <td mat-cell *matCellDef="let forn">
+            <div class="forn-cell">
+              <div class="forn-cell__avatar">
+                <mat-icon>storefront</mat-icon>
+              </div>
+              <span class="forn-cell__name">{{ forn.nome }}</span>
+            </div>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="saldoDevedorInvestimento">
+          <th mat-header-cell *matHeaderCellDef>Saldo Investimento</th>
+          <td mat-cell *matCellDef="let forn">
+            <span class="forn-value"
+              [class.forn-value--danger]="forn.saldoDevedorInvestimento > 0"
+              [class.forn-value--muted]="forn.saldoDevedorInvestimento === 0">
+              {{ forn.saldoDevedorInvestimento | currency:'BRL':'symbol':'1.2-2' }}
+            </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="saldoDevedorAdiantamento">
+          <th mat-header-cell *matHeaderCellDef>Saldo Adiantamento</th>
+          <td mat-cell *matCellDef="let forn">
+            <span class="forn-value"
+              [class.forn-value--danger]="forn.saldoDevedorAdiantamento > 0"
+              [class.forn-value--muted]="forn.saldoDevedorAdiantamento === 0">
+              {{ forn.saldoDevedorAdiantamento | currency:'BRL':'symbol':'1.2-2' }}
+            </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="saldoCredor">
+          <th mat-header-cell *matHeaderCellDef>Saldo Credor</th>
+          <td mat-cell *matCellDef="let forn">
+            <span class="forn-saldo-credor"
+              [class.forn-saldo-credor--active]="forn.saldoCredor > 0"
+              [class.forn-saldo-credor--zero]="forn.saldoCredor === 0">
+              {{ forn.saldoCredor | currency:'BRL':'symbol':'1.2-2' }}
+            </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="dataCadastro">
+          <th mat-header-cell *matHeaderCellDef>Cadastro</th>
+          <td mat-cell *matCellDef="let forn">
+            <span class="forn-date">{{ forn.dataCadastro | date:'dd/MM/yyyy' }}</span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="analytics">
+          <th mat-header-cell *matHeaderCellDef>Histórico</th>
+          <td mat-cell *matCellDef="let forn">
+            <button class="forn-btn-analytics" 
+                    (click)="abrirHistoricoGeral(forn)" 
+                    matTooltip="Ver Volume Total de Compras (Kg / R$)">
+              <mat-icon>analytics</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef>Status</th>
+          <td mat-cell *matCellDef="let forn">
+            <span class="forn-pill"
+              [class.forn-pill--active]="forn.status === 'ATIVO'"
+              [class.forn-pill--inactive]="forn.status !== 'ATIVO'">
+              {{ forn.status }}
+            </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="acoes">
+          <th mat-header-cell *matHeaderCellDef class="forn-th-center">Ações</th>
+          <td mat-cell *matCellDef="let forn" class="forn-td-center">
+            <div class="forn-actions-cell">
+              
+              <button class="forn-btn-status" (click)="alternarStatus(forn)" matTooltip="Alterar Status">
+                <mat-icon>{{ forn.status === 'ATIVO' ? 'lock_open' : 'lock' }}</mat-icon>
+              </button>
+
+              <button class="forn-btn-edit" (click)="editarFornecedor(forn)" matTooltip="Editar Nome">
+                <mat-icon>edit</mat-icon>
+              </button>
+
+              <button class="forn-btn-delete" 
+                      (click)="excluirFornecedor(forn)" 
+                      matTooltip="Excluir Permanentemente">
+                <mat-icon>delete_outline</mat-icon>
+              </button>
+
+            </div>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="colunasExibidas"></tr>
+        <tr mat-row *matRowDef="let row; columns: colunasExibidas;" class="forn-table__row"></tr>
+
+        <tr class="mat-row" *matNoDataRow>
+          <td class="mat-cell" colspan="8" style="padding: 32px; text-align: center; color: #64748b;">
+            Nenhum fornecedor encontrado para a busca: "<strong>{{input.value}}</strong>"
+          </td>
+        </tr>
+      </table>
+
+      <mat-paginator 
+        [pageSize]="7" 
+        [pageSizeOptions]="[7, 14, 21]" 
+        showFirstLastButtons 
+        aria-label="Selecionar página de fornecedores">
+      </mat-paginator>
+    </div>
+  </div>
+</div>

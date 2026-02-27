@@ -1,0 +1,103 @@
+<div class="hist-topbar">
+  <div class="hist-topbar__inner">
+    <a class="hist-topbar__back" routerLink="/dashboard">
+      <mat-icon>arrow_back</mat-icon>
+      Voltar ao Dashboard
+    </a>
+    <div class="hist-topbar__breadcrumb">
+      <span class="hist-topbar__crumb hist-topbar__crumb--muted">Segurança</span>
+      <mat-icon class="hist-topbar__sep">chevron_right</mat-icon>
+      <span class="hist-topbar__crumb hist-topbar__crumb--active">Auditoria do Sistema</span>
+    </div>
+  </div>
+</div>
+
+<div class="hist-wrapper">
+  <header class="hist-header">
+    <div class="hist-header__eyebrow">
+      <span class="hist-header__dot hist-header__dot--danger"></span>
+      Acesso Restrito
+    </div>
+    <h1 class="hist-header__title">Logs de Auditoria</h1>
+    <p class="hist-header__subtitle">Rastreamento de todas as ações sensíveis realizadas no sistema.</p>
+  </header>
+
+  <div class="hist-card">
+    <div class="hist-card__header hist-card__header-flex">
+      
+      <div class="hist-card__title-group">
+        <div class="hist-card__header-icon hist-card__header-icon--danger">
+          <mat-icon>policy</mat-icon>
+        </div>
+        <div>
+          <h2 class="hist-card__title">Registros de Atividade</h2>
+          <p class="hist-card__subtitle">Monitoramento em tempo real</p>
+        </div>
+      </div>
+
+      <mat-form-field appearance="outline" class="hist-field hist-search-field">
+        <mat-label>Buscar usuário, ação ou detalhe...</mat-label>
+        <input matInput (keyup)="aplicarFiltro($event)" placeholder="Ex: joao@... ou DELETAR">
+        <mat-icon matSuffix>search</mat-icon>
+      </mat-form-field>
+
+    </div>
+
+    <div class="hist-card__body hist-card__body--flush">
+      <table mat-table [dataSource]="logs" class="hist-table">
+
+        <ng-container matColumnDef="dataHora">
+          <th mat-header-cell *matHeaderCellDef>Data e Hora</th>
+          <td mat-cell *matCellDef="let log">
+            <div class="hist-table__date-cell">
+              <span class="hist-table__date">{{ log.dataHora | date:'dd/MM/yyyy' }}</span>
+              <span class="hist-table__time hist-table__time--danger">{{ log.dataHora | date:'HH:mm:ss' }}</span>
+            </div>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="usuario">
+          <th mat-header-cell *matHeaderCellDef>Usuário</th>
+          <td mat-cell *matCellDef="let log">
+            <span class="hist-table__user">{{ log.usuarioEmail }}</span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="acao">
+          <th mat-header-cell *matHeaderCellDef>Ação Executada</th>
+          <td mat-cell *matCellDef="let log">
+            <span class="tag-acao" [ngClass]="getCorTagAcao(log.acao)">
+              {{ log.acao }}
+            </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="entidade">
+          <th mat-header-cell *matHeaderCellDef>Alvo (ID)</th>
+          <td mat-cell *matCellDef="let log">
+            <span class="hist-table__entity">{{ log.entidadeAfetada }} (#{{ log.entidadeId }})</span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="detalhes">
+          <th mat-header-cell *matHeaderCellDef>Detalhes</th>
+          <td mat-cell *matCellDef="let log">
+            <span class="hist-table__details">{{ log.detalhes }}</span>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="colunasExibidas"></tr>
+        <tr mat-row *matRowDef="let row; columns: colunasExibidas;" class="hist-table__row"></tr>
+
+        <tr class="mat-row" *matNoDataRow>
+          <td class="mat-cell hist-table__empty" colspan="5">
+            <mat-icon class="hist-table__empty-icon">verified_user</mat-icon>
+            <p class="hist-table__empty-text">Nenhum registro de auditoria encontrado.</p>
+          </td>
+        </tr>
+      </table>
+
+      <mat-paginator [pageSize]="10" [pageSizeOptions]="[10, 25, 50]" showFirstLastButtons class="paginador-notas"></mat-paginator>
+    </div>
+  </div>
+</div>

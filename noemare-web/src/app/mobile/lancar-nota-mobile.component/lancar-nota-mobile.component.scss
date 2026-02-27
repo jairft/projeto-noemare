@@ -1,0 +1,291 @@
+@use 'sass:color'; // <-- AQUI ESTÁ A CORREÇÃO
+
+$primary: #2563eb;
+$bg-color: #f8fafc;
+$text-dark: #0f172a;
+$text-muted: #64748b;
+$border-color: #e2e8f0;
+$danger: #ef4444;
+$success: #10b981;
+
+.mobile-wrapper { min-height: 100vh; background-color: $bg-color; font-family: 'Sora', sans-serif; display: flex; flex-direction: column; }
+
+.mobile-header {
+  background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+  padding: 40px 20px 20px;
+  display: flex; align-items: center; justify-content: space-between;
+  color: white; border-bottom-left-radius: 24px; border-bottom-right-radius: 24px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+
+  .btn-back {
+    background: rgba(255,255,255,0.1); border: none; width: 40px; height: 40px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center; color: white; cursor: pointer;
+    mat-icon { font-size: 20px; width: 20px; height: 20px; margin-left: 4px; }
+  }
+
+  h1 { font-size: 1.15rem; font-weight: 700; margin: 0; }
+
+  .stepper-dots {
+    display: flex; gap: 6px; width: 40px; justify-content: flex-end;
+    .dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.3); transition: all 0.3s; }
+    .dot.active { background: #38bdf8; width: 12px; border-radius: 4px; }
+  }
+}
+
+.mobile-content { padding: 20px; flex: 1; overflow-y: auto; }
+.subtitle { font-size: 0.85rem; color: $text-muted; margin-bottom: 20px; text-align: center; font-weight: 600; }
+
+.form-card {
+  background: white; padding: 20px; border-radius: 20px; box-shadow: 0 8px 20px -5px rgba(0,0,0,0.05);
+  display: flex; flex-direction: column; gap: 16px;
+  &.highlight-card { border: 2px solid rgba(37,99,235,0.1); }
+  .card-title { font-size: 1rem; color: $text-dark; font-weight: 800; margin: 0 0 10px; }
+}
+
+.form-group {
+  display: flex; flex-direction: column; gap: 8px;
+  label { font-size: 0.75rem; font-weight: 700; color: $text-muted; text-transform: uppercase; letter-spacing: 0.05em; }
+}
+
+.input-container, .select-container {
+  display: flex; align-items: center; background: #f8fafc; border: 1.5px solid $border-color; border-radius: 12px;
+  padding: 0 16px; height: 50px; transition: all 0.2s;
+  mat-icon { color: $text-muted; margin-right: 12px; font-size: 20px; }
+  
+  input, select {
+    border: none; background: transparent; height: 100%; width: 100%; outline: none;
+    font-size: 0.95rem; font-weight: 600; color: $text-dark; font-family: 'Sora', sans-serif;
+    &::placeholder { color: #cbd5e1; font-weight: 400; }
+  }
+  
+  &:focus-within { border-color: $primary; background: white; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); mat-icon { color: $primary; } }
+  &.has-error { border-color: $danger; mat-icon { color: $danger; } }
+}
+
+.row-group { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.mt-2 { margin-top: 10px; }
+.mt-3 { margin-top: 20px; }
+.mt-4 { margin-top: 30px; }
+
+// Botoes
+.btn-primary, .btn-secondary {
+  width: 100%; height: 50px; border: none; border-radius: 12px; font-weight: 700; font-family: 'Sora', sans-serif;
+  display: flex; justify-content: center; align-items: center; gap: 8px; cursor: pointer; transition: transform 0.2s;
+  &:active { transform: scale(0.98); }
+}
+
+.btn-primary { background: linear-gradient(135deg, $primary, #1d4ed8); color: white; box-shadow: 0 6px 12px rgba(37,99,235,0.25); }
+.btn-primary.large { height: 60px; font-size: 1.1rem; }
+.btn-secondary { background: #eff6ff; color: $primary; border: 1.5px dashed color.change($primary, $alpha: 0.3); }
+
+// Carrinho de Itens
+.items-cart { margin-top: 24px; }
+.cart-header { display: flex; justify-content: space-between; font-size: 0.85rem; color: $text-muted; margin-bottom: 12px; strong { color: $text-dark; font-size: 0.95rem;} }
+
+.cart-item {
+  background: white; padding: 16px; border-radius: 16px; margin-bottom: 12px; border: 1px solid $border-color;
+  display: flex; justify-content: space-between; align-items: center;
+  
+  .item-info {
+    h4 { margin: 0 0 4px; font-size: 0.9rem; color: $text-dark; display: flex; align-items: center; gap: 8px; }
+    p { margin: 0; font-size: 0.75rem; color: $text-muted; }
+    .badge { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; color: $text-muted; }
+  }
+  
+  .item-actions {
+    display: flex; flex-direction: column; align-items: flex-end; gap: 8px;
+    strong { font-size: 0.95rem; color: $text-dark; }
+    .btn-delete { background: none; border: none; color: $danger; padding: 4px; cursor: pointer; mat-icon { font-size: 20px; width: 20px; height: 20px; } }
+  }
+}
+
+// Resumo
+.summary-card {
+  text-align: center; padding: 30px 20px;
+  .total-title { font-size: 0.9rem; color: $text-muted; margin: 0 0 8px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .total-value { font-size: 2.2rem; font-weight: 800; color: $text-dark; margin-bottom: 20px; }
+  .divider { height: 1px; background: $border-color; width: 100%; margin: 20px 0; }
+  .summary-detail { display: flex; justify-content: space-between; padding: 8px 0; font-size: 0.85rem; span { color: $text-muted; } strong { color: $text-dark; } }
+}
+
+.spinner-small { width: 20px; height: 20px; border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: white; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* --- HISTÓRICO RECENTE MOBILE --- */
+.recent-notes-mobile {
+  margin-top: 2rem;
+  padding-bottom: 2rem;
+
+  h3 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1rem;
+    color: #475569;
+    margin-bottom: 12px;
+    font-weight: 600;
+
+    mat-icon {
+      font-size: 18px;
+      height: 18px;
+      width: 18px;
+      color: #94a3b8;
+    }
+  }
+
+  .recent-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    transition: all 0.2s ease;
+    border-left: 5px solid #3b82f6;
+
+    /* Animação suave de clique nas notas abertas */
+    &:active {
+      transform: scale(0.98);
+      background: #f8fafc;
+    }
+
+    /* Estilo exclusivo para notas Bloqueadas (Paga/Parcial) */
+    &.locked {
+      border-left-color: #cbd5e1;
+      background-color: #f8fafc; /* Fundo já um pouco mais cinza */
+      opacity: 0.9;
+      
+      &:active {
+        transform: none; /* Tira o efeito de clique pra dar sensação de bloqueado */
+      }
+      
+      .info strong { color: #64748b; }
+    }
+
+    .info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      background-color: transparent !important; /* Limpa fundo indesejado */
+
+      strong { 
+        font-size: 0.95rem; 
+        color: #1e293b; 
+        font-weight: 700;
+        letter-spacing: 0.3px;
+        background-color: transparent !important; /* Limpa fundo indesejado */
+      }
+      
+      .meta {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background-color: transparent !important;
+
+        span.date { 
+          font-size: 0.8rem; 
+          color: #64748b; 
+          background-color: transparent !important; /* Limpa fundo indesejado */
+        }
+
+        /* Status clean (Sem cor de fundo, apenas texto colorido) */
+        .status-badge {
+          font-size: 0.7rem;
+          font-weight: 800;
+          padding: 0;
+          background-color: transparent !important; /* Retira o background */
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+
+          &.status-aberta { color: #16a34a; } /* Verde Esmeralda */
+          &.status-parcial { color: #d97706; } /* Laranja/Âmbar */
+          &.status-paga { color: #64748b; } /* Cinza */
+        }
+      }
+    }
+
+    .value {
+      display: flex;
+      align-items: center;
+      gap: 16px; /* Empurra o botão de editar um pouco mais pra direita */
+
+      strong { 
+        font-size: 1rem; 
+        color: #059669; 
+        font-weight: 700;
+      }
+      
+      /* Container perfeito para os ícones */
+      mat-icon {
+        font-size: 18px;
+        height: 18px;
+        width: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 6px;
+        border-radius: 8px;
+        background: #eff6ff;
+        color: #3b82f6;
+
+        &.icon-locked {
+          background: #e2e8f0;
+          color: #94a3b8;
+        }
+      }
+    }
+  } /* <-- Fechamento correto do .recent-card */
+
+  /* 👉 Estilos da Paginação Mobile (agora fora do .recent-card) */
+  .pagination-mobile {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 16px;
+    padding: 0 8px;
+
+    span {
+      font-size: 0.85rem;
+      color: #64748b;
+      font-weight: 600;
+    }
+
+    .btn-page {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      height: 36px;
+      width: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #3b82f6;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+
+      &:disabled {
+        color: #cbd5e1;
+        background: #f8fafc;
+        border-color: #f1f5f9;
+        box-shadow: none;
+      }
+
+      &:not(:disabled):active {
+        background: #eff6ff;
+        transform: scale(0.95);
+      }
+
+      mat-icon {
+        font-size: 22px;
+        width: 22px;
+        height: 22px;
+      }
+    }
+  } /* <-- Fechamento da .pagination-mobile */
+
+} /* <-- Fechamento da .recent-notes-mobile */

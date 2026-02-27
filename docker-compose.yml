@@ -1,0 +1,68 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: noemare-db
+    restart: always
+    environment:
+      POSTGRES_DB: noemare_db
+      POSTGRES_USER: noemare_admin
+      POSTGRES_PASSWORD: noemare_password
+      TZ: America/Fortaleza
+    ports:
+      - "5432:5432" # Mantido para você conseguir conectar via IDE/DBeaver
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - noemare-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U noemare_admin -d noemare_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./noemare-api
+    container_name: noemare-api
+    restart: always
+    # 👉 NOVO: Abrimos a porta 8080 para o seu telemóvel e navegador acessarem a API
+    ports:
+      - "8080:8080" 
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/noemare_db
+      SPRING_DATASOURCE_USERNAME: noemare_admin
+      SPRING_DATASOURCE_PASSWORD: noemare_password
+
+      JWT_SECRET: ${JWT_SECRET:-minha-chave-super-segura}
+      
+      # 👉 ATUALIZADO: Incluímos o IP do telemóvel na porta 4200 para o CORS não bloquear
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost,http://10.0.0.128,http://localhost:4200,http://10.0.0.128:4200}
+
+      TZ: America/Fortaleza
+      JAVA_OPTS: "-Duser.timezone=America/Fortaleza"
+    networks:
+      - noemare-network
+
+  frontend:
+    build: ./noemare-web
+    container_name: noemare-web
+    restart: always
+    ports:
+      - "80:80" # Frontend direto na porta 80
+    depends_on:
+      - backend
+    environment:
+      TZ: America/Fortaleza
+    networks:
+      - noemare-network
+
+volumes:
+  postgres_data:
+
+networks:
+  noemare-network:
+    driver: bridge

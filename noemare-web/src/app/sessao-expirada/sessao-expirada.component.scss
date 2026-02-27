@@ -1,0 +1,83 @@
+.expired-container {
+  padding: 1.5rem;
+  text-align: center;
+  font-family: 'Sora', sans-serif; // Alinhado com o Dashboard
+}
+
+.expired-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+
+  .expired-icon-circle {
+    width: 72px;
+    height: 72px;
+    background: #fff1f2;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    mat-icon {
+      color: #e11d48;
+      font-size: 36px;
+      width: 36px;
+      height: 36px;
+    }
+  }
+
+  h2 {
+    margin: 0;
+    color: #0f172a;
+    font-weight: 700;
+    font-size: 1.5rem;
+    border: none;
+  }
+}
+
+.expired-content {
+  p {
+    color: #64748b;
+    line-height: 1.6;
+    font-size: 1rem;
+    margin: 0;
+
+    strong {
+      color: #2563eb;
+      font-weight: 700;
+    }
+  }
+}
+
+.expired-actions {
+  margin-top: 1.5rem;
+  padding: 0;
+
+  .btn-reconnect {
+    background: #2563eb;
+    color: white;
+    padding: 1.25rem 2rem;
+    border-radius: 50px; // Estilo pílula
+    font-weight: 700;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: #1d4ed8;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+  }
+}

@@ -1,0 +1,121 @@
+.modal-container {
+  display: flex;
+  flex-direction: column;
+  max-height: 85vh;
+  background: #ffffff;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e2e8f0;
+
+  .title-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    .header-icon {
+      color: #3b82f6;
+      background: #eff6ff;
+      width: 40px;
+      height: 40px;
+      line-height: 40px;
+      text-align: center;
+      border-radius: 10px;
+    }
+
+    h2 { margin: 0; font-size: 1.25rem; font-weight: 700; color: #1e293b; }
+    .subtitle { margin: 0; font-size: 0.85rem; color: #64748b; }
+  }
+}
+
+mat-dialog-content {
+  padding: 24px;
+  background-color: #f8fafc; /* Fundo levemente cinza para destacar os cards */
+}
+
+.loading-state, .empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 0;
+  color: #64748b;
+  
+  mat-icon { font-size: 48px; width: 48px; height: 48px; margin-bottom: 16px; opacity: 0.5; }
+}
+
+/* Estilos da Timeline */
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.timeline-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  .timeline-date {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #475569;
+    font-size: 0.85rem;
+    font-weight: 600;
+    mat-icon { font-size: 16px; width: 16px; height: 16px; }
+  }
+
+  .timeline-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 16px;
+    border-left: 4px solid #10b981; /* Destaque verde lateral */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+
+    .card-header {
+      margin-bottom: 12px;
+      .badge-total {
+        background: #ecfdf5; color: #059669;
+        padding: 4px 10px; border-radius: 6px;
+        font-weight: 700; font-size: 0.9rem;
+      }
+    }
+
+    .card-body {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+
+      .detalhe-linha {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.9rem;
+        color: #334155;
+
+        .icone-pix { color: #0ea5e9; font-size: 18px; width: 18px; height: 18px;}
+        .icone-abate { color: #f59e0b; font-size: 18px; width: 18px; height: 18px;}
+      }
+
+      .obs-box {
+        margin-top: 8px;
+        background: #f1f5f9;
+        padding: 10px;
+        border-radius: 8px;
+        display: flex;
+        gap: 8px;
+        color: #64748b;
+        font-size: 0.85rem;
+        
+        mat-icon { font-size: 16px; width: 16px; height: 16px; }
+        p { margin: 0; font-style: italic; }
+      }
+    }
+  }
+}

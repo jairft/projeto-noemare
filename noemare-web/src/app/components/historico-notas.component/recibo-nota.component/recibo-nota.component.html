@@ -1,0 +1,71 @@
+<div class="recibo-container">
+  
+  <div class="no-print actions-top">
+    <button mat-icon-button (click)="fechar()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div class="print-area" id="recibo-print" [ngClass]="formatoAtual === 'a4' ? 'print-a4' : 'print-termica'">
+    
+    <div class="recibo-header">
+      <img src="assets/logo-noemare.png" alt="Logo Noé Maré" class="recibo-logo">
+      <p>Comprovante de Entrada de Pescado</p>
+      <div class="divider"></div>
+    </div>
+    
+    <div class="recibo-info">
+      <p><strong>Nº da Nota:</strong> {{ nota.id | number:'3.0' }}</p>
+      <p><strong>Data:</strong> {{ nota.dataNota | date:'dd/MM/yyyy HH:mm' }}</p>
+      <p><strong>Fornecedor:</strong> {{ nota.fornecedorNome }}</p>
+    </div>
+
+    <div class="divider"></div>
+
+    <table class="recibo-table">
+      <thead>
+        <tr>
+          <th style="width: 15%;">Qtd</th>
+          <th style="width: 45%;">Produto</th>
+          <th style="width: 20%;">V. Unit</th>
+          <th style="width: 20%; text-align: right;">Subtotal</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of nota.itens">
+          <td>{{ item.quantidadeKg }}kg</td>
+          <td>{{ item.produtoNome }} - {{ item.tipo }} <br> <small>({{ item.tamanho }})</small></td>
+          <td>{{ item.valorUnitario | currency:'BRL' }}</td>
+          <td style="text-align: right;">{{ item.valorTotal | currency:'BRL' }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="divider"></div>
+
+    <div class="recibo-total">
+      <h3>TOTAL GERAL</h3>
+      <h3>{{ nota.valorTotal | currency:'BRL' }}</h3>
+    </div>
+    
+    <div class="recibo-footer">
+      <p>Assinatura do Fornecedor / Pescador</p>
+      <div class="assinatura-linha"></div>
+    </div>
+    
+  </div>
+  <div class="no-print dialog-footer">
+    <button mat-button (click)="fechar()">Fechar</button>
+    
+    <button mat-stroked-button (click)="imprimir('termica')">
+      <mat-icon>receipt</mat-icon>
+      Bobina
+    </button>
+
+    <button mat-flat-button style="background-color: #0284c7; color: white;" (click)="imprimir('a4')">
+      <mat-icon>print</mat-icon>
+      Folha A4
+    </button>
+  </div>
+
+</div>

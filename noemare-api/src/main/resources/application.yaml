@@ -1,0 +1,41 @@
+spring:
+  application:
+    name: noemare-api
+
+  # 👉 Jackson: Formatação de datas para o padrão brasileiro
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+      write-date-timestamps-as-nanoseconds: false
+    time-zone: America/Sao_Paulo
+
+  datasource:
+    # URL dinâmica: Tenta ler do ambiente, senão usa o padrão local
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/noemare_db}
+    username: ${SPRING_DATASOURCE_USERNAME:noemare_admin}
+    password: ${SPRING_DATASOURCE_PASSWORD:noemare_password}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+
+api:
+  security:
+    token:
+      secret: ${JWT_SECRET:minha-chave-ultra-secreta-do-noemare}
+      #28800000 milissegundos = 8 horas
+      expiration: ${JWT_EXPIRATION:28800000}
+
+# Mantenha o restante do arquivo igual, altere apenas o bloco app.cors:
+app:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:4200,http://10.0.0.128:4200}

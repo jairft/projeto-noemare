@@ -1,0 +1,107 @@
+<div class="modal-container">
+  <header class="modal-header">
+    <div class="title-wrapper">
+      <mat-icon class="header-icon">payments</mat-icon>
+      <div>
+        <h2>Confirmar Pagamento</h2>
+        <p class="subtitle">{{ data.fornecedor }}</p>
+      </div>
+    </div>
+    <button mat-icon-button (click)="fechar()" class="close-button">
+      <mat-icon>close</mat-icon>
+    </button>
+  </header>
+
+  <mat-dialog-content class="modern-scroll">
+    <div class="summary-grid">
+      <div class="summary-card total">
+        <span class="label">Total da Nota</span>
+        <span class="value">{{ data.valorTotal }}</span>
+      </div>
+      <div class="summary-card pending">
+        <span class="label">Ainda Pendente</span>
+        <span class="value">{{ data.faltaPagar }}</span>
+      </div>
+    </div>
+
+    <form [formGroup]="pagamentoForm" class="payment-form">
+
+      
+      
+      <div class="abatimentos-section">
+        <mat-label class="custom-label">Negociação de Dívidas (Opcional)</mat-label>
+        
+        <div class="abatimentos-row">
+          
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Abater Investimento</mat-label>
+            <mat-icon matPrefix>trending_down</mat-icon>
+            <input matInput currencyMask formControlName="abateInvestimento"
+                   [options]="{ prefix: 'R$ ', thousands: '.', decimal: ',', align: 'left' }">
+            
+            <mat-hint align="end" class="hint-destaque">
+              Dívida: <strong>{{ saldoInvestimento | currency:'BRL' }}</strong>
+            </mat-hint>
+            
+            <mat-error *ngIf="pagamentoForm.get('abateInvestimento')?.hasError('max')">
+              Limite: {{ saldoInvestimento | currency:'BRL' }}
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Abater Adiantamento</mat-label>
+            <mat-icon matPrefix>money_off</mat-icon>
+            <input matInput currencyMask formControlName="abateAdiantamento"
+                   [options]="{ prefix: 'R$ ', thousands: '.', decimal: ',', align: 'left' }">
+            
+            <mat-hint align="end" class="hint-destaque">
+              Dívida: <strong>{{ saldoAdiantamento | currency:'BRL' }}</strong>
+            </mat-hint>
+            
+            <mat-error *ngIf="pagamentoForm.get('abateAdiantamento')?.hasError('max')">
+              Limite: {{ saldoAdiantamento | currency:'BRL' }}
+            </mat-error>
+          </mat-form-field>
+
+        </div>
+      </div>
+      <div class="input-group highlight-input">
+        <mat-label class="custom-label">Valor Líquido a Pagar (Pix/Espécie)</mat-label>
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-icon matPrefix>attach_money</mat-icon>
+          <input matInput currencyMask formControlName="valorPago"
+                 [options]="{ prefix: 'R$ ', thousands: '.', decimal: ',', align: 'left' }">
+          <mat-error *ngIf="pagamentoForm.get('valorPago')?.hasError('max')">
+            O valor excede a dívida da nota.
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="input-group">
+        <mat-label class="custom-label">Data da Operação</mat-label>
+        <mat-form-field appearance="outline" class="w-100">
+          <input matInput type="date" formControlName="dataPagamento">
+        </mat-form-field>
+      </div>
+      
+      <div class="input-group">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Observação / Motivo (Opcional)</mat-label>
+          <textarea matInput formControlName="observacao" rows="2" placeholder="Ex: Desconto de R$ 500 do investimento e o restante no PIX"></textarea>
+        </mat-form-field>
+      </div>
+      
+    </form>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end" class="modal-footer">
+    <button mat-button (click)="fechar()" class="btn-cancel">Cancelar</button>
+    <button mat-raised-button 
+            class="btn-confirm-gradient" 
+            [disabled]="pagamentoForm.invalid"
+            (click)="confirmarPagamento()">
+      <mat-icon>check_circle</mat-icon>
+      Efetuar Baixa
+    </button>
+  </mat-dialog-actions>
+</div>

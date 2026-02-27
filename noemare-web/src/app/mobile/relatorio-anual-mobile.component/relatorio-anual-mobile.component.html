@@ -1,0 +1,136 @@
+<div class="rd-wrapper">
+
+  <!-- Hero -->
+  <div class="rd-hero">
+    <div class="rd-orb rd-orb-1"></div>
+    <div class="rd-orb rd-orb-2"></div>
+    <div class="rd-grid-dots"></div>
+  </div>
+
+  <!-- Header -->
+  <header class="rd-header">
+    <button class="rd-back" (click)="voltar()">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div class="rd-header-titles">
+      <span class="rd-eyebrow">Safra {{ anoSelecionado }}</span>
+      <h1 class="rd-title">Relatório de Desempenho</h1>
+    </div>
+  </header>
+
+  <!-- KPIs 2x2 -->
+  <div class="rd-kpi-grid" *ngIf="dados">
+    <div class="rd-kpi rd-kpi-1">
+      <div class="rd-kpi__icon"><mat-icon>scale</mat-icon></div>
+      <span class="rd-kpi__label">Volume Total</span>
+      <strong class="rd-kpi__value">{{ dados.totalKgGeral | number:'1.2-2' }} <small>KG</small></strong>
+    </div>
+    <div class="rd-kpi rd-kpi-2">
+      <div class="rd-kpi__icon"><mat-icon>shopping_cart</mat-icon></div>
+      <span class="rd-kpi__label">Total Comprado</span>
+      <strong class="rd-kpi__value">{{ formatarMoeda(dados.totalCompradoGeral || 0) }}</strong>
+    </div>
+    <div class="rd-kpi rd-kpi-3">
+      <div class="rd-kpi__icon"><mat-icon>check_circle</mat-icon></div>
+      <span class="rd-kpi__label">Total Pago</span>
+      <strong class="rd-kpi__value">{{ formatarMoeda(dados.totalPagoGeral || 0) }}</strong>
+    </div>
+    <div class="rd-kpi rd-kpi-4">
+      <div class="rd-kpi__icon"><mat-icon>account_balance_wallet</mat-icon></div>
+      <span class="rd-kpi__label">Saldo em Aberto</span>
+      <strong class="rd-kpi__value rd-kpi__value--alert">{{ formatarMoeda(dados.saldoPendenteGeral || 0) }}</strong>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <main class="rd-main" *ngIf="dados">
+
+    <!-- Tabs -->
+    <div class="rd-tabs">
+      <button class="rd-tab" [class.rd-tab--active]="abaAtiva === 'fornecedores'" (click)="setAba('fornecedores')">
+        <mat-icon>storefront</mat-icon>
+        Por Fornecedor
+      </button>
+      <button class="rd-tab" [class.rd-tab--active]="abaAtiva === 'pescados'" (click)="setAba('pescados')">
+        <mat-icon>set_meal</mat-icon>
+        Por Pescado
+      </button>
+    </div>
+
+    <!-- Lista Fornecedores -->
+    <div class="rd-list" *ngIf="abaAtiva === 'fornecedores'">
+
+      <div class="rd-card" *ngFor="let f of dados.fornecedores; let i = index" [style.animation-delay]="i * 60 + 'ms'">
+        <div class="rd-card__head">
+          <div class="rd-avatar rd-avatar--purple">{{ (f.nome || 'F').charAt(0) | uppercase }}</div>
+          <div class="rd-card__head-info">
+            <h3 class="rd-card__name">{{ f.nome }}</h3>
+            <span class="rd-badge" [class.rd-badge--ok]="(f.saldoDevedor || 0) === 0 && (f.saldoInvestimento || 0) === 0"
+                                   [class.rd-badge--alert]="(f.saldoDevedor || 0) > 0 || (f.saldoInvestimento || 0) > 0">
+              {{ (f.saldoDevedor || 0) === 0 && (f.saldoInvestimento || 0) === 0 ? 'Quitado' : 'Pendente' }}
+            </span>
+          </div>
+        </div>
+        <div class="rd-card__body">
+          <div class="rd-row">
+            <span>Total Comprado</span>
+            <strong>{{ formatarMoeda(f.totalComprado || 0) }}</strong>
+          </div>
+          <div class="rd-row">
+            <span>Total Pago</span>
+            <strong class="rd-green">{{ formatarMoeda(f.totalPago || 0) }}</strong>
+          </div>
+          <div class="rd-row" *ngIf="f.pendenciaNotas > 0">
+            <span>Pendência (Notas)</span>
+            <strong class="rd-orange">{{ formatarMoeda(f.pendenciaNotas || 0) }}</strong>
+          </div>
+          <div class="rd-row rd-row--sep">
+            <span>Saldo Devedor (Adiant.)</span>
+            <strong class="rd-red">{{ formatarMoeda(f.saldoDevedor || 0) }}</strong>
+          </div>
+          <div class="rd-row">
+            <span>Saldo Devedor (Invest.)</span>
+            <strong class="rd-blue">{{ formatarMoeda(f.saldoInvestimento || 0) }}</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="rd-empty" *ngIf="!dados.fornecedores?.length">
+        <mat-icon>storefront</mat-icon>
+        <p>Nenhum fornecedor registrado</p>
+      </div>
+    </div>
+
+    <!-- Lista Pescados -->
+    <div class="rd-list" *ngIf="abaAtiva === 'pescados'">
+
+      <div class="rd-card" *ngFor="let item of dados.itens; let i = index" [style.animation-delay]="i * 60 + 'ms'">
+        <div class="rd-card__head">
+          <div class="rd-avatar rd-avatar--blue">
+            <mat-icon>set_meal</mat-icon>
+          </div>
+          <div class="rd-card__head-info">
+            <h3 class="rd-card__name">{{ item.produto }}</h3>
+            <span class="rd-card__sub">{{ item.quantidadeKg | number:'1.2-2' }} KG total</span>
+          </div>
+        </div>
+        <div class="rd-card__body">
+          <div class="rd-row">
+            <span>Peso Total</span>
+            <strong>{{ item.quantidadeKg | number:'1.2-2' }} <small>KG</small></strong>
+          </div>
+          <div class="rd-row rd-row--sep">
+            <span>Valor Investido</span>
+            <strong class="rd-green">{{ formatarMoeda(item.valorTotal || 0) }}</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="rd-empty" *ngIf="!dados.itens?.length">
+        <mat-icon>set_meal</mat-icon>
+        <p>Nenhum pescado registrado</p>
+      </div>
+    </div>
+
+  </main>
+</div>

@@ -1,0 +1,228 @@
+<div class="usr-topbar">
+  <div class="usr-topbar__inner">
+    <a class="usr-topbar__back" style="text-decoration: none;" routerLink="/dashboard">
+      <mat-icon>arrow_back</mat-icon>
+      Voltar ao Dashboard
+    </a>
+    <div class="usr-topbar__breadcrumb">
+      <span class="usr-topbar__crumb usr-topbar__crumb--muted">Dashboard</span>
+      <mat-icon class="usr-topbar__sep">chevron_right</mat-icon>
+      <span class="usr-topbar__crumb usr-topbar__crumb--active">Boletos</span>
+    </div>
+  </div>
+</div>
+
+<div class="usr-wrapper">
+  <header class="usr-header">
+    <div>
+      <div class="usr-header__eyebrow">
+        <span class="usr-header__dot"></span>
+        FINANCEIRO
+      </div>
+      <h1 class="usr-header__title">Cadastro de Boletos</h1>
+      <p class="usr-header__subtitle">Gerencie as contas a pagar do sistema.</p>
+    </div>
+  </header>
+
+  <div class="form-card">
+    <div class="form-card__header">
+      <div class="form-card__icon">
+        <mat-icon>receipt_long</mat-icon>
+      </div>
+      <div class="form-card__title">
+        <h2>Novo Boleto</h2>
+        <p>Digite o código de barras — os dados serão preenchidos automaticamente</p>
+      </div>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="salvar()" class="form-card__body">
+      <div class="form-grid">
+        <mat-form-field appearance="outline" class="form-field form-field--full">
+          <mat-label>Código de Barras</mat-label>
+          <input matInput formControlName="codigoBarras"
+                 placeholder="Cole ou digite o código de barras do boleto"
+                 (input)="processarLinhaDigitavel()">
+          <mat-icon matPrefix>qr_code_scanner</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="form-field form-field--full">
+          <mat-label>Descrição da Conta*</mat-label>
+          <input matInput formControlName="descricao" placeholder="Ex: Aluguel, Mercadoria, Energia...">
+          <mat-icon matPrefix>label</mat-icon>
+          <mat-error *ngIf="form.get('descricao')?.hasError('required')">Obrigatório</mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="auto-filled-container" *ngIf="codigoBarrasVisual">
+        
+        <div class="auto-filled-header">
+          <mat-icon class="sparkle-icon">auto_fix_high</mat-icon>
+          <h3>Dados Extraídos do Código</h3>
+        </div>
+
+        <div class="auto-filled-grid">
+          <div class="info-block">
+            <span class="info-label">Instituição Bancária</span>
+            <div class="info-value bank">
+              <mat-icon>account_balance</mat-icon>
+              {{ form.get('nomeBanco')?.value || 'Banco não identificado' }}
+            </div>
+          </div>
+
+          <div class="info-block">
+            <span class="info-label">Valor do Documento</span>
+            <div class="info-value price">
+              {{ form.get('valor')?.value | currency:'BRL' }}
+            </div>
+          </div>
+
+          <div class="info-block">
+            <span class="info-label">Vencimento</span>
+            <div class="info-value date">
+              <mat-icon>event</mat-icon>
+              {{ form.get('dataVencimento')?.value | date:'dd/MM/yyyy' }}
+            </div>
+          </div>
+        </div>
+
+        <div class="barcode-visual-box">
+          <span class="barcode-label">Representação Visual do Código</span>
+          <svg #barcodeSvg></svg>
+        </div>
+
+      </div>
+      <div class="form-card__footer">
+        <button mat-flat-button type="submit" [disabled]="form.invalid" class="btn-salvar">
+          <mat-icon>save</mat-icon>
+          Salvar Boleto
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <div class="session-history" *ngIf="boletosSalvos.length > 0">
+    <div class="session-history__header">
+      <mat-icon>receipt</mat-icon>
+      <h3>Boletos Cadastrados</h3>
+      <span class="session-history__badge">{{ boletosSalvos.length }}</span>
+    </div>
+
+    <div class="boletos-grid">
+      <div class="boleto-card" *ngFor="let boleto of boletosPaginados">
+        <div class="boleto-card__bank-header">
+          <div class="header-left">
+            <mat-icon>receipt_long</mat-icon>
+            <span>BOLETO BANCÁRIO</span>
+            <span class="status-badge" *ngIf="boleto.statusExibicao" [ngClass]="'status-badge--' + (boleto.statusExibicao | lowercase)">
+              {{ boleto.statusExibicao }}
+            </span>
+          </div>
+
+          <div class="boleto-card__actions">
+            <button type="button" class="action-btn action-btn--view" (click)="visualizarBoleto(boleto)" matTooltip="Visualizar">
+              <mat-icon>visibility</mat-icon>
+            </button>
+            <button type="button" class="action-btn action-btn--delete" (click)="deletarBoleto(boleto.id)" matTooltip="Excluir">
+              <mat-icon>delete_outline</mat-icon>
+            </button>
+          </div>
+        </div>
+
+        <div class="boleto-card__content">
+          <div class="boleto-card__row">
+            <div class="boleto-card__info">
+              <span class="boleto-card__label">DESCRIÇÃO</span>
+              <p class="boleto-card__value">{{ boleto.descricao }}</p>
+            </div>
+            <div class="boleto-card__info boleto-card__info--right">
+              <div class="boleto-card__bank-name">{{ boleto.nomeBanco || '' }}</div>
+            </div>
+          </div>
+
+          <div class="boleto-card__row">
+            <div class="boleto-card__info">
+              <span class="boleto-card__label">VALOR</span>
+              <p class="boleto-card__value boleto-card__value--price">{{ boleto.valor | currency:'BRL' }}</p>
+            </div>
+            <div class="boleto-card__info boleto-card__info--right">
+              <span class="boleto-card__label">VENCIMENTO</span>
+              <p class="boleto-card__value">{{ boleto.dataExibicao | date:'dd/MM/yyyy' }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="boleto-card__barcode">
+          <svg #barcodeItemList *ngIf="boleto.codigoBarrasFull"></svg>
+          <span class="boleto-card__barcode-num" *ngIf="boleto.codigoBarras">{{ boleto.codigoBarras }}</span>
+        </div>
+      </div>
+    </div>
+
+    <mat-paginator 
+      *ngIf="boletosSalvos.length > 0"
+      [length]="boletosSalvos.length"
+      [pageSize]="pageSize"
+      [pageSizeOptions]="[6, 12, 24]"
+      (page)="atualizarPagina($event)"
+      class="custom-paginator">
+    </mat-paginator>
+
+  </div>
+</div>
+
+<ng-template #modalVisualizacao let-data>
+  <div class="modal-view">
+    <div class="modal-view__header">
+      <div class="modal-view__icon-title">
+        <mat-icon>qr_code_scanner</mat-icon>
+        <h2>Pagamento via Telemóvel</h2>
+      </div>
+
+      <button mat-icon-button mat-dialog-close class="btn-close">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <div class="modal-view__body">
+      <div class="modal-view__details">
+        <div class="detail-item">
+          <strong>STATUS</strong>
+          <span class="status-badge status-badge--modal" [ngClass]="'status-badge--' + (data.statusExibicao | lowercase)">
+            {{ data.statusExibicao || 'PENDENTE' }}
+          </span>
+        </div>
+
+        <div class="detail-item">
+          <strong>INSTITUIÇÃO</strong>
+          <span>{{ data.nomeBanco || 'Não identificado' }}</span>
+        </div>
+        
+        <div class="detail-item">
+          <strong>VALOR DO TÍTULO</strong>
+          <span class="price">{{ data.valor | currency:'BRL' }}</span>
+        </div>
+
+        <div class="detail-item">
+          <strong>VENCIMENTO</strong>
+          <span>{{ data.dataExibicao | date:'dd/MM/yyyy' }}</span>
+        </div>
+      </div>
+
+      <div class="barcode-container-large">
+        <svg #barcodeModal></svg>
+      </div>
+      
+      <div class="modal-view__footer">
+        <p class="modal-view__hint">
+          <mat-icon>info_outline</mat-icon>
+          Aponte a câmara do seu banco para o código acima
+        </p>
+        
+        <button *ngIf="data.statusExibicao !== 'PAGO'" mat-flat-button class="btn-pay-large" (click)="darBaixa(data.id)">
+          <mat-icon>check_circle</mat-icon>
+          Confirmar Pagamento
+        </button>
+      </div>
+    </div>
+  </div>
+</ng-template>

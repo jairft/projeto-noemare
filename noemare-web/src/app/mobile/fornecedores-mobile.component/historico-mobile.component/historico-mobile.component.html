@@ -1,0 +1,63 @@
+<div class="bottom-sheet-premium">
+  <div class="drag-handle"><div class="pill"></div></div>
+
+  <header class="sheet-header">
+    <div class="title-area">
+      <div class="icon-box"><mat-icon>analytics</mat-icon></div>
+      <div>
+        <h2>Histórico de Compras</h2>
+        <p>{{ data.nome }}</p>
+      </div>
+    </div>
+    <button class="btn-close" (click)="fechar($event)"><mat-icon>close</mat-icon></button>
+  </header>
+
+  <div class="sheet-body" *ngIf="!carregando">
+    <div class="kpi-mobile-grid">
+      <div class="kpi-box kpi-box--blue">
+        <span class="label">Peso Total</span>
+        <strong class="value">{{ resumo.kgGeral | number:'1.0-2' }} <small>Kg</small></strong>
+      </div>
+      <div class="kpi-box kpi-box--green">
+        <span class="label">Investimento</span>
+        <strong class="value">{{ resumo.valorGeral | currency:'BRL' }}</strong>
+      </div>
+    </div>
+
+    <div class="list-title">
+      <h3>Detalhamento por Pescado</h3>
+      <span class="badge-count">{{ resumo.itensAgrupados.length }} itens</span>
+    </div>
+
+    <div class="mobile-card-list">
+      <div class="pescado-card" *ngFor="let item of resumo.itensAgrupados">
+        
+        <div class="card-top">
+          <strong class="nome">{{ item.nomeProduto }}</strong>
+          <span class="tipo">{{ item.tipo }}</span>
+        </div>
+
+        <div class="card-metrics">
+          <div class="metric">
+            <span class="m-label">Tamanho</span>
+            <span class="m-value badge-tam">{{ item.tamanho }}</span>
+          </div>
+          <div class="metric text-center">
+            <span class="m-label">Volume</span>
+            <span class="m-value val-kg">{{ item.totalKg | number:'1.0-2' }} <small>Kg</small></span>
+          </div>
+          <div class="metric text-right">
+            <span class="m-label">Investido</span>
+            <span class="m-value val-money">{{ item.totalValor | currency:'BRL' }}</span>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="loading-state" *ngIf="carregando">
+    <mat-spinner diameter="36"></mat-spinner>
+    <p>A carregar histórico...</p>
+  </div>
+</div>

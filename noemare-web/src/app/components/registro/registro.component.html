@@ -1,0 +1,183 @@
+<div class="reg-wrapper">
+
+  <!-- Lado esquerdo: branding -->
+  <div class="reg-brand">
+    <div class="reg-brand__content">
+
+      <!-- Logo + âncora animada -->
+      <div class="reg-brand__logo-container">
+        <img src="assets/logo-noe.png" alt="Noé Maré Pescados" class="reg-brand__logo-img">
+        <div class="reg-brand__logo">
+          <mat-icon>anchor</mat-icon>
+        </div>
+      </div>
+
+      
+
+      <!-- Headline -->
+      <h2 class="reg-brand__headline">
+        Crie sua conta e<br>
+        <span class="reg-brand__headline--accent">comece agora.</span>
+      </h2>
+
+      <p class="reg-brand__desc">
+        Tenha acesso completo ao sistema de gestão de pescados feito para quem trabalha com o mar.
+      </p>
+
+      <!-- Features com cards -->
+      <div class="reg-brand__features">
+        <div class="reg-brand__feature">
+          <div class="reg-brand__feature-icon">
+            <mat-icon>account_balance_wallet</mat-icon>
+          </div>
+          <div class="reg-brand__feature-text">
+            <strong>Financeiro</strong>
+            <span>Controle de contas, notas e investimentos</span>
+          </div>
+        </div>
+        <div class="reg-brand__feature">
+          <div class="reg-brand__feature-icon">
+            <mat-icon>local_shipping</mat-icon>
+          </div>
+          <div class="reg-brand__feature-text">
+            <strong>Fornecedores</strong>
+            <span>Gestão de saldos e registros de parceiros</span>
+          </div>
+        </div>
+        <div class="reg-brand__feature">
+          <div class="reg-brand__feature-icon">
+            <mat-icon>set_meal</mat-icon>
+          </div>
+          <div class="reg-brand__feature-text">
+            <strong>Cardápio</strong>
+            <span>Cadastro e precificação de pescados</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Badge -->
+      <div class="reg-brand__badge">
+        <mat-icon>verified</mat-icon>
+        Sistema interno · Acesso restrito
+      </div>
+
+    </div>
+
+    <div class="reg-brand__circle reg-brand__circle--1"></div>
+    <div class="reg-brand__circle reg-brand__circle--2"></div>
+    <div class="reg-brand__circle reg-brand__circle--3"></div>
+  </div>
+
+  <!-- Lado direito: formulário -->
+  <div class="reg-form-side">
+    <div class="reg-card">
+
+      <div class="reg-card__header">
+        <div class="reg-card__eyebrow">
+          <span class="reg-card__dot"></span>
+          Nova Conta
+        </div>
+        <h2 class="reg-card__title">Criar conta</h2>
+        <p class="reg-card__subtitle">Preencha os dados abaixo para começar</p>
+      </div>
+
+      <form [formGroup]="registroForm" (ngSubmit)="onSubmit()" class="reg-form">
+
+        <!-- Nome + Sobrenome -->
+        <div class="reg-form__row">
+          <div class="reg-field">
+            <label class="reg-field__label">Nome</label>
+            <div class="reg-field__wrap">
+              <mat-icon class="reg-field__icon">person_outline</mat-icon>
+              <input class="reg-field__input" type="text" id="nome"
+                formControlName="nome" placeholder="Seu nome">
+            </div>
+          </div>
+          <div class="reg-field">
+            <label class="reg-field__label">Sobrenome</label>
+            <div class="reg-field__wrap">
+              <mat-icon class="reg-field__icon">person_outline</mat-icon>
+              <input class="reg-field__input" type="text" id="sobrenome"
+                formControlName="sobrenome" placeholder="Sobrenome">
+            </div>
+          </div>
+        </div>
+
+        <!-- Email -->
+        <div class="reg-field">
+          <label class="reg-field__label">Email</label>
+          <div class="reg-field__wrap">
+            <mat-icon class="reg-field__icon">mail_outline</mat-icon>
+            <input class="reg-field__input" type="email" id="email"
+              formControlName="email" placeholder="seu@email.com" autocomplete="email">
+          </div>
+        </div>
+
+        <!-- Senha + Confirmar -->
+        <div class="reg-form__row">
+          <div class="reg-field">
+            <label class="reg-field__label">Senha</label>
+            <div class="reg-field__wrap">
+              <mat-icon class="reg-field__icon">lock_outline</mat-icon>
+              <input class="reg-field__input" type="password" id="senha"
+                formControlName="senha" placeholder="••••••••">
+            </div>
+          </div>
+          <div class="reg-field">
+            <label class="reg-field__label">Confirme a Senha</label>
+            <div class="reg-field__wrap">
+              <mat-icon class="reg-field__icon">lock_reset</mat-icon>
+              <input class="reg-field__input" type="password" id="confirmacaoSenha"
+                formControlName="confirmacaoSenha" placeholder="••••••••">
+            </div>
+          </div>
+        </div>
+
+        <!-- Perfil de Acesso -->
+        <div class="reg-field">
+          <label class="reg-field__label">Perfil de Acesso</label>
+          <div class="reg-field__wrap reg-field__wrap--select">
+            <mat-icon class="reg-field__icon">badge</mat-icon>
+            <select class="reg-field__input reg-field__input--select"
+              id="role" formControlName="role">
+              <option value="USER">Usuário Comum</option>
+              <option value="ADMIN">Administrador</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Código Mestre (Admin) -->
+        <div class="reg-alert-field" *ngIf="registroForm.get('role')?.value === 'ADMIN'">
+          <div class="reg-alert-field__label-row">
+            <mat-icon>key</mat-icon>
+            <label class="reg-field__label">Código de Validação</label>
+          </div>
+          <div class="reg-field__wrap">
+            <mat-icon class="reg-field__icon">vpn_key</mat-icon>
+            <input class="reg-field__input" type="password" id="codigoMestre"
+              formControlName="codigoMestre" placeholder="Código Mestre">
+          </div>
+          <small class="reg-alert-field__hint">Necessário para criar conta de Administrador.</small>
+        </div>
+
+        <!-- Botão -->
+        <button class="reg-btn" type="submit"
+          [disabled]="registroForm.invalid"
+          [class.reg-btn--disabled]="registroForm.invalid">
+          <mat-icon>how_to_reg</mat-icon>
+          Cadastrar
+        </button>
+
+      </form>
+
+      <div class="reg-card__footer">
+        <p class="reg-card__login-text">
+          Já tem conta?
+          <a routerLink="/login" class="reg-link reg-link--bold">Faça Login</a>
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+</div>

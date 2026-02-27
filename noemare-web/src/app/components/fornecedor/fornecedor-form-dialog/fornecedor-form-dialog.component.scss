@@ -1,0 +1,29 @@
+.dialog-container { 
+  padding: 10px; 
+}
+
+.dialog-title { 
+  font-weight: 800; 
+  color: #1e293b; 
+  margin-bottom: 15px; 
+}
+
+.form-layout { 
+  margin-top: 10px; 
+}
+
+.full-width { 
+  width: 100%; 
+}
+
+.btn-gradient-primary { 
+  background: linear-gradient(135deg, #3b82f6, #2563eb); 
+  color: white !important; 
+  border-radius: 8px; 
+  font-weight: 500; 
+  
+  &:disabled {
+    background: #e2e8f0;
+    color: #94a3b8;
+  }
+}

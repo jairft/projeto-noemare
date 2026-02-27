@@ -1,0 +1,172 @@
+@use 'sass:color';
+
+// Variáveis fiéis ao Desktop
+$primary: #2563eb;
+$success: #059669;
+$danger: #dc2626;
+$text-main: #0f172a;
+$text-muted: #64748b;
+$bg-app: #f1f5f9;
+$white: #ffffff;
+$border: #e2e8f0;
+
+.mobile-wrapper { 
+  min-height: 100vh; 
+  background: $bg-app; 
+  font-family: 'Sora', sans-serif; 
+}
+
+.mobile-header {
+  background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+  padding: 50px 20px 25px;
+  color: $white; 
+  border-bottom-left-radius: 30px; 
+  border-bottom-right-radius: 30px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+
+  .header-top {
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;
+    h1 { font-size: 1.3rem; font-weight: 800; margin: 0; letter-spacing: -0.5px; }
+    
+    .btn-back, .btn-add {
+      background: rgba(255,255,255,0.15); border: none; width: 42px; height: 42px; border-radius: 14px;
+      color: $white; display: flex; align-items: center; justify-content: center;
+      backdrop-filter: blur(10px);
+    }
+  }
+
+  .search-box {
+    display: flex; align-items: center; background: rgba(255,255,255,0.1); border-radius: 16px;
+    padding: 0 16px; height: 52px; border: 1px solid rgba(255,255,255,0.1);
+    mat-icon { color: rgba(255,255,255,0.5); margin-right: 12px; }
+    input { background: transparent; border: none; color: $white; width: 100%; outline: none; font-size: 0.95rem; }
+    input::placeholder { color: rgba(255,255,255,0.5); }
+  }
+}
+
+.mobile-content { padding: 20px; }
+
+// Mini Cards reformulados
+.stats-container {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px;
+  margin-top: -10px; // Sobe um pouco para sobrepor o header
+
+  .stat-card {
+    background: $white; border-radius: 18px; padding: 12px; border: 1px solid $border;
+    display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+
+    .stat-icon {
+      width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center;
+      mat-icon { font-size: 18px; }
+      &.blue { background: #eff6ff; color: $primary; }
+      &.green { background: #ecfdf5; color: $success; }
+      &.red { background: #fff1f1; color: $danger; }
+    }
+    
+    .stat-data {
+      display: flex; flex-direction: column;
+      .label { font-size: 0.6rem; color: $text-muted; font-weight: 700; text-transform: uppercase; }
+      strong { font-size: 1rem; color: $text-main; }
+    }
+  }
+}
+
+// Card do Fornecedor Estilo Web
+.fornecedor-card {
+  background: $white; border-radius: 24px; margin-bottom: 16px; border: 1px solid $border;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.04); overflow: hidden;
+
+  .card-info {
+    padding: 16px; display: flex; align-items: center; justify-content: space-between;
+    
+    .avatar-box {
+      display: flex; align-items: center; gap: 12px;
+      .avatar { 
+        width: 44px; height: 44px; background: $primary; color: $white; 
+        border-radius: 12px; display: flex; align-items: center; justify-content: center;
+        font-weight: 800; font-size: 1.2rem;
+      }
+      .name-area {
+        h3 { margin: 0; font-size: 0.95rem; font-weight: 800; color: $text-main; }
+        .date { font-size: 0.7rem; color: $text-muted; }
+      }
+    }
+    
+    .status-pill {
+      font-size: 0.65rem; font-weight: 800; padding: 4px 10px; border-radius: 8px;
+      background: #f1f5f9; color: $text-muted;
+      &.active { background: #ecfdf5; color: $success; border: 1px solid color.change($success, $alpha: 0.2); }
+    }
+  }
+
+  // 👉 ATUALIZADO: Grid de 3 colunas para acomodar Adiantado, Investimento e Notas
+  .card-values {
+    display: grid; grid-template-columns: repeat(3, 1fr); padding: 0 16px 16px; gap: 8px;
+    
+    .val-box {
+      background: #f8fafc; padding: 8px; border-radius: 12px; display: flex; flex-direction: column; text-align: center;
+      .val-label { font-size: 0.55rem; font-weight: 800; color: $text-muted; margin-bottom: 4px; text-transform: uppercase;}
+      .val-amount { font-size: 0.8rem; font-weight: 800; }
+      .devedor { color: $danger; }
+      .credor { color: $success; }
+    }
+  }
+
+  .card-footer {
+    display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid $border;
+    
+    button {
+      padding: 14px; border: none; background: transparent; font-family: 'Sora', sans-serif;
+      font-size: 0.75rem; font-weight: 700; display: flex; 
+      align-items: center; justify-content: center; gap: 6px;
+      
+      &:first-child { border-right: 1px solid $border; }
+      
+      &.btn-historico {
+        color: #2563eb;
+        background: color.change(#2563eb, $alpha: 0.05);
+        mat-icon { color: #2563eb; font-size: 18px; }
+      }
+
+      &.btn-edit { 
+        color: $text-muted; 
+        mat-icon { font-size: 18px; }
+      }
+    }
+  }
+}
+
+// Spinner
+.spinner { 
+  width: 30px; height: 30px; 
+  border: 3px solid #cbd5e1; border-top-color: $primary; 
+  border-radius: 50%; animation: spin 0.8s linear infinite; 
+  margin: 40px auto; 
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+// 👉 NOVO: Estilo do Paginador Mobile
+.em-paginator {
+  margin-top: 0.5rem;
+  background: transparent !important;
+  font-family: 'Sora', sans-serif;
+  
+  ::ng-deep .mat-mdc-paginator-container {
+    justify-content: center;
+    padding: 0;
+    min-height: auto;
+  }
+  
+  // Esconde o "Items per page" no mobile para economizar espaço
+  ::ng-deep .mat-mdc-paginator-page-size {
+    display: none;
+  }
+
+  ::ng-deep .mat-mdc-paginator-range-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: $text-muted;
+  }
+}

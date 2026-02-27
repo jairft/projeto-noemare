@@ -1,0 +1,166 @@
+<div class="em-wrapper" *ngIf="dados; else loading">
+
+  <div class="em-hero">
+    <div class="em-orb em-orb-1"></div>
+    <div class="em-orb em-orb-2"></div>
+    <div class="em-grid-dots"></div>
+  </div>
+
+  <header class="em-header">
+    <button class="em-back" (click)="voltarHome()">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div class="em-header-titles">
+      <span class="em-eyebrow">Financeiro</span>
+      <h1 class="em-title">Extrato Financeiro</h1>
+    </div>
+  </header>
+
+  <div class="em-kpi-main">
+    <div class="em-kpi-glass em-kpi-glass--green">
+      <div class="em-kpi-glass__shine"></div>
+      <div class="em-kpi-glass__info">
+        <span class="em-kpi-glass__label">Total Líquido (A Receber)</span>
+        <strong class="em-kpi-glass__value">{{ dados.totalLiquidoAReceber | currency:'BRL' }}</strong>
+      </div>
+      <mat-icon class="em-kpi-glass__bg-icon">account_balance_wallet</mat-icon>
+    </div>
+
+    <div class="em-kpi-glass em-kpi-glass--red">
+      <div class="em-kpi-glass__shine"></div>
+      <div class="em-kpi-glass__info">
+        <span class="em-kpi-glass__label">Total Líquido (A Pagar)</span>
+        <strong class="em-kpi-glass__value">{{ dados.totalLiquidoAPagar | currency:'BRL' }}</strong>
+      </div>
+      <mat-icon class="em-kpi-glass__bg-icon">payments</mat-icon>
+    </div>
+  </div>
+
+  <div class="em-kpi-grid">
+    <div class="em-kpi-mini">
+      <div class="em-kpi-mini__icon em-icon-green"><mat-icon>savings</mat-icon></div>
+      <span class="em-kpi-mini__label">Adiantado</span>
+      <strong class="em-kpi-mini__val">{{ dados.totalAdiantadoGlobal | currency:'BRL' }}</strong>
+    </div>
+    <div class="em-kpi-mini">
+      <div class="em-kpi-mini__icon em-icon-blue"><mat-icon>trending_up</mat-icon></div>
+      <span class="em-kpi-mini__label">Investimento</span>
+      <strong class="em-kpi-mini__val">{{ dados.totalInvestimentoGlobal | currency:'BRL' }}</strong>
+    </div>
+    <div class="em-kpi-mini">
+      <div class="em-kpi-mini__icon em-icon-purple"><mat-icon>check_circle</mat-icon></div>
+      <span class="em-kpi-mini__label">Invest. Pago</span>
+      <strong class="em-kpi-mini__val">{{ dados.totalPagoInvestimentoGlobal | currency:'BRL' }}</strong>
+    </div>
+    <div class="em-kpi-mini">
+      <div class="em-kpi-mini__icon em-icon-orange"><mat-icon>receipt_long</mat-icon></div>
+      <span class="em-kpi-mini__label">Notas</span>
+      <strong class="em-kpi-mini__val">{{ dados.totalNotasGlobal | currency:'BRL' }}</strong>
+    </div>
+  </div>
+
+  <main class="em-main">
+
+    <div class="em-section-header">
+      <div class="em-section-label">
+        <span class="em-section-line"></span>
+        <span class="em-section-text">Detalhes por Parceiro</span>
+        <span class="em-section-badge">{{ totalItems }}</span>
+      </div>
+      
+      <div class="em-search-bar">
+        <mat-icon>search</mat-icon>
+        <input type="text" placeholder="Buscar fornecedor..." (keyup)="aplicarFiltro($event)">
+      </div>
+    </div>
+
+    <mat-accordion class="em-accordion" multi="false">
+      <mat-expansion-panel
+        class="em-panel"
+        *ngFor="let f of fornecedoresPaginados; let i = index"
+        [style.animation-delay]="(i % pageSize) * 60 + 'ms'">
+
+        <mat-expansion-panel-header class="em-panel__header" [collapsedHeight]="'72px'" [expandedHeight]="'72px'">
+          <mat-panel-title>
+            <div class="em-panel__title">
+              <div class="em-avatar">{{ (f.nomeFornecedor || 'F').charAt(0) | uppercase }}</div>
+              <div class="em-panel__names">
+                <span class="em-panel__name">{{ f.nomeFornecedor }}</span>
+                <span class="em-saldo em-saldo--pagar"   *ngIf="f.saldoLiquido > 0">
+                  <mat-icon>payment</mat-icon> A Pagar: {{ f.saldoLiquido | currency:'BRL' }}
+                </span>
+                <span class="em-saldo em-saldo--receber" *ngIf="f.saldoLiquido < 0">
+                  <mat-icon>savings</mat-icon> A Receber: {{ (f.saldoLiquido * -1) | currency:'BRL' }}
+                </span>
+                <span class="em-saldo em-saldo--ok"      *ngIf="f.saldoLiquido === 0">
+                  <mat-icon>check_circle</mat-icon> Quitado
+                </span>
+              </div>
+            </div>
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+
+        <div class="em-panel__body">
+
+          <div class="em-badges-grid">
+            <div class="em-s-badge em-s-badge--green">
+              <small>Adiantado</small>
+              <span>{{ f.saldoAdiantamento | currency:'BRL' }}</span>
+            </div>
+            <div class="em-s-badge em-s-badge--blue">
+              <small>Investimento</small>
+              <span>{{ f.saldoInvestimento | currency:'BRL' }}</span>
+            </div>
+            <div class="em-s-badge em-s-badge--purple">
+              <small>Invest. Pago</small>
+              <span>{{ f.investimentoPago | currency:'BRL' }}</span>
+            </div>
+            <div class="em-s-badge em-s-badge--red">
+              <small>Notas</small>
+              <span>{{ f.saldoNotas | currency:'BRL' }}</span>
+            </div>
+          </div>
+
+          <div class="em-prod-header">
+            <div class="em-prod-header__icon"><mat-icon>set_meal</mat-icon></div>
+            <span>Produção Acumulada</span>
+            <span class="em-prod-header__count">{{ f.producao.length }} itens</span>
+          </div>
+
+          <div class="em-prod-grid">
+            <div class="em-prod-card" *ngFor="let item of f.producao">
+              <span class="em-prod-card__name">{{ item.nomeProduto }} {{ item.tipoProduto }}</span>
+              <div class="em-prod-card__bottom">
+                <span class="em-prod-card__size">{{ item.tamanho }}</span>
+                <strong class="em-prod-card__kg">{{ item.totalKg | number:'1.2-2' }} <small>Kg</small></strong>
+              </div>
+            </div>
+
+            <div class="em-empty" *ngIf="f.producao.length === 0">
+              <mat-icon>inbox</mat-icon>
+              <span>Nenhuma produção lançada</span>
+            </div>
+          </div>
+
+        </div>
+
+      </mat-expansion-panel>
+    </mat-accordion>
+
+    <mat-paginator
+      class="em-paginator"
+      [length]="totalItems"
+      [pageSize]="pageSize"
+      [pageSizeOptions]="[6, 12, 24]"
+      (page)="onPageChange($event)">
+    </mat-paginator>
+
+  </main>
+</div>
+
+<ng-template #loading>
+  <div class="em-loading">
+    <div class="em-loading__spinner"></div>
+    <span>Buscando extrato...</span>
+  </div>
+</ng-template>

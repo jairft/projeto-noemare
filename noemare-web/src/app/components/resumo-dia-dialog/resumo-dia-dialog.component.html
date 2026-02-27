@@ -1,0 +1,69 @@
+<div class="am-wrapper">
+
+  <!-- Header com gradiente escuro -->
+  <div class="am-header">
+    <div class="am-header-bg"></div>
+    <div class="am-header-orb am-orb-1"></div>
+    <div class="am-header-orb am-orb-2"></div>
+    <div class="am-header-grid"></div>
+
+    <div class="am-header-content">
+      <div class="am-header-icon">
+        <mat-icon>notifications_active</mat-icon>
+      </div>
+      <div class="am-header-text">
+        <h2 class="am-greeting">Bom dia!</h2>
+        <p class="am-subtitle">
+          Você tem <strong>{{ data.alertas.length }}</strong> pendência(s) hoje.
+        </p>
+      </div>
+    </div>
+
+    <!-- Badge de contagem -->
+    <div class="am-header-badge">{{ data.alertas.length }}</div>
+
+    <!-- Botão fechar -->
+    <button class="am-close" (click)="fechar()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- Lista de alertas -->
+  <mat-dialog-content class="am-content">
+    <div class="am-list">
+
+      <div class="am-card"
+           *ngFor="let alerta of data.alertas; let i = index"
+           [class.am-card-urgente]="alerta.tipo === 'URGENTE'"
+           [class.am-card-aviso]="alerta.tipo === 'AVISO'"
+           [style.animation-delay]="i * 70 + 'ms'"
+           (click)="irParaBoletos()"> <div class="am-card-icon"
+             [class.am-card-icon-urgente]="alerta.tipo === 'URGENTE'"
+             [class.am-card-icon-aviso]="alerta.tipo === 'AVISO'">
+          <mat-icon *ngIf="alerta.tipo === 'URGENTE'">error_outline</mat-icon>
+          <mat-icon *ngIf="alerta.tipo === 'AVISO'">schedule</mat-icon>
+        </div>
+
+        <div class="am-card-body">
+          <span class="am-card-title">{{ alerta.titulo }}</span>
+          <span class="am-card-msg" *ngIf="alerta.msg">{{ alerta.msg }}</span>
+        </div>
+
+        <div class="am-card-arrow">
+          <mat-icon>chevron_right</mat-icon>
+        </div>
+
+      </div>
+
+    </div>
+  </mat-dialog-content>
+
+  <!-- Footer -->
+  <div class="am-footer">
+    <button class="am-btn" (click)="fechar()">
+      <mat-icon>check_circle</mat-icon>
+      Entendi, vou resolver
+    </button>
+  </div>
+
+</div>

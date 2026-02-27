@@ -1,0 +1,51 @@
+<div class="login-wrapper">
+  <div class="login-card">
+
+    
+    <div class="header-badge">
+      <span class="dot"></span>
+      ACESSO RESTRITO
+    </div>
+
+    <h1>Bem-vindo</h1>
+    <p class="subtitle">Entre com suas credenciais para continuar</p>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onLoginMobile()">
+      <div class="form-group">
+        <label for="email">Email</label>
+        <div class="input-container">
+          <mat-icon>mail_outline</mat-icon>
+          <input 
+            id="email"
+            type="email" 
+            formControlName="email" 
+            placeholder="seu@email.com"
+            inputmode="email">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="senha">Senha</label>
+        <div class="input-container">
+          <mat-icon>lock_outline</mat-icon>
+          <input 
+            id="senha"
+            type="password" 
+            formControlName="senha" 
+            placeholder="********">
+        </div>
+      </div>
+
+      <div class="error-container" *ngIf="errorMessage">
+        <mat-icon>error_outline</mat-icon>
+        <span>{{ errorMessage }}</span>
+      </div>
+
+      <button type="submit" class="btn-entrar" [disabled]="loginForm.invalid || isLoading">
+        <mat-icon *ngIf="!isLoading">login</mat-icon>
+        <span *ngIf="!isLoading">Entrar</span>
+        <div class="spinner-small" *ngIf="isLoading"></div>
+      </button>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,155 @@
+// 1. IMPORTANTE: Adicionado para usar as novas funções de cor do Sass
+@use 'sass:color';
+
+// Cores do Sistema
+$primary: #2563eb;
+$text-main: #0f172a;
+$text-sub: #64748b;
+$border: #e2e8f0;
+$bg-sub: #f8fafc;
+$danger: #ef4444; 
+
+.qr-modal-premium {
+  background: white;
+  border-radius: 24px;
+  font-family: 'Sora', sans-serif;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+
+  /* --- Cabeçalho --- */
+  .qr-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid $border;
+    position: relative;
+    background: #fff;
+
+    .icon-box {
+      width: 48px; height: 48px;
+      background: rgba($primary, 0.1); color: $primary;
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      mat-icon { font-size: 24px; width: 24px; height: 24px; }
+    }
+
+    .textos {
+      h2 { margin: 0; font-size: 1.25rem; font-weight: 800; color: $text-main; }
+      p { margin: 4px 0 0; font-size: 0.875rem; color: $text-sub; }
+    }
+
+    .btn-close {
+      position: absolute;
+      top: 1.25rem;
+      right: 1.25rem;
+      background: #f1f5f9;
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: $text-sub;
+      transition: all 0.2s ease;
+      z-index: 10;
+
+      &:hover {
+        background: #fee2e2;
+        color: $danger;
+        transform: rotate(90deg);
+      }
+    }
+  }
+  
+  /* --- Corpo --- */
+  .qr-body {
+    padding: 2.5rem 2rem;
+    display: flex; flex-direction: column; align-items: center;
+    background: $bg-sub;
+    flex: 1;
+    
+    .qr-code-wrapper {
+      background: white; padding: 1.5rem; border-radius: 24px; border: 1px solid $border;
+      box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.1);
+      position: relative; 
+      overflow: hidden;   
+      
+      .canvas-container {
+        display: flex; justify-content: center; align-items: center;
+        position: relative; z-index: 2;
+      }
+
+      .scan-line {
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 4px;
+        background: linear-gradient(to right, transparent, $danger, transparent);
+        box-shadow: 0 0 15px 5px rgba($danger, 0.4);
+        z-index: 3;
+        animation: scan 3s ease-in-out infinite;
+        opacity: 0.8;
+      }
+    }
+  }
+
+  /* --- Rodapé --- */
+  .qr-footer {
+    padding: 1.5rem 2rem;
+    background: #fff;
+    border-top: 1px solid $border;
+    display: flex; flex-direction: column; align-items: center; gap: 1.25rem;
+
+    .btn-download {
+      display: flex; align-items: center; justify-content: center; gap: 0.75rem;
+      padding: 0.875rem 1.5rem; width: 100%;
+      background: $primary; color: white;
+      border: none; border-radius: 12px;
+      font-family: 'Sora', sans-serif; font-size: 1rem; font-weight: 700;
+      cursor: pointer; transition: background 0.2s ease;
+      
+      mat-icon { font-size: 20px; width: 20px; height: 20px; }
+
+      // 2. CORREÇÃO DO AVISO: Usando color.adjust em vez de darken()
+      &:hover { background: color.adjust($primary, $lightness: -5%); }
+      
+      &:active { transform: scale(0.98); }
+    }
+
+    .qr-dica {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      margin: 0;
+      padding: 0.85rem 1rem;
+      width: 100%;
+      background: rgba(251, 191, 36, 0.08); 
+      border: 1px solid rgba(251, 191, 36, 0.2);
+      border-radius: 12px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #92400e; 
+      line-height: 1.4;
+      text-align: center;
+
+      mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+        color: #f59e0b; 
+        flex-shrink: 0;
+      }
+    }
+  }
+}
+
+@keyframes scan {
+  0% { top: 0%; opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { top: 100%; opacity: 0; }
+}

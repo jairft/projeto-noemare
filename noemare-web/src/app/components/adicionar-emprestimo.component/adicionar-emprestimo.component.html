@@ -1,0 +1,225 @@
+<div class="inv-topbar">
+  <div class="inv-topbar__inner">
+    <button class="inv-topbar__back" routerLink="/dashboard">
+      <mat-icon>arrow_back</mat-icon>
+      Voltar ao Dashboard
+    </button>
+    <div class="inv-topbar__breadcrumb">
+      <span class="inv-topbar__crumb inv-topbar__crumb--muted">Dashboard</span>
+      <mat-icon class="inv-topbar__sep">chevron_right</mat-icon>
+      <span class="inv-topbar__crumb inv-topbar__crumb--active">Novo Empréstimo</span>
+    </div>
+  </div>
+</div>
+
+<div class="inv-wrapper">
+
+  <header class="inv-header">
+    <div>
+      <div class="inv-header__eyebrow">
+        <span class="inv-header__dot"></span>
+        Financeiro
+      </div>
+      <h1 class="inv-header__title">Novo Empréstimo</h1>
+      <p class="inv-header__subtitle">Registre um novo aporte ou adiantamento para um fornecedor.</p>
+    </div>
+  </header>
+
+  <div class="inv-grid">
+
+    <div class="inv-card">
+      <div class="inv-card__header">
+        <div class="inv-card__header-icon">
+          <mat-icon>account_balance</mat-icon>
+        </div>
+        <div>
+          <h2 class="inv-card__title">Detalhes da Operação</h2>
+          <p class="inv-card__subtitle">Preencha os dados do Empréstimo</p>
+        </div>
+      </div>
+
+      <div class="inv-card__body">
+        <form [formGroup]="emprestimoForm" class="inv-form">
+          <div class="inv-form__row">
+            <mat-form-field appearance="outline" class="inv-field" style="flex: 2;">
+              <mat-label>Fornecedor (Beneficiário)*</mat-label>
+              <mat-select formControlName="fornecedorId">
+                <mat-option *ngFor="let f of fornecedores" [value]="f.id">
+                  {{ f.nome }}
+                </mat-option>
+              </mat-select>
+              <mat-icon matPrefix>storefront</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="inv-field" style="flex: 1;">
+              <mat-label>Data do Empréstimo*</mat-label>
+              <input matInput [matDatepicker]="pickerData" formControlName="dataEmprestimo">
+              <mat-datepicker-toggle matIconSuffix [for]="pickerData"></mat-datepicker-toggle>
+              <mat-datepicker #pickerData></mat-datepicker>
+            </mat-form-field>
+          </div>
+
+          <div class="inv-form__row">
+            <mat-form-field appearance="outline" class="inv-field">
+              <mat-label>Tipo de Empréstimo*</mat-label>
+              <mat-select formControlName="tipo">
+                <mat-option *ngFor="let tipo of tiposEmprestimo" [value]="tipo">
+                  {{ tipo }}
+                </mat-option>
+              </mat-select>
+              <mat-icon matPrefix>category</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="inv-field">
+              <mat-label>Valor Total (R$)*</mat-label>
+              <input matInput currencyMask formControlName="valorTotal"
+                [options]="{ prefix: 'R$ ', thousands: '.', decimal: ',', align: 'left' }">
+              <mat-icon matPrefix>attach_money</mat-icon>
+            </mat-form-field>
+          </div>
+
+          <mat-form-field appearance="outline" class="inv-field">
+            <mat-label>Descrição / Observações</mat-label>
+            <textarea matInput formControlName="descricao" rows="4" maxlength="500"></textarea>
+            <mat-icon matPrefix>notes</mat-icon>
+            <mat-hint align="end">{{ emprestimoForm.get('descricao')?.value?.length || 0 }} / 500</mat-hint>
+          </mat-form-field>
+        </form>
+      </div>
+    </div>
+
+    <div class="inv-summary-col">
+      <div class="inv-card inv-card--summary">
+        <div class="inv-card__header">
+          <div class="inv-card__header-icon inv-card__header-icon--green">
+            <mat-icon>summarize</mat-icon>
+          </div>
+          <div>
+            <h2 class="inv-card__title">Resumo</h2>
+            <p class="inv-card__subtitle">Confirme antes de salvar</p>
+          </div>
+        </div>
+
+        <div class="inv-card__body">
+          <div class="inv-summary__value-box">
+            <span class="inv-summary__value-label">Valor do Empréstimo</span>
+            <strong class="inv-summary__value">
+              {{ emprestimoForm.get('valorTotal')?.value | currency:'BRL':'symbol':'1.2-2' }}
+            </strong>
+          </div>
+
+          <div class="inv-summary__alert">
+            <mat-icon>info</mat-icon>
+            <p>O saldo devedor do fornecedor será atualizado automaticamente ao confirmar esta operação.</p>
+          </div>
+
+          <div class="inv-summary__actions">
+            <button class="inv-btn-cancel" (click)="cancelar()">
+              <mat-icon>close</mat-icon> Cancelar
+            </button>
+            <button class="inv-btn-confirm" (click)="salvarEmprestimo()" matRipple [disabled]="emprestimoForm.invalid">
+              <mat-icon>save</mat-icon> Confirmar Empréstimo
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="inv-card" style="margin-top: 24px;">
+    <div class="inv-card__header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <div class="inv-card__header-icon inv-card__header-icon--blue">
+          <mat-icon>history</mat-icon>
+        </div>
+        <div>
+          <h2 class="inv-card__title">Últimos Lançamentos</h2>
+          <p class="inv-card__subtitle">Histórico de investimentos e adiantamentos registrados</p>
+        </div>
+      </div>
+
+      <div class="inv-table-search">
+        <mat-icon>search</mat-icon>
+        <input type="text" (keyup)="aplicarFiltro($event)" placeholder="Buscar fornecedor..." #inputBusca>
+      </div>
+    </div>
+
+    <div class="inv-card__body" style="padding: 0;">
+      
+      <div class="inv-no-results" *ngIf="dataSource.filteredData.length === 0 && inputBusca.value" style="padding: 32px; text-align: center; color: #64748b;">
+        <mat-icon style="font-size: 40px; width: 40px; height: 40px; margin-bottom: 8px; opacity: 0.5;">search_off</mat-icon>
+        <p>Nenhum registro encontrado para "<strong>{{ inputBusca.value }}</strong>"</p>
+      </div>
+
+      <div class="inv-table-wrapper" [style.display]="dataSource.filteredData.length > 0 ? 'block' : 'none'" style="overflow-x: auto;">
+        
+        <table mat-table [dataSource]="dataSource" style="width: 100%; box-shadow: none;">
+
+          <ng-container matColumnDef="data">
+            <th mat-header-cell *matHeaderCellDef style="padding: 0 16px;"> Data </th>
+            <td mat-cell *matCellDef="let inv" style="padding: 0 16px; color: #64748b;"> 
+              {{ inv.dataEmprestimo | date:'dd/MM/yyyy' }} 
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="fornecedor">
+            <th mat-header-cell *matHeaderCellDef style="padding: 0 16px;"> Fornecedor </th>
+            <td mat-cell *matCellDef="let inv" style="padding: 0 16px;"> 
+              <strong style="color: #1e293b;">{{ inv.fornecedorNome || inv.fornecedor?.nome }}</strong> 
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="tipo">
+            <th mat-header-cell *matHeaderCellDef style="padding: 0 16px;"> Tipo </th>
+            <td mat-cell *matCellDef="let inv" style="padding: 0 16px;"> 
+              <span class="forn-pill" [class.forn-pill--active]="inv.tipo === 'INVESTIMENTO'" [class.forn-pill--warning]="inv.tipo === 'ADIANTAMENTO'">
+                {{ inv.tipo }}
+              </span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="valorTotal">
+            <th mat-header-cell *matHeaderCellDef style="padding: 0 16px; text-align: right;"> Total </th>
+            <td mat-cell *matCellDef="let inv" style="padding: 0 16px; text-align: right; color: #64748b;"> 
+              {{ inv.valorTotal | currency:'BRL':'symbol':'1.2-2' }} 
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="valorPago">
+            <th mat-header-cell *matHeaderCellDef style="padding: 0 16px; text-align: right;"> Pago </th>
+            <td mat-cell *matCellDef="let inv" style="padding: 0 16px; text-align: right; color: #059669; font-weight: 600;"> 
+              {{ (inv.valorTotal - inv.saldoRestante) | currency:'BRL':'symbol':'1.2-2' }} 
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="saldoRestante">
+            <th mat-header-cell *matHeaderCellDef style="padding: 0 16px; text-align: right;"> Saldo </th>
+            <td mat-cell *matCellDef="let inv" style="padding: 0 16px; text-align: right; color: #ef4444; font-weight: 700;"> 
+              {{ inv.saldoRestante | currency:'BRL':'symbol':'1.2-2' }} 
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="acoes">
+            <th mat-header-cell *matHeaderCellDef style="padding: 0 16px; text-align: center;"> Ações </th>
+            <td mat-cell *matCellDef="let inv" style="padding: 0 16px; text-align: center;"> 
+              <button mat-icon-button class="btn-action-baixa" (click)="abrirModalBaixa(inv)" 
+                      [disabled]="inv.saldoRestante <= 0"
+                      [title]="inv.saldoRestante <= 0 ? 'Quitado' : 'Registrar Baixa'">
+                <mat-icon [style.color]="inv.saldoRestante <= 0 ? '#059669' : '#3b82f6'">
+                  {{ inv.saldoRestante <= 0 ? 'check_circle' : 'payments' }}
+                </mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;" 
+              style="border-bottom: 1px solid #f1f5f9;"
+              [class.row-quitada]="row.saldoRestante <= 0"></tr>
+        </table>
+
+        <mat-paginator [pageSizeOptions]="[4, 8, 16]" [pageSize]="4" showFirstLastButtons aria-label="Selecione a página"></mat-paginator>
+      </div>
+    </div>
+  </div>
+</div>

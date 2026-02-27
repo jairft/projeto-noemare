@@ -1,0 +1,72 @@
+<div class="modal-container">
+  <header class="modal-header">
+    <div class="title-wrapper">
+      <mat-icon class="header-icon">history</mat-icon>
+      <div>
+        <h2>Histórico de Pagamentos</h2>
+        <p class="subtitle">{{ data.fornecedor }} - Nota: {{ data.valorTotal }}</p>
+      </div>
+    </div>
+    <button mat-icon-button (click)="fechar()" class="close-button">
+      <mat-icon>close</mat-icon>
+    </button>
+  </header>
+
+  <mat-dialog-content class="modern-scroll">
+    <div class="loading-state" *ngIf="carregando">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Buscando registros...</p>
+    </div>
+
+    <div class="empty-state" *ngIf="!carregando && historico.length === 0">
+      <mat-icon>receipt_long</mat-icon>
+      <p>Nenhum pagamento registrado para esta nota.</p>
+    </div>
+
+    <div class="timeline" *ngIf="!carregando && historico.length > 0">
+      <div class="timeline-item" *ngFor="let pag of historico">
+        
+        <div class="timeline-date">
+          <mat-icon>event</mat-icon>
+          <span>{{ pag.dataPagamento | date:'dd/MM/yyyy \'às\' HH:mm' }}</span>
+        </div>
+
+        <div class="timeline-card">
+          <div class="card-header">
+            <span class="badge-total">Baixa: {{ pag.valorTotalBaixado | currency:'BRL' }}</span>
+          </div>
+          
+          <div class="card-body">
+            
+            <div class="detalhe-linha" *ngIf="pag.valorDinheiro > 0">
+              <mat-icon class="icone-pix">pix</mat-icon>
+              <span>Dinheiro / Pix: <strong>{{ pag.valorDinheiro | currency:'BRL' }}</strong></span>
+            </div>
+
+            <div class="detalhe-linha" *ngIf="!pag.valorAbatidoInvestimento && !pag.valorAbatidoAdiantamento && (pag.valorTotalBaixado > pag.valorDinheiro)">
+              <mat-icon class="icone-abate">handshake</mat-icon>
+              <span>Abatimento (Geral): <strong>{{ (pag.valorTotalBaixado - pag.valorDinheiro) | currency:'BRL' }}</strong></span>
+            </div>
+            
+            <div class="detalhe-linha" *ngIf="pag.valorAbatidoInvestimento > 0">
+              <mat-icon class="icone-abate" style="color: #10b981;">trending_down</mat-icon>
+              <span>Abatimento (Investimento): <strong style="color: #10b981;">{{ pag.valorAbatidoInvestimento | currency:'BRL' }}</strong></span>
+            </div>
+
+            <div class="detalhe-linha" *ngIf="pag.valorAbatidoAdiantamento > 0">
+              <mat-icon class="icone-abate" style="color: #f59e0b;">money_off</mat-icon>
+              <span>Abatimento (Adiantamento): <strong style="color: #f59e0b;">{{ pag.valorAbatidoAdiantamento | currency:'BRL' }}</strong></span>
+            </div>
+
+            <div class="obs-box" *ngIf="pag.observacao">
+              <mat-icon>chat_bubble_outline</mat-icon>
+              <p>{{ pag.observacao }}</p>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </mat-dialog-content>
+</div>

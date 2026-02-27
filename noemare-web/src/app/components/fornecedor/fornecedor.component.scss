@@ -1,0 +1,678 @@
+@use 'sass:color';
+
+// ----------------------------------------
+// Variáveis (mesma paleta do financeiro)
+// ----------------------------------------
+$surface:       #ffffff;
+$border:        #e4e9f2;
+
+$primary:       #2563eb;
+$primary-light: #eff6ff;
+
+$success:       #059669;
+$success-light: #ecfdf5;
+$orange:        #ef9b2f;
+
+$danger:        #dc2626;
+$danger-light:  #fff1f1;
+
+$info:          #0284c7;
+$info-light:    #f0f9ff;
+
+$text-1:        #0f172a;
+$text-2:        #475569;
+$text-3:        #94a3b8;
+
+
+$shadow-sm:     0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+$shadow-md:     0 4px 16px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04);
+
+$radius:        16px;
+$radius-sm:     8px;
+
+// ----------------------------------------
+// Animações
+// ----------------------------------------
+@keyframes fadeDown {
+  from { opacity: 0; transform: translateY(-16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes rowIn {
+  from { opacity: 0; transform: translateX(-8px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+// ----------------------------------------
+// Topbar
+// ----------------------------------------
+.forn-topbar {
+  width: 100%;
+  background: linear-gradient(145deg, #0f172a 0%, #1e3a5f 50%, #1d4ed8 100%);
+  border-bottom: 1px solid $border;
+  box-shadow: $shadow-sm;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+
+  &__inner {
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    height: 85px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  &__back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem 0.875rem;
+    border-radius: $radius-sm;
+    border: 1.5px solid $border;
+    background: transparent;
+    color: $surface;
+    font-family: 'Sora', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    mat-icon {
+      font-size: 17px !important;
+      width: 17px !important;
+      height: 17px !important;
+      line-height: 17px !important;
+      transition: transform 0.2s;
+    }
+
+    &:hover {
+      background: $primary-light;
+      border-color: $primary;
+      color: $primary;
+      mat-icon { transform: translateX(-3px); }
+    }
+  }
+
+  &__breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  &__sep {
+    font-size: 16px !important;
+    width: 16px !important;
+    height: 16px !important;
+    line-height: 16px !important;
+    color: $text-3;
+  }
+
+  &__crumb {
+    font-size: 0.8rem;
+    font-weight: 600;
+    &--muted  { color: $surface; }
+    &--active { color: $orange; }
+  }
+}
+
+// ----------------------------------------
+// Wrapper
+// ----------------------------------------
+.forn-wrapper {
+  padding: 2.5rem 2rem;
+  max-width: 1300px;
+  margin: 0 auto;
+}
+
+// ----------------------------------------
+// Header
+// ----------------------------------------
+.forn-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  animation: fadeDown 0.5s ease both;
+
+  &__eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: $primary;
+    margin-bottom: 0.4rem;
+  }
+
+  &__dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: $primary;
+    display: inline-block;
+    animation: pulse 2s ease infinite;
+  }
+
+  &__title {
+    font-size: 2rem;
+    font-weight: 800;
+    color: $text-1;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    margin: 0;
+  }
+
+  &__subtitle {
+    color: $text-2;
+    font-size: 0.875rem;
+    margin-top: 0.4rem;
+    font-weight: 400;
+  }
+}
+
+// ----------------------------------------
+// Botão Novo Fornecedor
+// ----------------------------------------
+.forn-btn-new {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.625rem 1.25rem;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(135deg, $primary, #1d4ed8);
+  color: #fff;
+  font-family: 'Sora', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 12px color.change($primary, $alpha: 0.35);
+  transition: all 0.2s;
+
+  mat-icon {
+    font-size: 18px !important;
+    width: 18px !important;
+    height: 18px !important;
+    line-height: 18px !important;
+  }
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px color.change($primary, $alpha: 0.45);
+  }
+}
+
+// ----------------------------------------
+// Summary Cards
+// ----------------------------------------
+.forn-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  animation: fadeUp 0.5s 0.1s ease both;
+
+  @media (max-width: 768px) { grid-template-columns: 1fr; }
+}
+
+.forn-summary-card {
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: $radius;
+  padding: 1.25rem 1.5rem;
+  box-shadow: $shadow-sm;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+
+  &__icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    mat-icon {
+      font-size: 22px !important;
+      width: 22px !important;
+      height: 22px !important;
+      line-height: 22px !important;
+    }
+
+    &--blue  { background: $primary-light; color: $primary; mat-icon { color: $primary; } }
+    &--green { background: $success-light; color: $success; mat-icon { color: $success; } }
+    &--red   { background: $danger-light;  color: $danger;  mat-icon { color: $danger; } }
+  }
+
+  &__info {
+    label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: $text-3;
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+
+    strong {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: $text-1;
+    }
+  }
+}
+
+// ----------------------------------------
+// Table Card
+// ----------------------------------------
+.forn-table-card {
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: $radius;
+  box-shadow: $shadow-md;
+  overflow: hidden;
+  animation: fadeUp 0.5s 0.2s ease both;
+}
+
+.forn-table-wrapper { overflow-x: auto; }
+
+.forn-table {
+  width: 100%;
+  box-shadow: none !important;
+
+  th.mat-mdc-header-cell {
+    background: #f8fafc !important;
+    font-size: 0.7rem !important;
+    font-weight: 700 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    color: $text-3 !important;
+    padding: 0.875rem 1.5rem !important;
+    border-bottom: 1px solid $border !important;
+    white-space: nowrap;
+
+    &:first-child { padding-left: 2rem !important; }
+  }
+
+  td.mat-mdc-cell {
+    padding: 1.125rem 1.5rem !important;
+    border-bottom: 1px solid $border !important;
+    font-size: 0.9rem;
+    color: $text-1;
+    vertical-align: middle;
+    white-space: nowrap;
+
+    &:first-child { padding-left: 2rem !important; }
+  }
+
+  &__row {
+    transition: background 0.15s;
+    animation: rowIn 0.4s ease both;
+
+    &:last-child td { border-bottom: none !important; }
+    &:hover { background: #f8fafc; }
+
+    &:nth-child(1) { animation-delay: 0.25s; }
+    &:nth-child(2) { animation-delay: 0.35s; }
+    &:nth-child(3) { animation-delay: 0.45s; }
+    &:nth-child(4) { animation-delay: 0.55s; }
+  }
+}
+
+.forn-th-right { text-align: right !important; padding-right: 2rem !important; }
+.forn-td-right { text-align: right !important; padding-right: 2rem !important; }
+
+// ----------------------------------------
+// Células
+// ----------------------------------------
+
+// Fornecedor
+.forn-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+
+  &__avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: $radius-sm;
+    background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    mat-icon {
+      font-size: 17px !important;
+      width: 17px !important;
+      height: 17px !important;
+      line-height: 17px !important;
+      color: #4f46e5;
+    }
+  }
+
+  &__name {
+    font-weight: 600;
+    color: $text-1;
+  }
+}
+
+// Saldo Devedor
+.forn-value {
+  font-size: 0.875rem;
+  font-weight: 700;
+
+  &--danger { color: $danger; }
+  &--muted  { color: $text-3; }
+}
+
+// Saldo Credor
+.forn-saldo-credor {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.875rem;
+  font-weight: 700;
+
+  &--active {
+    color: $success;
+    background: $success-light;
+    border: 1px solid color.change($success, $alpha: 0.15);
+    padding: 0.3rem 0.7rem;
+    border-radius: 7px;
+  }
+
+  &--zero { color: $text-3; }
+}
+
+// Data
+.forn-date {
+  font-size: 0.85rem;
+  color: $text-2;
+}
+
+// ----------------------------------------
+// Pills de Status
+// ----------------------------------------
+.forn-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.875rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+
+  &::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+
+  &--active {
+    background: $success-light;
+    color: $success;
+    border: 1px solid color.change($success, $alpha: 0.2);
+    &::before { background: $success; }
+  }
+
+  &--inactive {
+    background: #f1f5f9;
+    color: $text-3;
+    border: 1px solid $border;
+    &::before { background: $text-3; }
+  }
+}
+
+// ----------------------------------------
+// Botão Editar
+// ----------------------------------------
+.forn-btn-edit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: $radius-sm;
+  border: 1.5px solid $border;
+  background: $surface;
+  color: $text-2;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  mat-icon {
+    font-size: 17px !important;
+    width: 17px !important;
+    height: 17px !important;
+    line-height: 17px !important;
+  }
+
+  &:hover {
+    border-color: $primary;
+    background: $primary-light;
+    color: $primary;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px color.change($primary, $alpha: 0.2);
+  }
+}
+
+// ----------------------------------------
+// Empty State
+// ----------------------------------------
+.forn-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+  gap: 0.75rem;
+  color: $text-3;
+
+  mat-icon {
+    font-size: 48px !important;
+    width: 48px !important;
+    height: 48px !important;
+    opacity: 0.35;
+  }
+
+  h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: $text-1;
+    margin: 0;
+  }
+
+  p {
+    font-size: 0.875rem;
+    margin: 0;
+  }
+}
+
+// ... (adicione ao final do seu arquivo SCSS) ...
+
+.forn-actions-cell {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.forn-btn-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: $radius-sm;
+  border: 1.5px solid $border;
+  background: $surface;
+  color: $text-3;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  mat-icon {
+    font-size: 17px !important;
+    width: 17px !important;
+    height: 17px !important;
+    line-height: 17px !important;
+  }
+
+  &--active {
+    color: $success;
+    &:hover {
+      border-color: $danger;
+      background: $danger-light;
+      color: $danger;
+    }
+  }
+
+  &:not(&--active) {
+    background: #f1f5f9;
+    &:hover {
+      border-color: $success;
+      background: $success-light;
+      color: $success;
+    }
+  }
+}
+
+.forn-btn-analytics {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1.5px solid #e2e8f0;
+  background: #fff;
+  color: #6366f1; // Um roxo/azul suave para diferenciar das ações comuns
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+
+  &:hover {
+    background: #f5f3ff;
+    border-color: #6366f1;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.1);
+  }
+}
+
+.forn-btn-delete {
+  background: transparent;
+  border: none;
+  color: #f43f5e; // Vermelho Rose 500
+  padding: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+
+  mat-icon {
+    font-size: 20px;
+  }
+
+  &:hover {
+    background-color: #fff1f2; // Rose 50
+    color: #e11d48; // Rose 600
+  }
+}
+
+/* Centraliza o texto do cabeçalho */
+.forn-th-center {
+  text-align: center !important;
+  padding-right: 0 !important; // Remove paddings que podem estar empurrando o texto
+}
+
+/* Centraliza o conteúdo da célula */
+.forn-td-center {
+  text-align: center !important;
+}
+
+/* Garante que o grupo de botões fique centralizado no espaço da célula */
+.forn-actions-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center; // Centraliza os botões horizontalmente
+  gap: 8px; // Mantém o espaçamento entre os ícones
+  width: 100%;
+}
+
+.forn-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.forn-search {
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 0 16px;
+  height: 48px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+  transition: all 0.2s ease;
+
+  mat-icon {
+    color: #94a3b8;
+    margin-right: 8px;
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+
+  input {
+    border: none;
+    outline: none;
+    font-size: 0.9rem;
+    color: #1e293b;
+    width: 280px;
+    font-family: inherit;
+
+    &::placeholder {
+      color: #94a3b8;
+    }
+  }
+
+  &:focus-within {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+  }
+}
+
+// Estilização do Paginador
+mat-paginator {
+  background: transparent;
+  border-top: 1px solid #f1f5f9;
+  font-family: 'Sora', sans-serif;
+  color: #64748b;
+  font-size: 0.85rem;
+
+  ::ng-deep .mat-mdc-paginator-container {
+    padding: 8px 16px;
+  }
+}

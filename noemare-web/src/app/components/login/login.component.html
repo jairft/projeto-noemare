@@ -1,0 +1,145 @@
+<div class="login-wrapper">
+
+  <!-- Lado esquerdo: branding -->
+  <div class="login-brand">
+    <div class="login-brand__content">
+
+      <!-- Logo da empresa + âncora integrada -->
+      <div class="login-brand__logo-container">
+        <img src="assets/logo-noe.png" alt="Noé Maré Pescados" class="login-brand__logo-img">
+        <div class="login-brand__logo">
+          <mat-icon>anchor</mat-icon>
+        </div>
+      </div>
+
+      <div class="login-brand__divider"></div>
+
+      <!-- Headline -->
+      <h2 class="login-brand__headline">
+        Gestão de pescados<br>
+        <span class="login-brand__headline--accent">simples e eficiente.</span>
+      </h2>
+
+      <p class="login-brand__desc">
+        Controle fornecedores, compras, financeiro e cardápio em um único sistema feito para quem trabalha com o mar.
+      </p>
+
+      <!-- Features com ícone + título + descrição -->
+      <div class="login-brand__features">
+        <div class="login-brand__feature">
+          <div class="login-brand__feature-icon">
+            <mat-icon>account_balance_wallet</mat-icon>
+          </div>
+          <div class="login-brand__feature-text">
+            <strong>Financeiro</strong>
+            <span>Controle de contas, notas e investimentos</span>
+          </div>
+        </div>
+        <div class="login-brand__feature">
+          <div class="login-brand__feature-icon">
+            <mat-icon>local_shipping</mat-icon>
+          </div>
+          <div class="login-brand__feature-text">
+            <strong>Fornecedores</strong>
+            <span>Gestão de saldos e registros de parceiros</span>
+          </div>
+        </div>
+        <div class="login-brand__feature">
+          <div class="login-brand__feature-icon">
+            <mat-icon>set_meal</mat-icon>
+          </div>
+          <div class="login-brand__feature-text">
+            <strong>Cardápio</strong>
+            <span>Cadastro e precificação de pescados</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Badge inferior -->
+      <div class="login-brand__badge">
+        <mat-icon>verified</mat-icon>
+        Sistema interno · Acesso restrito
+      </div>
+
+    </div>
+
+    <!-- Decoração de fundo -->
+    <div class="login-brand__circle login-brand__circle--1"></div>
+    <div class="login-brand__circle login-brand__circle--2"></div>
+    <div class="login-brand__circle login-brand__circle--3"></div>
+  </div>
+
+  <!-- Lado direito: formulário -->
+  <div class="login-form-side">
+    <div class="login-card">
+
+      <div class="login-card__header">
+        <div class="login-card__eyebrow">
+          <span class="login-card__dot"></span>
+          Acesso Restrito
+        </div>
+        <h2 class="login-card__title">Bem-vindo</h2>
+        <p class="login-card__subtitle">Entre com suas credenciais para continuar</p>
+      </div>
+
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+
+        <!-- Email -->
+        <div class="login-field">
+          <label class="login-field__label">Email</label>
+          <div class="login-field__input-wrap">
+            <mat-icon class="login-field__icon">mail_outline</mat-icon>
+            <input
+              class="login-field__input"
+              type="email"
+              id="email"
+              formControlName="email"
+              placeholder="seu@email.com"
+              autocomplete="email">
+          </div>
+        </div>
+
+        <!-- Senha -->
+        <div class="login-field">
+          <label class="login-field__label">Senha</label>
+          <div class="login-field__input-wrap">
+            <mat-icon class="login-field__icon">lock_outline</mat-icon>
+            <input
+              class="login-field__input"
+              type="password"
+              id="senha"
+              formControlName="senha"
+              placeholder="••••••••"
+              autocomplete="current-password">
+          </div>
+        </div>
+
+        <!-- Botão entrar -->
+        <button
+          class="login-btn"
+          type="submit"
+          [disabled]="loginForm.invalid"
+          [class.login-btn--disabled]="loginForm.invalid">
+          <mat-icon>login</mat-icon>
+          Entrar
+        </button>
+
+      </form>
+
+     <div class="login-card__footer">
+        <a class="login-link" 
+           (click)="abrirModalEsqueciSenha()" 
+           style="cursor: pointer; text-decoration: none; font-weight: 600;">
+           Esqueceu sua senha?
+        </a>
+        
+        <p class="login-card__register">
+          Não tem conta?
+          <a routerLink="/registro" class="login-link login-link--bold">Cadastre-se</a>
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+</div>

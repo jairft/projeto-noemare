@@ -1,0 +1,130 @@
+<div class="hm-wrapper">
+
+  <div class="hm-hero">
+    <div class="hm-orb hm-orb-1"></div>
+    <div class="hm-orb hm-orb-2"></div>
+    <div class="hm-orb hm-orb-3"></div>
+    <div class="hm-grid-dots"></div>
+  </div>
+
+  <header class="hm-header">
+
+    <div class="hm-toprow">
+      <div class="hm-user">
+        <div class="hm-avatar">{{ userName.charAt(0) | uppercase }}</div>
+        <div class="hm-userinfo">
+          <span class="hm-greeting">Bom dia,</span>
+          <h1 class="hm-name">{{ userName }}</h1>
+        </div>
+      </div>
+      <button class="hm-logout-btn" (click)="logout()">
+        <mat-icon>logout</mat-icon>
+      </button>
+    </div>
+
+    <div class="hm-year-pill">
+      <mat-icon>calendar_today</mat-icon>
+      <select [ngModel]="anoSelecionado" (ngModelChange)="alterarAno($event)">
+        <option *ngFor="let ano of anosDisponiveis" [value]="ano">Exercício {{ ano }}</option>
+      </select>
+      <mat-icon>expand_more</mat-icon>
+    </div>
+
+    <div class="hm-kpi-card">
+      <div class="hm-kpi-card-shine"></div>
+      <div class="hm-kpi-block">
+        <span class="hm-kpi-label">Volume Total (Safra)</span>
+        <strong class="hm-kpi-value">{{ volumeTotal }}</strong>
+      </div>
+      <div class="hm-kpi-divider"></div>
+      <div class="hm-kpi-block hm-kpi-block-right">
+        <span class="hm-kpi-label">Total Comprado (Safra)</span>
+        <strong class="hm-kpi-value hm-kpi-value-gold">{{ totalComprado }}</strong>
+      </div>
+    </div>
+
+  </header>
+
+  <main class="hm-main">
+
+    <div class="hm-section-label">
+      <span class="hm-section-line"></span>
+      <span class="hm-section-text">Acesso Rápido</span>
+      <span class="hm-section-line"></span>
+    </div>
+
+    <div class="hm-featured-group">
+      
+      <div class="hm-featured" (click)="navigateTo('mobile/relatorio-anual')">
+        <div class="hm-featured-shine"></div>
+        <div class="hm-featured-icon">
+          <mat-icon>assessment</mat-icon>
+        </div>
+        <div class="hm-featured-info">
+          <h3 class="hm-featured-title">Relatório Anual</h3>
+          <p class="hm-featured-sub">Resumo de desempenho da safra</p>
+        </div>
+        <div class="hm-featured-arrow">
+          <mat-icon>arrow_forward</mat-icon>
+        </div>
+      </div>
+
+      <div class="hm-featured hm-featured--emerald" (click)="navigateTo('historico-fornecedor-mobile')">
+        <div class="hm-featured-shine"></div>
+        <div class="hm-featured-icon">
+          <mat-icon>manage_search</mat-icon>
+        </div>
+        <div class="hm-featured-info">
+          <h3 class="hm-featured-title">Extrato Fornecedor</h3>
+          <p class="hm-featured-sub">Saldos e produção por parceiro</p>
+        </div>
+        <div class="hm-featured-arrow">
+          <mat-icon>arrow_forward</mat-icon>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="hm-grid">
+
+      <div class="hm-grid-card hm-delay-1" (click)="navigateTo('mobile/boletos/novo')">
+        <div class="hm-grid-icon hm-icon-blue">
+          <mat-icon>request_quote</mat-icon>
+        </div>
+        <span class="hm-grid-label">Cadastrar Boleto</span>
+      </div>
+
+      <div class="hm-grid-card hm-delay-2" (click)="navigateTo('mobile/notas/novo')">
+        <div class="hm-grid-icon hm-icon-green">
+          <mat-icon>post_add</mat-icon>
+        </div>
+        <span class="hm-grid-label">Lançar Nota</span>
+      </div>
+
+      <div class="hm-grid-card hm-delay-3" (click)="navigateTo('mobile/historico-notas')">
+        <div class="hm-grid-icon hm-icon-orange">
+          <mat-icon>history</mat-icon>
+        </div>
+        <span class="hm-grid-label">Histórico de Notas</span>
+      </div>
+
+      <div class="hm-grid-card hm-delay-4" (click)="navigateTo('mobile/fornecedores')">
+        <div class="hm-grid-icon hm-icon-purple">
+          <mat-icon>local_shipping</mat-icon>
+        </div>
+        <span class="hm-grid-label">Fornecedores</span>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="hm-footer">
+    <p class="hm-footer__system">&bull; Noé Maré - Sistema de Gestão &bull;</p>
+    
+    <div class="hm-footer__signature">
+      <span class="hm-footer__version">Versão 1.1.2</span>
+      <span class="hm-footer__author">Desenvolvido por Jair Freitas</span>
+    </div>
+  </footer>
+
+</div>

@@ -1,0 +1,111 @@
+$primary:   #2563eb;
+$success:   #059669;
+$text-1:    #0f172a;
+$text-2:    #475569;
+$text-3:    #94a3b8;
+$border:    #e2e8f0;
+$bg:        #f8fafc;
+
+.bottom-sheet-premium {
+  font-family: 'Sora', sans-serif;
+  background: #fff;
+  border-radius: 24px 24px 0 0;
+  padding-bottom: 2rem; // Respiro extra para o iPhone bottom bar
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
+}
+
+.drag-handle {
+  display: flex; align-items: center; justify-content: center;
+  padding: 12px 0 4px;
+  .pill { width: 40px; height: 5px; background: #cbd5e1; border-radius: 10px; }
+}
+
+.sheet-header {
+  padding: 0.5rem 1.5rem 1rem;
+  display: flex; justify-content: space-between; align-items: center;
+  border-bottom: 1px solid $border;
+
+  .title-area {
+    display: flex; align-items: center; gap: 0.75rem;
+    .icon-box {
+      width: 40px; height: 40px; background: rgba($primary, 0.1); color: $primary;
+      border-radius: 12px; display: flex; align-items: center; justify-content: center;
+      mat-icon { font-size: 20px; width: 20px; height: 20px; }
+    }
+    h2 { margin: 0; font-size: 1.1rem; font-weight: 800; color: $text-1; }
+    p { margin: 2px 0 0; font-size: 0.8rem; color: $text-3; font-weight: 600; }
+  }
+
+  .btn-close {
+    background: #f1f5f9; border: none; width: 32px; height: 32px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; color: $text-2;
+    &:active { background: #fee2e2; color: #ef4444; }
+  }
+}
+
+.sheet-body {
+  padding: 1.25rem 1.5rem;
+  overflow-y: auto;
+}
+
+// Resumo Mobile (Lado a Lado)
+.kpi-mobile-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1.5rem;
+
+  .kpi-box {
+    padding: 1rem; border-radius: 16px; border: 1px solid $border;
+    display: flex; flex-direction: column; gap: 0.25rem;
+
+    .label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; color: $text-3; }
+    .value { font-size: 1.2rem; font-weight: 800; color: $text-1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    &--blue { background: linear-gradient(135deg, #fff 0%, #eff6ff 100%); border-bottom: 3px solid $primary; }
+    &--green { background: linear-gradient(135deg, #fff 0%, #ecfdf5 100%); border-bottom: 3px solid $success; }
+  }
+}
+
+.list-title {
+  display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;
+  h3 { margin: 0; font-size: 0.9rem; font-weight: 800; color: $text-1; }
+  .badge-count { font-size: 0.7rem; font-weight: 700; background: $bg; padding: 2px 8px; border-radius: 8px; color: $text-2; }
+}
+
+// Lista de Cards (A Mágica do Mobile)
+.mobile-card-list {
+  display: flex; flex-direction: column; gap: 0.75rem;
+
+  .pescado-card {
+    background: #fff; border: 1px solid $border; border-radius: 16px; padding: 1rem;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
+
+    .card-top {
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem; padding-bottom: 0.75rem; border-bottom: 1px dashed #e2e8f0;
+      .nome { font-size: 0.95rem; font-weight: 800; color: $text-1; }
+      .tipo { font-size: 0.7rem; font-weight: 700; color: $primary; background: rgba($primary, 0.1); padding: 2px 8px; border-radius: 6px; }
+    }
+
+    .card-metrics {
+      display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem;
+      
+      .metric {
+        display: flex; flex-direction: column; gap: 0.35rem;
+        .m-label { font-size: 0.6rem; font-weight: 700; color: $text-3; text-transform: uppercase; letter-spacing: 0.05em; }
+        .m-value { font-size: 0.85rem; color: $text-1; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+        
+        .badge-tam { display: inline-block; width: fit-content; background: $bg; padding: 2px 6px; border-radius: 6px; border: 1px solid $border; font-size: 0.75rem; font-weight: 800; }
+        .val-money { color: $success; font-weight: 900; }
+        .val-kg small { font-size: 0.7rem; color: $text-3; }
+      }
+      
+      .text-center { align-items: center; text-align: center; }
+      .text-right { align-items: flex-end; text-align: right; }
+    }
+  }
+}
+
+.loading-state {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 3rem 0; gap: 1rem;
+  p { font-size: 0.85rem; color: $text-3; font-weight: 600; }
+}

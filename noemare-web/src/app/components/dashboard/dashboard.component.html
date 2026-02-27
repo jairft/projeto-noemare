@@ -1,0 +1,379 @@
+<div class="dash-layout">
+
+  <aside class="dash-sidebar">
+    <div class="dash-sidebar__logo">
+      <div class="dash-sidebar__logo-container">
+        <img src="assets/logo-noe.png" alt="Noé Maré Pescados" class="dash-sidebar__logo-img">
+        <div class="dash-sidebar__logo-anchor">
+          <mat-icon>anchor</mat-icon>
+        </div>
+      </div>
+    </div>
+
+    <div class="dash-sidebar__divider"></div>
+
+    <nav class="dash-sidebar__nav">
+      <a class="dash-sidebar__item" routerLinkActive="dash-sidebar__item--active" routerLink="/dashboard">
+        <div class="dash-sidebar__item-icon"><mat-icon>dashboard</mat-icon></div>
+        <span>Dashboard</span>
+      </a>
+      <a class="dash-sidebar__item" routerLinkActive="dash-sidebar__item--active" routerLink="/fornecedores">
+        <div class="dash-sidebar__item-icon"><mat-icon>local_shipping</mat-icon></div>
+        <span>Fornecedores</span>
+      </a>
+      <a class="dash-sidebar__item" routerLinkActive="dash-sidebar__item--active" routerLink="/notas-fornecedor">
+        <div class="dash-sidebar__item-icon"><mat-icon>receipt_long</mat-icon></div>
+        <span>Lançar Nota</span>
+      </a>
+      <a class="dash-sidebar__item" routerLinkActive="dash-sidebar__item--active" routerLink="/historico-notas">
+        <div class="dash-sidebar__item-icon"><mat-icon>history</mat-icon></div>
+        <span>Histórico de Notas</span>
+      </a>
+      <a class="dash-sidebar__item" routerLinkActive="dash-sidebar__item--active" routerLink="/historico-fornecedor">
+        <div class="dash-sidebar__item-icon" style="color: #059669;"><mat-icon>assignment_ind</mat-icon></div>
+        <span>Extrato Fornecedor</span>
+      </a>
+      <a class="dash-sidebar__item" routerLinkActive="dash-sidebar__item--active" routerLink="/adicionar/pescados">
+        <div class="dash-sidebar__item-icon"><mat-icon>set_meal</mat-icon></div>
+        <span>Pescados</span>
+      </a>
+      <a class="dash-sidebar__item" routerLinkActive="dash-sidebar__item--active" routerLink="/financeiro">
+        <div class="dash-sidebar__item-icon"><mat-icon>account_balance_wallet</mat-icon></div>
+        <span>Financeiro</span>
+      </a>
+      <a class="dash-sidebar__item" routerLinkActive="dash-sidebar__item--active" routerLink="/emprestimo/novo">
+        <div class="dash-sidebar__item-icon"><mat-icon>currency_exchange</mat-icon></div>
+        <span>Empréstimos</span>
+      </a>
+      <a class="dash-sidebar__item" routerLinkActive="dash-sidebar__item--active" routerLink="/relatorios">
+        <div class="dash-sidebar__item-icon" style="color: #3b82f6;"><mat-icon>bar_chart</mat-icon></div>
+        <span>Relatório Anual</span>
+      </a>
+      <a class="dash-sidebar__item" routerLinkActive="dash-sidebar__item--active" routerLink="/auditoria" *ngIf="userRole === 'ADMIN'">
+        <div class="dash-sidebar__item-icon" style="color: #ef4444;"><mat-icon>policy</mat-icon></div>
+        <span>Auditoria</span>
+      </a>
+    </nav>
+
+   <div class="dash-sidebar__footer">
+  
+      <button class="dash-sidebar__logout" (click)="sair()">
+        <mat-icon>logout</mat-icon>
+        <span>Encerrar Sessão</span> 
+      </button>
+
+      <div class="dash-sidebar__signature">
+        <span class="dash-sidebar__version">Versão 1.1.2</span>
+        <span class="dash-sidebar__author">Desenvolvido por Jair Freitas</span>
+      </div>
+
+    </div>
+  </aside>
+
+  <main class="dash-content">
+
+    <div class="dash-topbar">
+      <div class="dash-topbar__titles">
+        <p class="dash-topbar__eyebrow">
+          <span class="dash-topbar__dot"></span>
+          Visão Geral - Centro de Controle
+        </p>
+        <h1 class="dash-topbar__title">Bem-vindo de volta, {{ userName }}!</h1>
+      </div>
+
+      <div class="dash-topbar__actions">
+
+        <button class="dash-topbar__year-btn" [matMenuTriggerFor]="menuAnos">
+          <mat-icon>calendar_month</mat-icon>
+          <span>Exercício: {{ anoSelecionado }}</span>
+          <mat-icon class="arrow">arrow_drop_down</mat-icon>
+        </button>
+
+        <mat-menu #menuAnos="matMenu" panelClass="noemare-premium-overlay">
+          <div class="notif-header">
+            <div class="notif-header__left">
+              <h3>Ano de Trabalho</h3>
+              <span class="notif-subtitle">Alterne o exercício fiscal</span>
+            </div>
+          </div>
+          <button mat-menu-item *ngFor="let ano of anosDisponiveis" 
+                  (click)="mudarAno(ano)"
+                  [style.color]="ano === anoSelecionado ? '#2563eb' : '#0f172a'"
+                  [style.font-weight]="ano === anoSelecionado ? '700' : '500'">
+            <mat-icon [style.color]="ano === anoSelecionado ? '#2563eb' : '#64748b'">
+              {{ ano === anoSelecionado ? 'check_circle' : 'event' }}
+            </mat-icon>
+            <span>Ano {{ ano }}</span>
+          </button>
+        </mat-menu>
+
+        <div class="dash-topbar__datetime">
+          <mat-icon class="dash-topbar__datetime-icon">schedule</mat-icon>
+          <div class="dash-topbar__datetime-info">
+            <span class="dash-topbar__datetime-date">{{ dataAtual }}</span>
+            <span class="dash-topbar__datetime-time">{{ horaAtual }}</span>
+          </div>
+        </div>
+
+        <button class="dash-topbar__icon-btn" matTooltip="Acessar versão mobile" (click)="abrirModalQrCode()">
+          <mat-icon>qr_code_scanner</mat-icon>
+        </button>
+
+        <button class="dash-topbar__icon-btn" 
+            [class.dash-topbar__icon-btn--active]="notificacoes.length > 0"
+            matTooltip="Notificações" 
+            [matMenuTriggerFor]="notificacoesMenu">
+            <mat-icon>notifications_none</mat-icon>
+            <span class="dash-topbar__badge" *ngIf="notificacoes.length > 0"></span>
+        </button>
+
+        <mat-menu #notificacoesMenu="matMenu" panelClass="noemare-premium-overlay" yPosition="below" xPosition="before" [overlapTrigger]="false">
+          <div class="notif-wrapper" (click)="$event.stopPropagation()">
+            <div class="notif-header">
+              <div class="notif-header__left">
+                <h3>Notificações</h3>
+                <span class="notif-subtitle" *ngIf="notificacoes.length > 0">Acompanhe as pendências</span>
+              </div>
+              <div class="notif-header__right">
+                <span class="notif-badge" *ngIf="notificacoes.length > 0">{{ notificacoes.length }} pendentes</span>
+                <a class="notif-link" routerLink="/boletos/novo">Ver todos <mat-icon>arrow_forward</mat-icon></a>
+              </div>
+            </div>
+            <div class="notif-body">
+              <div class="notif-empty" *ngIf="notificacoes.length === 0">
+                <mat-icon>notifications_off</mat-icon>
+                <div class="notif-empty__text">
+                  <p class="notif-empty__title">Tudo em dia por aqui!</p>
+                  <p class="notif-empty__desc">Nenhum boleto pendente no momento.</p>
+                </div>
+              </div>
+              <div *ngFor="let notif of notificacoes" class="notif-card" (click)="irParaBoleto(notif.id)">
+                <div class="notif-avatar" [ngClass]="notif.tipo === 'URGENTE' ? 'bg-danger' : 'bg-warning'">
+                  <mat-icon>{{ notif.tipo === 'URGENTE' ? 'bolt' : 'notifications' }}</mat-icon>
+                </div>
+                <div class="notif-info">
+                  <p class="notif-title">{{ notif.titulo }}</p>
+                  <p class="notif-desc">{{ notif.mensagem }}</p>
+                </div>
+                <div class="notif-chevron">
+                  <mat-icon>chevron_right</mat-icon>
+                </div>
+              </div>
+            </div>
+            <div class="notif-footer">
+              <button class="notif-view-all" routerLink="/boletos/novo">Visualizar todos os boletos</button>
+            </div>
+          </div>
+        </mat-menu>
+
+        <button class="dash-topbar__admin-btn" routerLink="/usuarios" *ngIf="userRole === 'ADMIN'">
+          <mat-icon>manage_accounts</mat-icon>
+          <span>Gestão de Usuários</span>
+        </button>
+
+        <div class="dash-topbar__user">
+          <div class="dash-avatar-inicial">{{ userName | slice:0:1 }}</div>
+          <div class="dash-topbar__user-info">
+            <span class="dash-topbar__user-name">{{ userName }}</span>
+            <span class="dash-topbar__user-role">{{ userRole }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dash-body">
+
+      <div class="dash-kpi-grid">
+        <div class="dash-kpi-card" *ngFor="let kpi of kpis" [ngClass]="'dash-kpi-card--' + kpi.type">
+          <div class="dash-kpi-card__info">
+            <span class="dash-kpi-card__label">{{ kpi.titulo }}</span>
+            <strong class="dash-kpi-card__value">{{ kpi.valor }}</strong>
+          </div>
+          <div class="dash-kpi-card__icon">
+            <mat-icon>{{ kpi.icone }}</mat-icon>
+          </div>
+        </div>
+      </div>
+
+      <div class="dash-row-middle">
+        
+        <div class="dash-card dash-card--chart">
+          <div class="dash-card__header">
+            <div>
+              <h2 class="dash-card__title">Evolução da Safra</h2>
+              <p class="dash-card__subtitle">Volume de compras por mês ({{ anoSelecionado }})</p>
+            </div>
+          </div>
+          <div class="dash-chart-container">
+            <canvas baseChart #barChart="base-chart"
+              [data]="barChartData"
+              [options]="barChartOptions"
+              [type]="'bar'">
+            </canvas>
+          </div>
+        </div>
+
+        <div class="dash-card dash-card--actions">
+          <div class="dash-card__header">
+            <div>
+              <h2 class="dash-card__title">Ações Rápidas</h2>
+              <p class="dash-card__subtitle">Gestão de porto e caixa</p>
+            </div>
+          </div>
+
+          <div class="dash-actions-list">
+            <button class="dash-action-btn dash-action-btn--primary" routerLink="/boletos/novo">
+              <div class="dash-action-btn__icon"><mat-icon>payments</mat-icon></div>
+              <div class="dash-action-btn__text">
+                <span class="dash-action-btn__label">Cadastrar Boleto</span>
+                <span class="dash-action-btn__desc">Gestão de contas a pagar</span>
+              </div>
+              <mat-icon class="dash-action-btn__arrow">chevron_right</mat-icon>
+            </button>
+
+            <button class="dash-action-btn dash-action-btn--neutral" routerLink="/historico-notas">
+              <div class="dash-action-btn__icon"><mat-icon>history</mat-icon></div>
+              <div class="dash-action-btn__text">
+                <span class="dash-action-btn__label">Histórico de Notas</span>
+                <span class="dash-action-btn__desc">Consultar e emitir recibos</span>
+              </div>
+              <mat-icon class="dash-action-btn__arrow">chevron_right</mat-icon>
+            </button>
+
+            <button class="dash-action-btn dash-action-btn--info" routerLink="/notas-fornecedor">
+              <div class="dash-action-btn__icon"><mat-icon>receipt_long</mat-icon></div>
+              <div class="dash-action-btn__text">
+                <span class="dash-action-btn__label">Lançar Nota</span>
+                <span class="dash-action-btn__desc">Entrada de pescado</span>
+              </div>
+              <mat-icon class="dash-action-btn__arrow">chevron_right</mat-icon>
+            </button>
+
+            <button class="dash-action-btn dash-action-btn--neutral" routerLink="/configuracoes/alterar-senha">
+            <div class="dash-action-btn__icon">
+              <mat-icon>lock</mat-icon> 
+            </div>
+            <div class="dash-action-btn__text">
+              <span class="dash-action-btn__label">Segurança</span>
+              <span class="dash-action-btn__desc">Alterar minha senha</span>
+            </div>
+            <mat-icon class="dash-action-btn__arrow">chevron_right</mat-icon>
+          </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="dash-row-bottom">
+        
+        <div class="dash-col-left">
+          <div class="dash-card dash-card--table">
+            <div class="dash-card__header">
+              <div>
+                <h2 class="dash-card__title">Movimentações Recentes</h2>
+                <p class="dash-card__subtitle">Histórico de cargas e pagamentos</p>
+              </div>
+              <button class="dash-card__link-btn" routerLink="/financeiro">
+                Ver tudo <mat-icon>arrow_forward</mat-icon>
+              </button>
+            </div>
+
+            <div class="dash-table-wrapper">
+              <table mat-table [dataSource]="movimentacoes" class="dash-table">
+                <ng-container matColumnDef="icone">
+                  <th mat-header-cell *matHeaderCellDef></th>
+                  <td mat-cell *matCellDef="let mov">
+                    <div class="dash-mov-icon"
+                      [class.dash-mov-icon--in]="mov.tipo === 'Entrada'"
+                      [class.dash-mov-icon--out]="mov.tipo === 'Saída'">
+                      <mat-icon>{{ mov.tipo === 'Entrada' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+                    </div>
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="data">
+                  <th mat-header-cell *matHeaderCellDef>Data</th>
+                  <td mat-cell *matCellDef="let mov"><span class="dash-table__date">{{ mov.data }}</span></td>
+                </ng-container>
+
+                <ng-container matColumnDef="descricao">
+                  <th mat-header-cell *matHeaderCellDef>Descrição</th>
+                  <td mat-cell *matCellDef="let mov">
+                    <span class="dash-table__desc">{{ mov.descricao }}</span>
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="status">
+                  <th mat-header-cell *matHeaderCellDef>Tipo</th>
+                  <td mat-cell *matCellDef="let mov">
+                    <span class="dash-pill"
+                      [class.dash-pill--in]="mov.tipo === 'Entrada'"
+                      [class.dash-pill--out]="mov.tipo === 'Saída'">
+                      {{ mov.tipo }}
+                    </span>
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="valor">
+                  <th mat-header-cell *matHeaderCellDef>Valor</th>
+                  <td mat-cell *matCellDef="let mov">
+                    <span class="dash-table__value"
+                      [class.dash-table__value--in]="mov.tipo === 'Entrada'"
+                      [class.dash-table__value--out]="mov.tipo === 'Saída'">
+                      {{ mov.valor }}
+                    </span>
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="acoes">
+                  <th mat-header-cell *matHeaderCellDef></th>
+                  <td mat-cell *matCellDef="let mov">
+                    <button class="dash-table__more-btn" [matMenuTriggerFor]="menuMov">
+                      <mat-icon>more_vert</mat-icon>
+                    </button>
+                    <mat-menu #menuMov="matMenu">
+                      <button mat-menu-item (click)="abrirModalHistorico(mov.notaOriginal)">
+                        <mat-icon>history</mat-icon>
+                        <span>Ver histórico</span>
+                      </button>
+                    </mat-menu>
+                  </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="colunasExibidas"></tr>
+                <tr mat-row *matRowDef="let row; columns: colunasExibidas;" class="dash-table__row"></tr>
+
+                <tr class="mat-row" *matNoDataRow>
+                  <td class="mat-cell dash-table__empty" colspan="6">
+                    <mat-icon>inbox</mat-icon>
+                    <p>Nenhuma movimentação de pescado encontrada</p>
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="dash-col-right">
+          <div class="dash-card dash-card--donut">
+            <div class="dash-card__header">
+              <div>
+                <h2 class="dash-card__title">Distribuição de Lagosta</h2>
+                <p class="dash-card__subtitle">Volume por tipo (KG)</p>
+              </div>
+            </div>
+            <div class="dash-chart-container dash-chart-container--donut">
+              <canvas baseChart #donutChart="base-chart"
+                [data]="doughnutChartData"
+                [options]="doughnutChartOptions"
+                [plugins]="doughnutChartPlugins" 
+                type="doughnut">
+            </canvas>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+</div>

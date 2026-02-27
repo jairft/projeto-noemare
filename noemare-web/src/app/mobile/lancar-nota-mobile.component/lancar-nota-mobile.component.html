@@ -1,0 +1,209 @@
+<div class="mobile-wrapper">
+  
+  <header class="mobile-header">
+    <button class="btn-back" (click)="etapaAtual === 'DADOS' ? voltarHome() : (etapaAtual === 'ITENS' ? voltarParaDados() : voltarParaItens())">
+      <mat-icon>arrow_back_ios_new</mat-icon>
+    </button>
+    <h1>
+      Lançar Nota 
+      <span *ngIf="notaIdEmEdicao" style="font-size: 12px; background: #f59e0b; color: white; padding: 2px 8px; border-radius: 10px; vertical-align: middle;">Edição</span>
+    </h1>
+    <div class="stepper-dots">
+      <span class="dot" [class.active]="etapaAtual === 'DADOS'"></span>
+      <span class="dot" [class.active]="etapaAtual === 'ITENS'"></span>
+      <span class="dot" [class.active]="etapaAtual === 'RESUMO'"></span>
+    </div>
+  </header>
+
+  <main class="mobile-content">
+
+    <section *ngIf="etapaAtual === 'DADOS'" class="step-section">
+      <p class="subtitle" *ngIf="!notaIdEmEdicao">Selecione o parceiro comercial e os dados</p>
+      <p class="subtitle" *ngIf="notaIdEmEdicao" style="color: #d97706; font-weight: bold;">Você está editando uma nota já salva.</p>
+      
+      <form [formGroup]="notaForm" class="form-card">
+        
+        <div class="form-group">
+          <label>Fornecedor</label>
+          <div class="select-container" [class.has-error]="notaForm.get('fornecedorId')?.invalid && notaForm.get('fornecedorId')?.touched">
+            <mat-icon>local_shipping</mat-icon>
+            <select formControlName="fornecedorId">
+              <option value="null" disabled selected>Escolha um fornecedor...</option>
+              <option *ngFor="let f of fornecedores" [value]="f.id">{{ f.nome }}</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group mt-2">
+          <label>Nº da Nota</label>
+          <div class="input-container">
+            <mat-icon>tag</mat-icon>
+            <input type="text" formControlName="numeroNota" placeholder="Ex: 1234">
+          </div>
+        </div>
+
+        <div class="form-group mt-2">
+          <label>Data da Compra</label>
+          <div class="input-container" [class.has-error]="notaForm.get('dataNota')?.invalid && notaForm.get('dataNota')?.touched">
+            <mat-icon>calendar_today</mat-icon>
+            <input type="date" formControlName="dataNota">
+          </div>
+        </div>
+
+        <div class="form-group mt-2">
+          <label>Observação (Opcional)</label>
+          <div class="input-container">
+            <mat-icon>edit_note</mat-icon>
+            <input type="text" formControlName="descricao" placeholder="Ex: Carga da manhã">
+          </div>
+        </div>
+
+        <button type="button" class="btn-primary mt-3" (click)="avancarParaItens()">
+          Continuar para Produtos <mat-icon>arrow_forward</mat-icon>
+        </button>
+
+        <button *ngIf="notaIdEmEdicao" type="button" class="btn-secondary mt-2" (click)="cancelarEdicao()" style="background: #fee2e2; color: #dc2626;">
+          Cancelar Edição
+        </button>
+
+      </form>
+
+      <div class="recent-notes-mobile" *ngIf="todasNotasRecentes.length > 0 && !notaIdEmEdicao">
+        <h3><mat-icon>history</mat-icon> Recentes (Toque para editar)</h3>
+        
+        <div class="recent-card" *ngFor="let nota of notasRecentes" 
+             (click)="editarNota(nota)" 
+             [class.locked]="nota.status !== 'ABERTA'">
+          
+          <div class="info">
+            <strong>{{ nota.fornecedorNome || nota.fornecedor?.nome }}</strong>
+            <div class="meta">
+              <span class="date">{{ nota.dataNota | date:'dd/MM/yyyy' }}</span>
+              <span class="status-badge" [ngClass]="'status-' + (nota.status ? nota.status.toLowerCase() : 'aberta')">
+                {{ nota.status || 'ABERTA' }}
+              </span>
+            </div>
+          </div>
+          
+          <div class="value">
+            <strong>{{ nota.valorTotal | currency:'BRL' }}</strong>
+            <mat-icon *ngIf="nota.status === 'ABERTA'">edit</mat-icon>
+            <mat-icon *ngIf="nota.status !== 'ABERTA'" class="icon-locked">lock</mat-icon>
+          </div>
+        </div>
+
+        <div class="pagination-mobile" *ngIf="totalPaginas > 1">
+          <button type="button" class="btn-page" (click)="paginaAnterior()" [disabled]="paginaAtual === 0">
+            <mat-icon>chevron_left</mat-icon>
+          </button>
+          <span>Página {{ paginaAtual + 1 }} de {{ totalPaginas }}</span>
+          <button type="button" class="btn-page" (click)="proximaPagina()" [disabled]="paginaAtual >= totalPaginas - 1">
+            <mat-icon>chevron_right</mat-icon>
+          </button>
+        </div>
+
+      </div>
+
+    </section>
+
+    <section *ngIf="etapaAtual === 'ITENS'" class="step-section">
+      <form [formGroup]="itemForm" class="form-card highlight-card">
+        <h3 class="card-title">Novo Produto</h3>
+        
+        <div class="form-group">
+          <label>Pescado / Produto</label>
+          <div class="select-container" [class.has-error]="itemForm.get('produtoId')?.invalid && itemForm.get('produtoId')?.touched">
+            <mat-icon>set_meal</mat-icon>
+            <select formControlName="produtoId">
+              <option value="null" disabled selected>Selecione no catalogo...</option>
+              <option *ngFor="let p of cardapio" [value]="p.id">{{ p.nome }} ({{ p.tamanho }})</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row-group">
+          <div class="form-group">
+            <label>Peso (Kg)</label>
+            <div class="input-container">
+              <input type="number" step="0.1" inputmode="decimal" formControlName="quantidadeKg" placeholder="0.0">
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label>Preço/Kg (R$)</label>
+            <div class="input-container">
+              <input type="number" step="0.01" inputmode="decimal" formControlName="valorUnitario" placeholder="0.00">
+            </div>
+          </div>
+        </div>
+
+        <button type="button" class="btn-secondary" (click)="adicionarItem()">
+          <mat-icon>add_circle</mat-icon> Adicionar à Nota
+        </button>
+      </form>
+
+      <div class="items-cart">
+        <div class="cart-header">
+          <span>Itens na Nota: {{ itensDaNota.length }}</span>
+          <strong>Total: R$ {{ valorTotalNota | number:'1.2-2' }}</strong>
+        </div>
+
+        <div class="cart-item" *ngFor="let item of itensDaNota; let i = index">
+          <div class="item-info">
+            <h4>{{ item.nomeProduto }} <span class="badge">{{ item.tamanho }}</span></h4>
+            <p>{{ item.quantidadeKg }}kg x R$ {{ item.valorUnitario | number:'1.2-2' }}</p>
+          </div>
+          <div class="item-actions">
+            <strong>R$ {{ item.valorTotal | number:'1.2-2' }}</strong>
+            <button class="btn-delete" (click)="removerItem(i)"><mat-icon>delete_outline</mat-icon></button>
+          </div>
+        </div>
+
+        <button *ngIf="itensDaNota.length > 0" class="btn-primary mt-3" (click)="avancarParaResumo()">
+          Revisar e Finalizar <mat-icon>check</mat-icon>
+        </button>
+      </div>
+    </section>
+
+    <section *ngIf="etapaAtual === 'RESUMO'" class="step-section">
+      <div class="form-card summary-card">
+        <h2 class="total-title">Total da Nota</h2>
+        <div class="total-value">R$ {{ valorTotalNota | number:'1.2-2' }}</div>
+        
+        <div class="divider"></div>
+        
+        <div class="summary-detail">
+          <span>Fornecedor:</span>
+          <strong>{{ nomeFornecedorSelecionado }}</strong>
+        </div>
+        
+        <div class="summary-detail" *ngIf="notaForm.value.dataNota">
+          <span>Data da Compra:</span>
+          <strong>{{ notaForm.value.dataNota | date:'dd/MM/yyyy' }}</strong>
+        </div>
+
+        <div class="summary-detail" *ngIf="notaForm.value.numeroNota">
+          <span>Nº da Nota:</span>
+          <strong>{{ notaForm.value.numeroNota }}</strong>
+        </div>
+
+        <div class="summary-detail">
+          <span>Total de Itens:</span>
+          <strong>{{ itensDaNota.length }} produtos</strong>
+        </div>
+
+        <div class="summary-detail" *ngIf="notaForm.value.descricao">
+          <span>Obs:</span>
+          <strong>{{ notaForm.value.descricao }}</strong>
+        </div>
+      </div>
+
+      <button class="btn-primary large mt-4" (click)="salvarNotaMobile()" [disabled]="isLoading">
+        <mat-icon *ngIf="!isLoading">{{ notaIdEmEdicao ? 'save_as' : 'done_all' }}</mat-icon>
+        <span *ngIf="!isLoading">{{ notaIdEmEdicao ? 'Salvar Alterações' : 'Confirmar e Salvar' }}</span>
+        <div class="spinner-small" *ngIf="isLoading"></div>
+      </button>
+    </section>
+
+  </main>
+</div>

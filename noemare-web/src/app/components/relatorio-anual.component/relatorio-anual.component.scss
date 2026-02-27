@@ -1,0 +1,341 @@
+@use 'sass:color';
+
+// ----------------------------------------
+// VARIÁVEIS E CORES
+// ----------------------------------------
+$primary:       #2563eb;
+$primary-light: #eff6ff;
+$success:       #059669;
+$success-light: #ecfdf5;
+$danger:        #dc2626;
+$danger-light:  #fff1f1;
+$warning:       #d97706;
+$warning-light: #fffbeb;
+$info:          #3b82f6; // Cor para o Volume (KG)
+$info-light:    #f0f7ff;
+$orange:        #ef9b2f;
+
+$surface:   #ffffff;
+$bg:        #f0f3fa;
+$border:    #e4e9f2;
+$text-1:    #0f172a;
+$text-2:    #475569;
+$text-3:    #94a3b8;
+
+$shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+$shadow-md: 0 4px 16px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04);
+$shadow-lg: 0 10px 40px rgba(0,0,0,0.10), 0 4px 12px rgba(0,0,0,0.05);
+
+$radius:    16px;
+$radius-sm: 10px;
+
+// ----------------------------------------
+// ANIMAÇÕES
+// ----------------------------------------
+@keyframes fadeDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes rowIn {
+  from { opacity: 0; transform: translateX(-6px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.3; }
+}
+
+// ----------------------------------------
+// TOPBAR (ESTILO DARK)
+// ----------------------------------------
+.forn-topbar {
+  width: 100%;
+  background: linear-gradient(145deg, #0f172a 0%, #1e3a5f 50%, #1d4ed8 100%);
+  border-bottom: 1px solid $border;
+  box-shadow: $shadow-sm;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  animation: fadeDown 0.4s ease both;
+
+  &__inner {
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    height: 85px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  &__back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem 0.875rem;
+    border-radius: $radius-sm;
+    border: 1.5px solid $border;
+    background: transparent;
+    color: $surface;
+    font-family: 'Sora', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    mat-icon {
+      font-size: 17px !important;
+      width: 17px !important;
+      height: 17px !important;
+      line-height: 17px !important;
+      transition: transform 0.2s;
+    }
+
+    &:hover {
+      background: $primary-light;
+      border-color: $primary;
+      color: $primary;
+      mat-icon { transform: translateX(-3px); }
+    }
+  }
+
+ &__breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  &__sep {
+    font-size: 16px !important;
+    width: 16px !important;
+    height: 16px !important;
+    line-height: 16px !important;
+    color: $text-3;
+  }
+
+  &__crumb {
+    font-size: 0.8rem;
+    font-weight: 600;
+    &--muted  { color: $surface; }
+    &--active { color: $orange; }
+  }
+}
+
+// ----------------------------------------
+// ESTRUTURA E HEADER
+// ----------------------------------------
+.forn-wrapper {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  font-family: 'Sora', sans-serif;
+  background: $bg;
+  min-height: calc(100vh - 85px);
+}
+
+.forn-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  animation: fadeDown 0.4s 0.05s ease both;
+
+  &__eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: $primary;
+    margin-bottom: 0.25rem;
+  }
+
+  &__dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: $primary;
+    animation: pulse 2s ease infinite;
+  }
+
+  &__title { font-size: 1.75rem; font-weight: 800; color: $text-1; margin: 0; }
+  &__subtitle { font-size: 0.8rem; color: $text-3; margin: 0; }
+}
+
+.forn-btn-new {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1.25rem;
+  border-radius: $radius-sm;
+  background: linear-gradient(135deg, $primary, #1d4ed8);
+  color: #fff;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 14px color.change($primary, $alpha: 0.35);
+  transition: all 0.2s;
+
+  &:hover { transform: translateY(-1px); box-shadow: 0 6px 20px color.change($primary, $alpha: 0.45); }
+}
+
+// ----------------------------------------
+// KPI GRID (4 COLUNAS)
+// ----------------------------------------
+.forn-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); // 4 colunas em desktop
+  gap: 1.125rem;
+  animation: fadeUp 0.45s 0.08s ease both;
+
+  @media (max-width: 1100px) { grid-template-columns: repeat(2, 1fr); }
+  @media (max-width: 600px) { grid-template-columns: 1fr; }
+}
+
+.forn-kpi {
+  background: $surface;
+  border-radius: $radius;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: $shadow-sm;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid $border;
+  transition: transform 0.2s;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 3px;
+    border-radius: $radius $radius 0 0;
+  }
+
+  &:hover { transform: translateY(-3px); box-shadow: $shadow-lg; }
+
+  &__info { display: flex; flex-direction: column; gap: 0.4rem; }
+  &__label { font-size: 0.63rem; font-weight: 700; text-transform: uppercase; color: $text-3; }
+  &__value { font-size: 1.4rem; font-weight: 800; color: $text-1; line-height: 1; } // Ajustado para 4 cards
+
+  &__icon {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    mat-icon { font-size: 20px !important; color: #fff; }
+  }
+
+  // Variantes de cores
+  &--info {
+    background: linear-gradient(135deg, #fff 60%, $info-light 100%);
+    &::before { background: $info; }
+    .forn-kpi__icon { background: $info; box-shadow: 0 6px 16px color.change($info, $alpha: 0.3); }
+  }
+  &--primary {
+    background: linear-gradient(135deg, #fff 60%, $primary-light 100%);
+    &::before { background: $primary; }
+    .forn-kpi__icon { background: $primary; box-shadow: 0 6px 16px color.change($primary, $alpha: 0.3); }
+  }
+  &--success {
+    background: linear-gradient(135deg, #fff 60%, $success-light 100%);
+    &::before { background: $success; }
+    .forn-kpi__icon { background: $success; box-shadow: 0 6px 16px color.change($success, $alpha: 0.3); }
+  }
+  &--danger {
+    background: linear-gradient(135deg, #fff 60%, $danger-light 100%);
+    &::before { background: $danger; }
+    .forn-kpi__icon { background: $danger; box-shadow: 0 6px 16px color.change($danger, $alpha: 0.3); }
+  }
+}
+
+// ----------------------------------------
+// CARDS E TABELAS
+// ----------------------------------------
+.forn-card {
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: $radius;
+  box-shadow: $shadow-md;
+  overflow: hidden;
+  animation: fadeUp 0.45s 0.15s ease both;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 1.5rem;
+    background: #fafbfd;
+    border-bottom: 1px solid $border;
+  }
+
+  &__title { font-size: 0.95rem; font-weight: 700; color: $text-1; margin: 0; }
+  &__subtitle { font-size: 0.72rem; color: $text-3; margin: 0; }
+  &__count { font-size: 0.65rem; font-weight: 700; background: $bg; padding: 0.25rem 0.7rem; border-radius: 999px; }
+}
+
+.forn-table {
+  width: 100%;
+  
+  th.mat-mdc-header-cell {
+    background: #f8fafc !important;
+    font-size: 0.62rem !important;
+    font-weight: 700 !important;
+    text-transform: uppercase;
+    color: $text-3 !important;
+    padding: 0.75rem 1.25rem !important;
+  }
+
+  td.mat-mdc-cell { padding: 0.875rem 1.25rem !important; border-bottom: 1px solid #f1f5f9 !important; }
+
+  &__row {
+    animation: rowIn 0.4s ease both;
+    &:hover { background: #f8faff; }
+  }
+}
+
+// Avatar e Células
+.forn-cell {
+  display: flex; align-items: center; gap: 0.75rem;
+  &__avatar {
+    width: 34px; height: 34px; border-radius: 9px;
+    background: linear-gradient(135deg, $primary, #1d4ed8);
+    color: #fff; font-size: 0.82rem; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+  }
+  &__name { font-size: 0.875rem; font-weight: 700; color: $text-1; }
+}
+
+.forn-val {
+  font-size: 0.875rem; font-weight: 600; color: $text-2;
+  &--success { color: $success; font-weight: 700; }
+}
+
+.forn-pill {
+  display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.72rem; font-weight: 700;
+  &__dot { width: 5px; height: 5px; border-radius: 50%; }
+  &--inactive { background: rgba($danger, 0.08); color: $danger; border: 1px solid rgba($danger, 0.2); .forn-pill__dot { background: $danger; } }
+  &--active { background: rgba($success, 0.08); color: $success; border: 1px solid rgba($success, 0.2); .forn-pill__dot { background: $success; } }
+}
+
+// ----------------------------------------
+// IMPRESSÃO (DOCUMENTO OFICIAL)
+// ----------------------------------------
+@media print {
+  .no-print { display: none !important; }
+  .forn-wrapper { padding: 0; background: #fff; }
+  .forn-kpi, .forn-card { box-shadow: none !important; border: 1px solid #ddd !important; }
+  .forn-kpi-grid { grid-template-columns: repeat(4, 1fr) !important; gap: 10px; }
+  .forn-kpi__value { font-size: 1.1rem !important; }
+}
+
+// No seu relatorio-anual.component.scss
+.mat-column-produto {
+  flex: 0 0 40% !important; // Dá mais espaço para o nome detalhado
+  font-weight: 700;
+}

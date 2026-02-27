@@ -1,0 +1,111 @@
+<!-- Topbar escura (padrão do sistema) -->
+<div class="forn-topbar">
+  <div class="forn-topbar__inner">
+    <button class="forn-topbar__back" routerLink="/dashboard">
+      <mat-icon>arrow_back</mat-icon>
+      Voltar ao Dashboard
+    </button>
+    <div class="forn-topbar__breadcrumb">
+      <span class="forn-topbar__crumb forn-topbar__crumb--muted">Dashboard</span>
+      <mat-icon class="forn-topbar__sep">chevron_right</mat-icon>
+      <span class="forn-topbar__crumb forn-topbar__crumb--active">Alterar Senha</span>
+    </div>
+  </div>
+</div>
+
+<div class="as-wrapper">
+
+  <!-- Header -->
+  <header class="as-header">
+    <div>
+      <div class="as-eyebrow">
+        <span class="as-dot"></span>
+        Configurações de Conta
+      </div>
+      <h1 class="as-title">Alterar Senha</h1>
+      <p class="as-subtitle">Atualize sua senha de acesso ao sistema.</p>
+    </div>
+    <div class="as-header-icon">
+      <mat-icon>lock_reset</mat-icon>
+    </div>
+  </header>
+
+  <!-- Card do formulário -->
+  <div class="as-card">
+
+    <div class="as-card-header">
+      <div class="as-card-stripe"></div>
+      <div>
+        <h2 class="as-card-title">Nova Senha</h2>
+        <p class="as-card-subtitle">Preencha os campos abaixo para redefinir sua senha.</p>
+      </div>
+    </div>
+
+    <form class="as-form" [formGroup]="formSenha" (ngSubmit)="salvarNovaSenha()">
+
+      <!-- Senha Atual -->
+      <div class="as-field">
+        <label class="as-label">Senha Atual</label>
+        <div class="as-input-wrap"
+             [class.as-input-wrap--error]="formSenha.get('senhaAtual')?.invalid && formSenha.get('senhaAtual')?.touched">
+          <mat-icon class="as-input-icon">lock</mat-icon>
+          <input type="password" formControlName="senhaAtual"
+                 class="as-input" placeholder="••••••••">
+        </div>
+      </div>
+
+      <!-- Nova Senha -->
+      <div class="as-field">
+        <label class="as-label">Nova Senha</label>
+        <div class="as-input-wrap"
+             [class.as-input-wrap--error]="formSenha.get('novaSenha')?.invalid && formSenha.get('novaSenha')?.touched">
+          <mat-icon class="as-input-icon">lock_open</mat-icon>
+          <input type="password" formControlName="novaSenha"
+                 class="as-input" placeholder="Mínimo 6 caracteres">
+        </div>
+        @if (formSenha.get('novaSenha')?.errors?.['minlength'] && formSenha.get('novaSenha')?.touched) {
+          <span class="as-error-msg">
+            <mat-icon>error_outline</mat-icon>
+            A nova senha deve ter pelo menos 6 caracteres.
+          </span>
+        }
+      </div>
+
+      <!-- Confirmar Nova Senha -->
+      <div class="as-field">
+        <label class="as-label">Confirmar Nova Senha</label>
+        <div class="as-input-wrap"
+             [class.as-input-wrap--error]="formSenha.hasError('notSame') && formSenha.get('confirmarSenha')?.touched">
+          <mat-icon class="as-input-icon">verified</mat-icon>
+          <input type="password" formControlName="confirmarSenha"
+                 class="as-input" placeholder="Repita a nova senha">
+        </div>
+        @if (formSenha.hasError('notSame') && formSenha.get('confirmarSenha')?.touched) {
+          <span class="as-error-msg">
+            <mat-icon>error_outline</mat-icon>
+            As senhas novas não coincidem!
+          </span>
+        }
+      </div>
+
+      <!-- Requisitos -->
+      <div class="as-requirements">
+        <span class="as-req-item" [class.as-req-ok]="(formSenha.get('novaSenha')?.value?.length || 0) >= 6">
+          <mat-icon>{{ (formSenha.get('novaSenha')?.value?.length || 0) >= 6 ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+          Mínimo 6 caracteres
+        </span>
+        <span class="as-req-item" [class.as-req-ok]="!formSenha.hasError('notSame') && formSenha.get('confirmarSenha')?.value">
+          <mat-icon>{{ !formSenha.hasError('notSame') && formSenha.get('confirmarSenha')?.value ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+          Senhas coincidem
+        </span>
+      </div>
+
+      <!-- Botão -->
+      <button type="submit" class="as-btn" [disabled]="formSenha.invalid">
+        <mat-icon>save</mat-icon>
+        Atualizar Senha
+      </button>
+
+    </form>
+  </div>
+</div>

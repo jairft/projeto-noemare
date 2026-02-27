@@ -1,0 +1,137 @@
+.baixa-container {
+  // Aumentamos para 32px no topo para o título "respirar" em relação à borda
+  padding: 32px 24px 24px 24px; 
+  background: #ffffff;
+  border-radius: 24px; // Bordas bem arredondadas como no seu print
+}
+
+.baixa-container {
+  // Aumentamos para 32px no topo para o título "respirar" em relação à borda
+  padding: 32px 24px 24px 24px; 
+  background: #ffffff;
+  border-radius: 24px; // Bordas bem arredondadas como no seu print
+}
+
+.baixa-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  // Aumentamos a distância para o card de resumo abaixo
+  margin-bottom: 32px; 
+  padding: 0;
+
+  &__icon {
+    width: 44px;
+    height: 44px;
+    background: #eff6ff; // Azul bem suave
+    color: #3b82f6;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    mat-icon { font-size: 24px; width: 24px; height: 24px; }
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 1.5rem; // Título levemente maior e imponente
+    font-weight: 800;
+    color: #1e293b;
+    line-height: 1.2;
+  }
+
+  &__subtitle {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #64748b;
+    font-weight: 500;
+  }
+}
+
+.baixa-summary {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 28px;
+
+  &__item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  &__label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: #94a3b8;
+    letter-spacing: 0.05em;
+  }
+
+  &__value {
+    font-size: 1.1rem;
+    color: #1e293b;
+    
+    &--red { color: #ef4444; font-weight: 800; }
+  }
+
+  &__sep {
+    width: 1px;
+    height: 32px;
+    background: #e2e8f0;
+    margin: 0 20px;
+  }
+}
+
+.baixa-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  .baixa-field { width: 100%; }
+}
+
+.baixa-actions {
+  padding: 16px 8px 8px;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+
+  button {
+    height: 48px;
+    padding: 0 24px;
+    border-radius: 12px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+  }
+}
+
+.baixa-btn-cancel {
+  background: transparent;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
+  &:hover { background: #f1f5f9; }
+}
+
+.baixa-btn-confirm {
+  background: #3b82f6;
+  border: none;
+  color: white;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  
+  &:hover:not(:disabled) {
+    background: #2563eb;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+  }
+  
+  &:disabled { background: #cbd5e1; box-shadow: none; cursor: not-allowed; }
+}

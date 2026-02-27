@@ -1,0 +1,22 @@
+<div class="expired-container">
+  <div class="expired-header">
+    <div class="expired-icon-circle">
+      <mat-icon>history_toggle_off</mat-icon>
+    </div>
+    <h2 mat-dialog-title>Sessão Expirada</h2>
+  </div>
+
+  <mat-dialog-content class="expired-content">
+    <p>
+      Sua sessão de acesso ao <strong>Noé Maré</strong> expirou por segurança. 
+      Por favor, faça login novamente para continuar operando o sistema.
+    </p>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="center" class="expired-actions">
+    <button mat-flat-button class="btn-reconnect" (click)="confirmar()">
+      <mat-icon>login</mat-icon>
+      RECONECTAR AGORA
+    </button>
+  </mat-dialog-actions>
+</div>

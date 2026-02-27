@@ -1,0 +1,77 @@
+<div class="mobile-wrapper">
+  
+  <header class="mobile-header">
+    <button class="btn-back" (click)="voltar()">
+      <mat-icon>arrow_back_ios_new</mat-icon>
+    </button>
+    <h1>Boletos</h1>
+    <div class="spacer"></div>
+  </header>
+
+  <main class="mobile-content">
+    <p class="subtitle">Cadastrar nova conta</p>
+
+    <form [formGroup]="form" (ngSubmit)="salvar()" class="form-card">
+      
+      <div class="form-group">
+        <label for="codigoBarras">Código de Barras</label>
+        <div class="input-container">
+          <mat-icon>qr_code_scanner</mat-icon>
+          <input id="codigoBarras" type="text" inputmode="numeric" formControlName="codigoBarras" placeholder="Cole a linha digitável aqui" (input)="processarLinhaDigitavel()">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="descricao">Descrição da Conta</label>
+        <div class="input-container" [class.has-error]="form.get('descricao')?.invalid && form.get('descricao')?.touched">
+          <mat-icon>label_outline</mat-icon>
+          <input id="descricao" type="text" formControlName="descricao" placeholder="Ex: Internet, Fornecedor X">
+        </div>
+      </div>
+
+      <button type="submit" class="btn-submit" [disabled]="form.invalid || isLoading">
+        <mat-icon *ngIf="!isLoading">check_circle</mat-icon>
+        <span *ngIf="!isLoading">Cadastrar Boleto</span>
+        <div class="spinner-small" *ngIf="isLoading"></div>
+      </button>
+    </form>
+
+    <section class="boletos-list" *ngIf="boletosSalvos.length > 0">
+      <p class="subtitle mt-4">Suas Contas</p>
+      
+      <div class="boleto-mobile-card" *ngFor="let boleto of boletosPaginados">
+        <div class="card-header">
+          <span class="bank-name">{{ boleto.nomeBanco || 'Boleto' }}</span>
+          <span class="status-badge" [ngClass]="'status-badge--' + (boleto.statusExibicao | lowercase)">
+            {{ boleto.statusExibicao }}
+          </span>
+        </div>
+        
+        <div class="card-body">
+          <p class="descricao">{{ boleto.descricao }}</p>
+          <div class="row-data">
+            <span class="price">{{ boleto.valor | currency:'BRL' }}</span>
+            <span class="date">{{ boleto.dataExibicao | date:'dd/MM/yyyy' }}</span>
+          </div>
+        </div>
+
+        <div class="card-footer" *ngIf="boleto.statusExibicao !== 'PAGO'">
+          <button type="button" class="btn-pay-mobile" (click)="darBaixa(boleto.id)">
+            <mat-icon>check</mat-icon> Confirmar Pagamento
+          </button>
+        </div>
+      </div>
+
+      <mat-paginator 
+        *ngIf="boletosSalvos.length > 0"
+        [length]="boletosSalvos.length"
+        [pageSize]="pageSize"
+        [hidePageSize]="true"
+        (page)="atualizarPagina($event)"
+        class="custom-paginator-mobile">
+      </mat-paginator>
+
+    </section>
+
+  </main>
+</div>

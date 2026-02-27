@@ -1,0 +1,106 @@
+<div class="mobile-wrapper">
+  <header class="mobile-header">
+    <div class="header-top">
+      <button class="btn-back" (click)="voltar()">
+        <mat-icon>arrow_back_ios_new</mat-icon>
+      </button>
+      <h1>Fornecedores</h1>
+      <button class="btn-add" (click)="abrirModalNovo()">
+        <mat-icon>person_add</mat-icon>
+      </button>
+    </div>
+
+    <div class="search-box">
+      <mat-icon>search</mat-icon>
+      <input type="text" [formControl]="filtroBusca" placeholder="Pesquisar fornecedor...">
+    </div>
+  </header>
+
+  <main class="mobile-content">
+    
+    <section class="stats-container" *ngIf="!isLoading">
+      <div class="stat-card">
+        <div class="stat-icon blue"><mat-icon>inventory_2</mat-icon></div>
+        <div class="stat-data">
+          <span class="label">Total</span>
+          <strong>{{ totalFornecedores }}</strong>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon green"><mat-icon>verified</mat-icon></div>
+        <div class="stat-data">
+          <span class="label">Ativos</span>
+          <strong>{{ totalAtivos }}</strong>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon red"><mat-icon>account_balance_wallet</mat-icon></div>
+        <div class="stat-data">
+          <span class="label">Com Saldo</span>
+          <strong>{{ totalComSaldoCredor }}</strong>
+        </div>
+      </div>
+    </section>
+
+    <div class="loading-state" *ngIf="isLoading">
+      <div class="spinner"></div>
+    </div>
+
+    <div class="fornecedor-list" *ngIf="!isLoading">
+      <div class="fornecedor-card" *ngFor="let f of fornecedoresPaginados">
+        
+        <div class="card-info">
+          <div class="avatar-box">
+            <div class="avatar">{{ f.nome | slice:0:1 | uppercase }}</div>
+            <div class="name-area">
+              <h3>{{ f.nome }}</h3>
+              <span class="date">Desde {{ f.dataCadastro | date:'dd/MM/yyyy' }}</span>
+            </div>
+          </div>
+          <span class="status-pill" [class.active]="f.status === 'ATIVO'">
+            {{ f.status }}
+          </span>
+        </div>
+
+        <div class="card-values" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
+          <div class="val-box">
+            <span class="val-label">Adiantado</span>
+            <span class="val-amount devedor" style="color: #dc2626;">
+              R$ {{ f.saldoDevedorAdiantamento | number:'1.2-2' }}
+            </span>
+          </div>
+          <div class="val-box">
+            <span class="val-label">Investimento</span>
+            <span class="val-amount" style="color: #2563eb; font-weight: 700;">
+              R$ {{ f.saldoDevedorInvestimento | number:'1.2-2' }}
+            </span>
+          </div>
+          <div class="val-box">
+            <span class="val-label">Notas</span>
+            <span class="val-amount credor" style="color: #059669;">
+              R$ {{ f.saldoCredor | number:'1.2-2' }}
+            </span>
+          </div>
+        </div>
+
+        <div class="card-footer">
+          <button class="btn-historico" (click)="abrirHistoricoGeral(f)">
+            <mat-icon>analytics</mat-icon> Histórico
+          </button>
+          <button class="btn-edit" (click)="editarFornecedor(f)">
+            <mat-icon>edit_note</mat-icon> Editar
+          </button>
+        </div>
+      </div>
+
+      <mat-paginator
+        class="em-paginator"
+        [length]="totalItems"
+        [pageSize]="pageSize"
+        [pageSizeOptions]="[6, 12, 24]"
+        (page)="onPageChange($event)">
+      </mat-paginator>
+
+    </div>
+  </main>
+</div>

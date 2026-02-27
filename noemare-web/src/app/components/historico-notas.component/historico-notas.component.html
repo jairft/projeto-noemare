@@ -1,0 +1,165 @@
+<div class="hist-topbar">
+  <div class="hist-topbar__inner">
+    <a class="hist-topbar__back" routerLink="/dashboard">
+      <mat-icon>arrow_back</mat-icon>
+      Voltar ao Dashboard
+    </a>
+    <div class="hist-topbar__breadcrumb">
+      <span class="hist-topbar__crumb hist-topbar__crumb--muted">Dashboard</span>
+      <mat-icon class="hist-topbar__sep">chevron_right</mat-icon>
+      <span class="hist-topbar__crumb hist-topbar__crumb--active">Histórico de Notas</span>
+    </div>
+  </div>
+</div>
+
+<div class="hist-wrapper">
+
+  <header class="hist-header">
+    <div class="hist-header__eyebrow">
+      <span class="hist-header__dot"></span>
+      Consultas
+    </div>
+    <h1 class="hist-header__title">Histórico de Notas</h1>
+    <p class="hist-header__subtitle">Consulte as entradas de pescados, filtre por data e emita recibos de conferência.</p>
+  </header>
+
+  <div class="hist-card hist-card--filter">
+    <div class="hist-card__header">
+      <div style="display: flex; align-items: center; gap: 1rem;">
+        <div class="hist-card__header-icon hist-card__header-icon--blue">
+          <mat-icon>filter_list</mat-icon>
+        </div>
+        <div>
+          <h2 class="hist-card__title">Filtrar por Período</h2>
+          <p class="hist-card__subtitle">Selecione um intervalo de datas para consultar as notas</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="hist-card__body">
+      <form [formGroup]="filtroForm" class="hist-filter-row">
+
+        <mat-form-field appearance="outline" class="hist-field hist-field--date">
+          <mat-label>Período de Lançamento</mat-label>
+          <mat-date-range-input [rangePicker]="picker">
+            <input matStartDate formControlName="dataInicio" placeholder="Data Inicial">
+            <input matEndDate formControlName="dataFim" placeholder="Data Final">
+          </mat-date-range-input>
+          <mat-icon matPrefix>date_range</mat-icon>
+          <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-date-range-picker #picker></mat-date-range-picker>
+        </mat-form-field>
+
+        <div class="hist-filter-actions">
+          <button class="hist-btn hist-btn--primary" type="button" (click)="buscarHistorico()">
+            <mat-icon>search</mat-icon>
+            Filtrar Datas
+          </button>
+          <button class="hist-btn hist-btn--ghost" type="button" (click)="limparFiltro()">
+            <mat-icon>clear_all</mat-icon>
+            Limpar
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <div class="hist-card">
+    
+    <div class="hist-card__header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+      
+      <div style="display: flex; align-items: center; gap: 1rem;">
+        <div class="hist-card__header-icon hist-card__header-icon--teal">
+          <mat-icon>list_alt</mat-icon>
+        </div>
+        <div>
+          <h2 class="hist-card__title">Notas Encontradas</h2>
+          <p class="hist-card__subtitle">Exibindo os lançamentos baseados no filtro acima</p>
+        </div>
+      </div>
+
+      <mat-form-field appearance="outline" class="hist-field" style="width: 300px; margin-bottom: -1.25em;">
+        <mat-label>Buscar fornecedor na lista...</mat-label>
+        <input matInput (keyup)="aplicarFiltro($event)" placeholder="Ex: João, Lagosta...">
+        <mat-icon matSuffix>search</mat-icon>
+      </mat-form-field>
+
+    </div>
+
+    <div class="hist-card__body hist-card__body--flush">
+      <table mat-table [dataSource]="notas" class="hist-table">
+
+        <ng-container matColumnDef="dataHora">
+          <th mat-header-cell *matHeaderCellDef>Data e Hora</th>
+          <td mat-cell *matCellDef="let nota">
+            <div class="hist-table__date-cell">
+              <span class="hist-table__date">{{ nota.dataNota | date:'dd/MM/yyyy' }}</span>
+              <span class="hist-table__time">{{ nota.dataNota | date:'HH:mm' }}</span>
+            </div>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="fornecedor">
+          <th mat-header-cell *matHeaderCellDef>Fornecedor</th>
+          <td mat-cell *matCellDef="let nota">
+            <div class="hist-table__supplier">
+              <div class="hist-table__avatar">{{ nota.fornecedorNome | slice:0:1 }}</div>
+              <span class="hist-table__supplier-name">{{ nota.fornecedorNome }}</span>
+            </div>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="pescados">
+          <th mat-header-cell *matHeaderCellDef>Itens da Nota</th>
+          <td mat-cell *matCellDef="let nota">
+            <span class="hist-table__items">{{ resumirItens(nota.itens) }}</span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="valorTotal">
+          <th mat-header-cell *matHeaderCellDef>Valor Total</th>
+          <td mat-cell *matCellDef="let nota">
+            <span class="hist-table__value">{{ nota.valorTotal | currency:'BRL' }}</span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="acoes">
+          <th mat-header-cell *matHeaderCellDef class="hist-th-center">Ações</th>
+          <td mat-cell *matCellDef="let nota" class="hist-td-center">
+            <div style="display: flex; gap: 8px; align-items: center; justify-content: center;">
+              
+              <button class="hist-btn-recibo" matTooltip="Visualizar e Imprimir Recibo" (click)="abrirModalRecibo(nota)">
+                <mat-icon>receipt_long</mat-icon>
+                Recibo
+              </button>
+
+              <button class="hist-btn-delete" matTooltip="Excluir Nota Permanente" (click)="excluirNota(nota)">
+                <mat-icon>delete_outline</mat-icon>
+              </button>
+
+            </div>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="colunasExibidas"></tr>
+        <tr mat-row *matRowDef="let row; columns: colunasExibidas;" class="hist-table__row"></tr>
+
+        <tr class="mat-row" *matNoDataRow>
+          <td class="mat-cell hist-table__empty" colspan="5" style="text-align: center; padding: 48px 24px;">
+            <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: #cbd5e1; margin-bottom: 16px;">search_off</mat-icon>
+            <p style="color: #64748b; font-size: 1.1rem; margin: 0;">Nenhuma nota encontrada para o período selecionado.</p>
+          </td>
+        </tr>
+      </table>
+
+      <mat-paginator [pageSize]="4" 
+                     [pageSizeOptions]="[4, 8, 12, 20]" 
+                     showFirstLastButtons
+                     class="paginador-notas">
+      </mat-paginator>
+
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,437 @@
+@use 'sass:color';
+
+$bg:            #f0f3fa;
+$surface:       #ffffff;
+$border:        #e4e9f2;
+
+$primary:       #2563eb;
+$primary-light: #eff6ff;
+$success:       #059669;
+$success-light: #ecfdf5;
+$danger:        #dc2626;
+$danger-light:  #fff1f1;
+$info:          #0284c7;
+$info-light:    #f0f9ff;
+
+$text-1:        #0f172a;
+$text-2:        #475569;
+$text-3:        #94a3b8;
+
+$shadow-sm:     0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+$shadow-md:     0 4px 16px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04);
+
+$radius:        16px;
+$radius-sm:     8px;
+
+@keyframes fadeDown {
+  from { opacity: 0; transform: translateY(-16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes rowIn {
+  from { opacity: 0; transform: translateX(-8px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+// ----------------------------------------
+// Topbar
+// ----------------------------------------
+.hist-topbar {
+  width: 100%;
+   background: linear-gradient(145deg, #0f172a 0%, #1e3a5f 50%, #1d4ed8 100%);
+  border-bottom: 1px solid $border;
+  box-shadow: $shadow-sm;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  animation: fadeDown 0.4s ease both;
+
+  &__inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    height: 85px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  &__back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem 0.875rem;
+    border-radius: $radius-sm;
+    border: 1.5px solid $border;
+    background: transparent;
+    color: $surface;
+    font-family: 'Sora', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    mat-icon {
+      font-size: 17px !important;
+      width: 17px !important;
+      height: 17px !important;
+      line-height: 17px !important;
+      transition: transform 0.2s;
+    }
+
+    &:hover {
+      background: $primary-light;
+      border-color: $primary;
+      color: $primary;
+      mat-icon { transform: translateX(-3px); }
+    }
+  }
+
+  &__breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  &__sep {
+    font-size: 16px !important;
+    width: 16px !important;
+    height: 16px !important;
+    line-height: 16px !important;
+    color: $text-3;
+  }
+
+  &__crumb {
+    font-size: 0.8rem;
+    font-weight: 700;
+    &--muted  { color: $surface; }
+    &--active { color: $danger; }
+  }
+}
+
+// ----------------------------------------
+// Wrapper
+// ----------------------------------------
+.hist-wrapper {
+  padding: 2.5rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  font-family: 'Sora', sans-serif;
+}
+
+// ----------------------------------------
+// Header
+// ----------------------------------------
+.hist-header {
+  margin-bottom: 2rem;
+  animation: fadeDown 0.5s ease both;
+
+  &__eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: $danger;
+    margin-bottom: 0.5rem;
+  }
+
+  &__dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    display: inline-block;
+    animation: pulse 2s ease infinite;
+
+    &--danger { background: $danger; }
+  }
+
+  &__title {
+    font-size: 2rem;
+    font-weight: 800;
+    color: $text-1;
+    letter-spacing: -0.04em;
+    margin: 0 0 0.4rem;
+    line-height: 1.1;
+  }
+
+  &__subtitle {
+    font-size: 0.9rem;
+    color: $text-3;
+    margin: 0;
+  }
+}
+
+// ----------------------------------------
+// Card
+// ----------------------------------------
+.hist-card {
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: $radius;
+  box-shadow: $shadow-md;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+  animation: fadeUp 0.5s ease both;
+
+  &__header {
+    padding: 1.25rem 1.75rem;
+    border-bottom: 1px solid $border;
+
+    &-flex {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+  }
+
+  &__title-group {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  &__header-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    mat-icon {
+      font-size: 20px !important;
+      width: 20px !important;
+      height: 20px !important;
+      line-height: 20px !important;
+    }
+
+    &--danger {
+      background: $danger-light;
+      border: 1px solid color.change($danger, $alpha: 0.15);
+      mat-icon { color: $danger; }
+    }
+  }
+
+  &__title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: $text-1;
+    margin: 0 0 0.15rem;
+  }
+
+  &__subtitle {
+    font-size: 0.78rem;
+    color: $text-3;
+    margin: 0;
+  }
+
+  &__body {
+    padding: 1.5rem 1.75rem;
+    &--flush { padding: 0; }
+  }
+}
+
+// ----------------------------------------
+// Campo de busca no header
+// ----------------------------------------
+.hist-search-field {
+  width: 320px;
+  flex-shrink: 0;
+
+  ::ng-deep .mat-mdc-form-field-subscript-wrapper { display: none !important; }
+  ::ng-deep .mat-mdc-text-field-wrapper { padding-bottom: 0 !important; }
+}
+
+// ----------------------------------------
+// Tabela
+// ----------------------------------------
+.hist-table {
+  width: 100%;
+  box-shadow: none !important;
+
+  th.mat-mdc-header-cell {
+    background: #f8fafc;
+    font-size: 0.68rem !important;
+    font-weight: 700 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: $text-3 !important;
+    padding: 0.875rem 1.5rem !important;
+    border-bottom: 1px solid $border !important;
+  }
+
+  td.mat-mdc-cell {
+    padding: 0.875rem 1.5rem !important;
+    border-bottom: 1px solid $border !important;
+    vertical-align: middle;
+  }
+
+  &__row {
+    transition: background 0.15s;
+    animation: rowIn 0.4s ease both;
+
+    @for $i from 1 through 15 {
+      &:nth-child(#{$i}) { animation-delay: #{0.05 + $i * 0.04}s; }
+    }
+
+    &:last-child td { border-bottom: none !important; }
+    &:hover { background: #fafafa; }
+  }
+
+  // Data + hora
+  &__date-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+  }
+
+  &__date {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: $text-1;
+  }
+
+  &__time {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: $text-3;
+
+    &--danger { color: $danger; }
+  }
+
+  // Usuário
+  &__user {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: $text-2;
+  }
+
+  // Entidade
+  &__entity {
+    font-size: 0.78rem;
+    color: $info;
+    font-weight: 500;
+    background: $info-light;
+    padding: 0.2rem 0.6rem;
+    border-radius: 6px;
+    border: 1px solid color.change($info, $alpha: 0.15);
+    white-space: nowrap;
+  }
+
+  // Detalhes
+  &__details {
+    font-size: 0.78rem;
+    color: $text-2;
+    line-height: 1.4;
+    max-width: 380px;
+    display: block;
+  }
+
+  // Empty state
+  &__empty {
+    text-align: center !important;
+    padding: 4rem 2rem !important;
+
+    &-icon {
+      font-size: 48px !important;
+      width: 48px !important;
+      height: 48px !important;
+      line-height: 48px !important;
+      display: block;
+      margin: 0 auto 1rem;
+      color: $text-3;
+      opacity: 0.4;
+    }
+
+    &-text {
+      margin: 0;
+      font-size: 0.95rem;
+      color: $text-2;
+    }
+  }
+}
+
+// ----------------------------------------
+// Tags Dinâmicas de Ação (Substituiu o dash-pill)
+// ----------------------------------------
+.tag-acao {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px; // Borda arredondada suave
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+/* Verde (Criar/Cadastrar/Gerar) */
+.tag-success {
+  color: #0d7f52;
+  background-color: #e6f7f0;
+  border: 1px solid #b3e6d3;
+}
+
+/* Laranja/Amarelo (Atualizar/Editar/Alterar) */
+.tag-warning {
+  color: #b35900;
+  background-color: #fef2e5;
+  border: 1px solid #fbce99;
+}
+
+/* Vermelho (Excluir/Remover/Deletar) */
+.tag-danger {
+  color: #c92a2a;
+  background-color: #fdf0f0;
+  border: 1px solid #f5c2c2;
+}
+
+/* Roxo/Índigo (Para Pagamentos e Abatimentos) */
+.tag-finance {
+  color: #4c3399;
+  background-color: #ebe5fa;
+  border: 1px solid #d0c2f0;
+}
+
+/* Azul/Cinza (Outros/Padrão) */
+.tag-default {
+  color: #2b5c8f;
+  background-color: #f0f6fc;
+  border: 1px solid #c2dcf2;
+}
+
+// ----------------------------------------
+// Paginador
+// ----------------------------------------
+.paginador-notas {
+  border-top: 1px solid $border;
+  background: #f8fafc;
+  font-family: 'Sora', sans-serif !important;
+
+  ::ng-deep {
+    .mat-mdc-paginator-container { padding: 0.75rem 1.5rem; }
+    .mat-mdc-paginator-page-size-label,
+    .mat-mdc-paginator-range-label {
+      font-family: 'Sora', sans-serif !important;
+      font-size: 0.78rem !important;
+      color: $text-3 !important;
+    }
+    .mat-mdc-icon-button { color: $text-2 !important; }
+    .mat-mdc-icon-button:disabled { color: $text-3 !important; opacity: 0.4; }
+  }
+}

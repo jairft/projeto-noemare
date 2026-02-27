@@ -1,0 +1,113 @@
+<div class="modal-wrapper">
+
+  <!-- Header com gradiente escuro -->
+  <header class="modal-hd">
+    <div class="modal-hd__bg"></div>
+
+    <div class="modal-hd__content">
+      <div class="modal-hd__icon">
+        <mat-icon>analytics</mat-icon>
+      </div>
+      <div class="modal-hd__text">
+        <h2 class="modal-hd__title">Volume de Compras</h2>
+        <p class="modal-hd__sub">
+            Fornecedor: <strong>{{ data.nome }}</strong>
+        </p>
+      </div>
+    </div>
+
+    <button class="modal-hd__close" (click)="fechar()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </header>
+
+  <!-- Loading -->
+  <div class="modal-loading" *ngIf="carregando">
+    <div class="modal-loading__spinner"></div>
+    <span>Consolidando dados...</span>
+  </div>
+
+  <!-- Body -->
+  <div class="modal-body" *ngIf="!carregando">
+
+    <!-- KPIs -->
+    <div class="kpi-row">
+
+      <div class="kpi-card kpi-card--blue">
+        <div class="kpi-card__top">
+          <span class="kpi-card__label">Peso Total Acumulado</span>
+          <div class="kpi-card__icon">
+            <mat-icon>scale</mat-icon>
+          </div>
+        </div>
+        <div class="kpi-card__value">
+          {{ resumo.kgGeral | number:'1.0-2' }}
+          <span class="kpi-card__unit">Kg</span>
+        </div>
+        <div class="kpi-card__bar">
+          <div class="kpi-card__bar-fill"></div>
+        </div>
+      </div>
+
+      <div class="kpi-card kpi-card--green">
+        <div class="kpi-card__top">
+          <span class="kpi-card__label">Investimento Total</span>
+          <div class="kpi-card__icon">
+            <mat-icon>payments</mat-icon>
+          </div>
+        </div>
+        <div class="kpi-card__value">
+          {{ resumo.valorGeral | currency:'BRL' }}
+        </div>
+        <div class="kpi-card__bar">
+          <div class="kpi-card__bar-fill"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Tabela -->
+    <div class="detail-card">
+      <div class="detail-card__header">
+        <div class="detail-card__stripe"></div>
+        <h3 class="detail-card__title">Detalhamento por Pescado</h3>
+        <span class="detail-card__count">{{ resumo.itensAgrupados?.length }} itens</span>
+      </div>
+
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Produto</th>
+              <th class="col-center">Tam.</th>
+              <th class="col-right">Total Kg</th>
+              <th class="col-right">Investido</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of resumo.itensAgrupados; let i = index"
+                class="data-table__row"
+                [style.animation-delay]="i * 55 + 'ms'">
+              <td>
+                <div class="product-cell">
+                  <span class="product-cell__name">{{ item.nomeProduto }}</span>
+                  <span class="product-cell__type">{{ item.tipo }}</span>
+                </div>
+              </td>
+              <td class="col-center">
+                <span class="badge-tam">{{ item.tamanho }}</span>
+              </td>
+              <td class="col-right">
+                <span class="val-kg">{{ item.totalKg | number:'1.0-2' }} <small>Kg</small></span>
+              </td>
+              <td class="col-right">
+                <span class="val-money">{{ item.totalValor | currency:'BRL' }}</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>

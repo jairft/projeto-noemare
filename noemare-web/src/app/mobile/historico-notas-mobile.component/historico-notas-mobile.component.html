@@ -1,0 +1,88 @@
+<div class="mobile-wrapper">
+  
+  <header class="mobile-header">
+    <div class="header-top">
+      <button class="btn-back" (click)="voltarHome()">
+        <mat-icon>arrow_back_ios_new</mat-icon>
+      </button>
+      <h1>Histórico</h1>
+      <button class="btn-filter" (click)="toggleFiltros()">
+        <mat-icon>filter_list</mat-icon>
+      </button>
+    </div>
+
+    <div class="search-bar" [formGroup]="filtroForm">
+      <mat-icon>search</mat-icon>
+      <input type="text" formControlName="termoBusca" placeholder="Buscar por fornecedor...">
+    </div>
+  </header>
+
+  <main class="mobile-content">
+
+    <div class="filter-panel" *ngIf="mostrarFiltros">
+      <h3>Filtrar por Período</h3>
+      <form [formGroup]="filtroForm" class="filter-grid">
+        <div class="form-group">
+          <label>Data Inicial</label>
+          <div class="input-container">
+            <input type="date" formControlName="dataInicio">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Data Final</label>
+          <div class="input-container">
+            <input type="date" formControlName="dataFim">
+          </div>
+        </div>
+      </form>
+      <div class="filter-actions">
+        <button class="btn-outline" (click)="limparFiltro()">Limpar</button>
+        <button class="btn-primary-small" (click)="buscarHistorico()">Aplicar</button>
+      </div>
+    </div>
+
+    <div class="loading-state" *ngIf="isLoading">
+      <div class="spinner-large"></div>
+      <p>Carregando notas...</p>
+    </div>
+
+    <div class="empty-state" *ngIf="!isLoading && notasFiltradas.length === 0">
+      <div class="empty-icon"><mat-icon>receipt_long</mat-icon></div>
+      <h3>Nenhuma nota encontrada</h3>
+      <p>Tente ajustar os filtros de busca ou período.</p>
+    </div>
+
+    <div class="cards-list" *ngIf="!isLoading && notasFiltradas.length > 0">
+      <div class="nota-card" *ngFor="let nota of notasFiltradas">
+        
+        <div class="nota-header">
+          <div class="fornecedor-info">
+            <div class="avatar">{{ ($any(nota).fornecedorNome || $any(nota).fornecedor || 'F') | slice:0:1 }}</div>
+            <div>
+              <h3 class="nome">{{ $any(nota).fornecedorNome || $any(nota).fornecedor }}</h3>
+              <span class="data">{{ ($any(nota).dataHora || $any(nota).data) | date:'dd/MM/yyyy HH:mm' }}</span>
+            </div>
+          </div>
+          <div class="valor-info">
+            <strong>R$ {{ nota.valorTotal | number:'1.2-2' }}</strong>
+          </div>
+        </div>
+
+       <div class="nota-body">
+          <div class="pill-items">
+            <mat-icon>set_meal</mat-icon>
+            <span>{{ resumirItens($any(nota).pescados || $any(nota).itens) }}</span>
+          </div>
+        </div>
+
+        <div class="nota-footer">
+          <button class="btn-action" (click)="abrirModalRecibo(nota)">
+            <mat-icon>receipt</mat-icon> Ver Recibo
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+</div>

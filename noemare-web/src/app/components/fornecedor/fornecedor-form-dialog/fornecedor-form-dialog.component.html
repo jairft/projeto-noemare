@@ -1,0 +1,20 @@
+<div class="dialog-container">
+  <h2 mat-dialog-title class="dialog-title">Novo Fornecedor</h2>
+  
+  <mat-dialog-content>
+    <form [formGroup]="form" class="form-layout">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Nome da Empresa / Fornecedor</mat-label>
+        <input matInput formControlName="nome" placeholder="Ex: Pescados Mar Azul">
+        <mat-error *ngIf="form.get('nome')?.hasError('required')">O nome é obrigatório</mat-error>
+      </mat-form-field>
+    </form>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end" class="dialog-actions">
+    <button mat-button (click)="fechar()">Cancelar</button>
+    <button mat-raised-button class="btn-gradient-primary" [disabled]="form.invalid" (click)="salvar()">
+      Cadastrar
+    </button>
+  </mat-dialog-actions>
+</div>
