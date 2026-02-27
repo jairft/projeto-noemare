@@ -1,21 +1,25 @@
-# Estágio 1: Build do .jar
+# Estágio 1: Build do .jar (Maven + JDK 21)
 FROM maven:3.9.6-eclipse-temurin-21-alpine AS build
 WORKDIR /app
 
-# Copia o pom.xml e baixa as dependências primeiro (aproveita o cache do Docker)
+# Cache de dependências: agiliza os próximos builds se o pom.xml não mudar
 COPY pom.xml .
 RUN mvn dependency:go-offline
 
-# Copia o código fonte e compila o projeto ignorando os testes
+# Compilação ignorando os testes para ser mais rápido no deploy
 COPY src ./src
 RUN mvn clean package -DskipTests
 
-# Estágio 2: Imagem final super leve para rodar o Java
+# Estágio 2: Imagem de execução (Apenas o JRE 21 - muito mais leve e segura)
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 
-# Copia o .jar gerado no estágio anterior
+# Copia o .jar gerado no estágio anterior para a imagem final
 COPY --from=build /app/target/*.jar app.jar
 
+# O Render vai injetar a porta via variável de ambiente PORT. 
+# O Spring já está preparado no seu yaml, mas o EXPOSE ajuda na documentação.
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+
+# Comando de inicialização forçando o profile de produção
+ENTRYPOINT ["java", "-Dspring.profiles.active=prod", "-jar", "app.jar"]
