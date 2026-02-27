@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
-  // 👉 Essa URL o Render vai gerar depois, mas já deixe o padrão:
-  apiUrl: 'https://projeto-noemare.onrender.com/api',
-  mobileUrl: 'https://projeto-noemare.onrender.com/login-mobile'
+  // 👉 URL oficial da sua API que está "Live" no Render:
+  apiUrl: 'https://noemare-api.onrender.com/api',
+  mobileUrl: 'https://noemare-api.onrender.com/login-mobile'
 };
