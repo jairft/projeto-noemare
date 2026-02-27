@@ -1,10 +1,10 @@
 export const environment = {
-  production: false,
+  production: true, // 👉 Crucial: indica ao Angular que é modo produção
   
-  // Link da API (que já estava aí)
-  apiUrl: `http://${window.location.hostname}:8080/api`, 
- 
+  // 👉 Aqui entrará a URL que o Render vai te dar para a API
+  // Por enquanto, vamos deixar o padrão que o Render costuma criar:
+  apiUrl: 'https://noemare-api.onrender.com/api', 
 
-  // Fica muito mais fácil de achar e mudar o IP no futuro.
-  mobileUrl: 'http://10.0.0.128:4200/login-mobile' 
+  // 👉 Aqui entra a URL que o Render/Vercel vai dar para o seu Front-end
+  mobileUrl: 'https://noemare-web.onrender.com/login-mobile' 
 };
