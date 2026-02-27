@@ -749,3 +749,15 @@ mat-checkbox {
     }
   }
 }
+
+.fin-nota-badge {
+  background-color: #f1f5f9; // Fundo cinza bem clarinho
+  color: #475569;            // Texto chumbo
+  font-weight: 700;
+  font-size: 0.75rem;
+  padding: 4px 8px;
+  border-radius: 6px;
+  letter-spacing: 0.5px;
+  border: 1px solid #e2e8f0;
+  display: inline-block;
+}

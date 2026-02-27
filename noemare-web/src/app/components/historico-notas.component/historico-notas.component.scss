@@ -559,3 +559,17 @@ $radius-sm:     8px;
     color: #e11d48; // Rose 600
   }
 }
+
+/* 👉 Estilo para o Número da Nota no Histórico */
+.hist-nota-badge {
+  background-color: #f1f5f9; // Fundo cinza suave
+  color: #475569;            // Chumbo
+  font-weight: 700;
+  font-size: 0.75rem;
+  padding: 4px 8px;
+  border-radius: 6px;
+  letter-spacing: 0.5px;
+  border: 1px solid #e2e8f0;
+  display: inline-block;
+  white-space: nowrap;       // Impede que quebre de linha se o número for longo
+}

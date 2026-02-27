@@ -56,7 +56,8 @@ export class HistoricoNotasComponent implements OnInit, AfterViewInit {
   });
 
   notas = new MatTableDataSource<HistoricoNotaResponse>([]);
-  colunasExibidas: string[] = ['dataHora', 'fornecedor', 'pescados', 'valorTotal', 'acoes'];
+  // Adicione a coluna 'numeroNota' na posição desejada (eu coloquei antes do fornecedor)
+  colunasExibidas: string[] = ['numeroNota', 'dataHora', 'fornecedor', 'pescados', 'valorTotal', 'acoes'];
   
   anoAtual!: number;
 

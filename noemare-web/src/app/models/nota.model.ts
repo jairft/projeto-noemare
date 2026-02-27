@@ -52,7 +52,7 @@ export interface HistoricoNotaItemResponse {
 // ⚠️ ATUALIZADO: Preparado para receber o número da nota na listagem
 export interface HistoricoNotaResponse {
   id: number;
-  numeroNota?: string;  // <-- Adicionado para exibir no histórico/tabela
+  numeroNota?: string; 
   dataNota: string;
   fornecedorNome: string;
   valorTotal: number;

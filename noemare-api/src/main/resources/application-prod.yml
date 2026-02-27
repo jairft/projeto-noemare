@@ -1,0 +1,55 @@
+spring:
+  application:
+    name: noemare-api
+
+  # 👉 Jackson: Datas formatadas para o padrão PT-BR
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+      write-date-timestamps-as-nanoseconds: false
+    time-zone: America/Sao_Paulo
+
+  # 👉 Banco de Dados: Exige variáveis de ambiente configuradas no servidor
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASS}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate # Estrutura controlada exclusivamente pelo Flyway
+    show-sql: false # Performance: evita logs excessivos em produção
+    properties:
+      hibernate:
+        format_sql: false
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+
+api:
+  security:
+    token:
+      secret: ${JWT_SECRET} # Chave do Token JWT (Obrigatória na nuvem)
+      expiration: ${JWT_EXPIRATION:28800000} # 8 horas (padrão)
+    
+    # 👉 NOVO: Código Mestre obrigatório para produção
+    master-code: ${MASTER_CODE}
+
+app:
+  cors:
+    # URL do seu Front-end (Vercel/Netlify) configurada via variável
+    allowed-origins: ${CORS_ALLOWED_ORIGINS}
+
+server:
+  port: ${PORT:8080} # Porta dinâmica injetada pelo provedor Cloud
+  error:
+    include-stacktrace: never # Segurança: não expõe código em caso de erro
+    include-message: always
+
+logging:
+  level:
+    root: INFO
+    com.noemare.api: INFO

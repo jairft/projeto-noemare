@@ -12,8 +12,6 @@ public record NotaFornecedorResponse(
         Long id,
         Long fornecedorId,
         String fornecedorNome,
-        
-        // 👉 NOVO: Adicionado para devolver ao Front-end
         String numeroNota, 
         
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")

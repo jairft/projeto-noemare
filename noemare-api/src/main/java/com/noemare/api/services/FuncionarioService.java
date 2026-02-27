@@ -2,6 +2,7 @@ package com.noemare.api.services;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value; // 👉 Importado para leitura dinâmica
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
@@ -16,7 +17,7 @@ import com.noemare.api.domain.enums.RoleFuncionario;
 import com.noemare.api.domain.enums.StatusConta;
 import com.noemare.api.dtos.request.FuncionarioRegistroRequest;
 import com.noemare.api.dtos.request.LoginRequest; 
-import com.noemare.api.dtos.request.AlterarSenhaRequest; // <-- Importado o novo DTO
+import com.noemare.api.dtos.request.AlterarSenhaRequest; 
 import com.noemare.api.dtos.response.FuncionarioResponse;
 import com.noemare.api.dtos.response.LoginResponse; 
 import com.noemare.api.exceptions.RegraNegocioException;
@@ -32,7 +33,9 @@ public class FuncionarioService {
     private final AuthenticationManager authenticationManager; 
     private final TokenService tokenService; 
 
-    private static final String CODIGO_MESTRE_FIXO = "@ADMIN-NOEMARE-MASTER-2026@";
+    
+    @Value("${api.security.master-code}")
+    private String codigoMestreAdmin;
 
     public FuncionarioService(FuncionarioRepository funcionarioRepository, 
                               PasswordEncoder passwordEncoder,
@@ -46,9 +49,6 @@ public class FuncionarioService {
         this.tokenService = tokenService;
     }
 
-    /**
-     * Realiza a autenticação e gera o token JWT
-     */
     public LoginResponse login(LoginRequest data) {
         try {
             var usernamePassword = new UsernamePasswordAuthenticationToken(data.email(), data.senha());
@@ -87,7 +87,8 @@ public class FuncionarioService {
         funcionario.setRole(request.role());
 
         if (request.role() == RoleFuncionario.ADMIN) {
-            if (request.codigoMestre() == null || !request.codigoMestre().equals(CODIGO_MESTRE_FIXO)) {
+            // 👉 AJUSTADO: Validação agora usa a variável dinâmica
+            if (request.codigoMestre() == null || !request.codigoMestre().equals(this.codigoMestreAdmin)) {
                 throw new RegraNegocioException("Código mestre inválido.");
             }
             funcionario.setStatusConta(StatusConta.ATIVO);
@@ -103,25 +104,18 @@ public class FuncionarioService {
         return new FuncionarioResponse(funcionario);
     }
 
-    /**
-     * NOVO MÉTODO: Permite que o usuário logado altere sua própria senha
-     */
     @Transactional
     public void alterarSenhaPropria(Long id, AlterarSenhaRequest request) {
-        // 1. Busca o funcionário logado
         Funcionario funcionario = funcionarioRepository.findById(id)
                 .orElseThrow(() -> new RegraNegocioException("Funcionário não encontrado."));
 
-        // 2. Valida se a senha atual (texto puro) bate com a do banco (criptografada)
         if (!passwordEncoder.matches(request.senhaAtual(), funcionario.getSenha())) {
             throw new RegraNegocioException("A senha atual informada está incorreta.");
         }
 
-        // 3. Criptografa a nova senha e salva
         funcionario.setSenha(passwordEncoder.encode(request.novaSenha()));
         funcionarioRepository.save(funcionario);
 
-        // 4. Registra no Log
         logService.registrarLog(
             "ALTERAR_SENHA_PROPRIA", 
             "Funcionario", 

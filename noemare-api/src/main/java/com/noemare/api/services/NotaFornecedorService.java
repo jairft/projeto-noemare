@@ -51,10 +51,17 @@ public class NotaFornecedorService {
         nota.setFornecedor(fornecedor);
         nota.setDescricao(request.descricao());
         
-        // 👉 NOVO: Salvando o número e a data informados no front-end
-        nota.setNumeroNota(request.numeroNota());
+        // 👉 TRATAMENTO NOVO: Se vier vazio ou muito longo, ajusta para o padrão
+        String numero = request.numeroNota() != null && !request.numeroNota().trim().isEmpty() 
+            ? request.numeroNota().trim() 
+            : "S/N";
+        
+        // Se a string passar de 50 caracteres (limite do seu banco), ele corta
+        if(numero.length() > 50) numero = numero.substring(0, 50);
+        nota.setNumeroNota(numero);
+
         if (request.dataNota() != null) {
-            nota.setDataNota(request.dataNota().atStartOfDay()); // Converte LocalDate para LocalDateTime
+            nota.setDataNota(request.dataNota().atStartOfDay());
         }
         
         nota.setStatus(StatusNota.ABERTA);
@@ -79,41 +86,41 @@ public class NotaFornecedorService {
             "GERAR_NOTA", 
             "NotaFornecedor", 
             notaSalva.getId(), 
-            "Nota gerada. Fornecedor: " + fornecedor.getNome() + " | Valor: R$ " + notaSalva.getValorTotal()
+            "Nota gerada (Nº: "+ notaSalva.getNumeroNota() +"). Fornecedor: " + fornecedor.getNome() + " | Valor: R$ " + notaSalva.getValorTotal()
         );
 
         return new NotaFornecedorResponse(notaSalva);
     }
 
-    // 👉 NOVO: Método de Editar Nota
     @Transactional
     public NotaFornecedorResponse editarNota(Long id, NotaFornecedorRequest request) {
         NotaFornecedor nota = notaRepository.findById(id)
                 .orElseThrow(() -> new RegraNegocioException("Nota não encontrada com o ID: " + id));
 
-        // Regra de segurança: não editar nota que já tem pagamentos
         if (nota.getStatus() != StatusNota.ABERTA) {
             throw new RegraNegocioException("Só é possível editar notas com status ABERTA.");
         }
 
         Fornecedor fornecedor = nota.getFornecedor();
 
-        // 1. Estorna o valor total antigo do saldo do fornecedor
         fornecedor.subtrairSaldoCredor(nota.getValorTotal());
 
-        // 2. Atualiza os dados de cabeçalho
-        nota.setNumeroNota(request.numeroNota());
+        // 👉 Aplica a mesma lógica de segurança de tamanho e nulidade aqui na edição
+        String numero = request.numeroNota() != null && !request.numeroNota().trim().isEmpty() 
+            ? request.numeroNota().trim() 
+            : "S/N";
+        if(numero.length() > 50) numero = numero.substring(0, 50);
+        
+        nota.setNumeroNota(numero);
         nota.setDescricao(request.descricao());
+        
         if (request.dataNota() != null) {
             nota.setDataNota(request.dataNota().atStartOfDay());
         }
 
-        // 3. Limpa os itens antigos e zera o valor total
-        // O JPA cuidará de deletar os itens velhos por conta do orphanRemoval = true na entidade
         nota.getItens().clear();
         nota.setValorTotal(BigDecimal.ZERO);
 
-        // 4. Adiciona os novos itens e recalcula tudo
         for (NotaItemRequest itemRequest : request.itens()) {
             ClassificacaoProduto produto = classificacaoRepository.findById(itemRequest.produtoId())
                     .orElseThrow(() -> new RegraNegocioException("Produto do cardápio não encontrado. ID: " + itemRequest.produtoId()));
@@ -123,10 +130,9 @@ public class NotaFornecedorService {
             item.setQuantidadeKg(itemRequest.quantidadeKg());
             item.setValorUnitario(itemRequest.valorUnitario());
             
-            nota.adicionarItem(item); // O método adicionarItem soma automaticamente no valorTotal
+            nota.adicionarItem(item); 
         }
 
-        // 5. Adiciona o novo valor total ao saldo do fornecedor
         fornecedor.adicionarSaldoCredor(nota.getValorTotal());
 
         NotaFornecedor notaAtualizada = notaRepository.save(nota);
@@ -155,16 +161,13 @@ public class NotaFornecedorService {
     @Transactional(readOnly = true)
     public List<HistoricoNotaResponse> buscarHistoricoFiltrado(Integer ano, LocalDate dataInicio, LocalDate dataFim) {
         
-        // Se o ano vier nulo, usamos o ano atual como trava de segurança
         if (ano == null) {
             ano = Year.now().getValue();
         }
 
-        // Converte as datas apenas se existirem; caso contrário, passam nulas para a Query Custom
         LocalDateTime inicio = (dataInicio != null) ? dataInicio.atStartOfDay() : null;
         LocalDateTime fim = (dataFim != null) ? dataFim.atTime(LocalTime.MAX) : null;
 
-        // Chama o novo método do repositório que criamos
         List<NotaFornecedor> notas = notaRepository.buscarHistoricoFiltrado(ano, inicio, fim);
 
         return notas.stream()
@@ -174,29 +177,24 @@ public class NotaFornecedorService {
 
     @Transactional
     public void excluirNota(Long id) {
-        // 1. Busca a nota ou lança erro se não existir
         NotaFornecedor nota = notaRepository.findById(id)
                 .orElseThrow(() -> new RegraNegocioException("Nota não encontrada com o ID: " + id));
 
-        // 2. TRAVA DE SEGURANÇA: Não permite excluir se o status não for ABERTA
         if (nota.getStatus() != StatusNota.ABERTA) {
             throw new RegraNegocioException("Não é possível excluir uma nota que já possui pagamentos ou abatimentos registrados.");
         }
 
         Fornecedor fornecedor = nota.getFornecedor();
 
-        // 3. Estorno do Saldo Credor: Subtraímos o valor da nota que seria paga ao fornecedor
         fornecedor.subtrairSaldoCredor(nota.getValorTotal()); 
 
-        // 4. Registro de Log para auditoria
         logService.registrarLog(
             "EXCLUIR_NOTA", 
             "NotaFornecedor", 
             nota.getId(), 
-            "Nota excluída. Fornecedor: " + fornecedor.getNome() + " | Valor EstEstornado: R$ " + nota.getValorTotal()
+            "Nota excluída (Nº: "+ nota.getNumeroNota() +"). Fornecedor: " + fornecedor.getNome() + " | Valor Estornado: R$ " + nota.getValorTotal()
         );
 
-        // 5. Deleta a nota (o JPA cuidará de remover os itens da nota via Cascade)
         notaRepository.delete(nota);
     }
 }

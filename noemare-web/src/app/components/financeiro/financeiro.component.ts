@@ -62,7 +62,7 @@ export class FinanceiroComponent implements OnInit {
     this.carregarContasPendentes();
   }
 
-  carregarContasPendentes(): void {
+ carregarContasPendentes(): void {
     this.notaService.listarTodas().subscribe({
       next: (notas) => {
         const todasAsNotas = notas.map(nota => {
@@ -72,14 +72,16 @@ export class FinanceiroComponent implements OnInit {
           
           return {
             id: nota.id,
+            numeroNota: nota.numeroNota || 'S/N', 
+            
             fornecedor: nota.fornecedorNome,
             fornecedorId: nota.fornecedorId,
             data: nota.dataNota ? new Date(nota.dataNota).toLocaleDateString('pt-BR') : '-',
             valorTotalFormatado: formatadorMoeda.format(nota.valorTotal),
-            valorTotal: nota.valorTotal, // Preserva o número cru
-            valorPagoNum: valorJaPago,   // Preserva o número cru para a soma
+            valorTotal: nota.valorTotal, 
+            valorPagoNum: valorJaPago,   
             valorPago: formatadorMoeda.format(valorJaPago),
-            faltaPagarNumero: faltaPagar, // Preserva o número cru
+            faltaPagarNumero: faltaPagar, 
             faltaPagar: formatadorMoeda.format(faltaPagar),
             status: nota.status,
             notaOriginal: nota
@@ -93,7 +95,7 @@ export class FinanceiroComponent implements OnInit {
         });
 
         this.extrairFornecedoresParaFiltro();
-        this.aplicarFiltroFornecedor(); // Já chama os KPIs aqui dentro
+        this.aplicarFiltroFornecedor(); 
       },
       error: (err) => {
         console.error(err);
@@ -332,9 +334,9 @@ export class FinanceiroComponent implements OnInit {
   }
 
   handlePageEvent(e: PageEvent) { this.pageIndex = e.pageIndex; }
-  get totalPagas(): number { return this.contasAPagar.filter(c => c.status === 'PAGA').length; }
-  get totalPendentes(): number { return this.contasAPagar.filter(c => c.status !== 'PAGA').length; }
-  get notasPendentesNaVisualizacao(): any[] {
-    return this.contasAPagar.filter(c => c.status !== 'PAGA');
+    get totalPagas(): number { return this.contasAPagar.filter(c => c.status === 'PAGA').length; }
+    get totalPendentes(): number { return this.contasAPagar.filter(c => c.status !== 'PAGA').length; }
+    get notasPendentesNaVisualizacao(): any[] {
+      return this.contasAPagar.filter(c => c.status !== 'PAGA');
   }
 }

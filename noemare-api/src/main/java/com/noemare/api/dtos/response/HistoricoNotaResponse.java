@@ -9,6 +9,8 @@ import com.noemare.api.domain.NotaFornecedor;
 
 public record HistoricoNotaResponse(
     Long id,
+    String numeroNota, 
+    
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     LocalDateTime dataNota,
     String fornecedorNome,
@@ -19,6 +21,10 @@ public record HistoricoNotaResponse(
     public HistoricoNotaResponse(NotaFornecedor nota) {
         this(
             nota.getId(),
+            
+            // 👉 NOVO: Puxando da entidade aqui (precisa ser na mesma ordem do cabeçalho)
+            nota.getNumeroNota(), 
+            
             nota.getDataNota(),
             nota.getFornecedor() != null ? nota.getFornecedor().getNome() : "Fornecedor Removido",
             nota.getValorTotal(),
