@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
-  // 👉 URL oficial da sua API que está "Live" no Render:
   apiUrl: 'https://noemare-api.onrender.com/api',
-  mobileUrl: 'https://noemare-api.onrender.com/login-mobile'
+  // 👉 Mude para "noemare-web", pois a rota está no Angular:
+  mobileUrl: 'https://noemare-web.onrender.com/login-mobile' 
 };
