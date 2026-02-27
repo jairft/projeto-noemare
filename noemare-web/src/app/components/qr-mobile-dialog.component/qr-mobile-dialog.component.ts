@@ -25,6 +25,7 @@ export class QrMobileDialogComponent implements AfterViewInit {
   constructor(private dialogRef: MatDialogRef<QrMobileDialogComponent>) {}
 
   ngAfterViewInit(): void {
+    console.log("Link gerado para o QR Code:", this.urlMobile);
     this.qrCode = new QRCodeStyling({
       width: 240, 
       height: 240,
