@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core'; // ✅ Corrigido: inject vem de @angular/core
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -21,7 +21,7 @@ import { identificarBanco } from '../../data/bancos';
     ReactiveFormsModule, 
     MatIconModule,
     MatPaginatorModule,
-    ZXingScannerModule // Habilita o uso da câmera no HTML
+    ZXingScannerModule
   ],
   templateUrl: './boleto-mobile.component.html',
   styleUrls: ['./boleto-mobile.component.scss']
@@ -141,7 +141,37 @@ export class BoletoMobileComponent implements OnInit {
 
     linha = linha.replace(/[^0-9]/g, '');
 
-    if (linha.length === 47) {
+    // 👉 TRATAMENTO PARA CÓDIGO DE BARRAS (44 DÍGITOS) - CAPTURADO PELA CÂMERA
+    if (linha.length === 44) {
+      const fatorVencimento = parseInt(linha.substring(5, 9), 10);
+      const valorFinal = parseFloat(linha.substring(9, 19)) / 100;
+      const codigoBanco = linha.substring(0, 3);
+      const nomeBancoFormatado = identificarBanco(codigoBanco);
+
+      let dataVencimentoStr = '';
+      if (fatorVencimento > 0) {
+        const dataBaseUTC = Date.UTC(1997, 9, 7);
+        let msCalculado = dataBaseUTC + (fatorVencimento * 24 * 60 * 60 * 1000);
+        
+        // Correção de Rollover (mesmo critério da linha digitável)
+        const dataCorteRollover = new Date(2025, 1, 22);
+        if (new Date(msCalculado) < dataCorteRollover) {
+          msCalculado += (9000 * 24 * 60 * 60 * 1000);
+        }
+        
+        const dataFinal = new Date(msCalculado);
+        const dataVenc = new Date(dataFinal.getUTCFullYear(), dataFinal.getUTCMonth(), dataFinal.getUTCDate(), 12, 0, 0);
+        dataVencimentoStr = dataVenc.toISOString().split('T')[0];
+      }
+
+      this.form.patchValue({
+        valor: valorFinal > 0 ? valorFinal : this.form.get('valor')?.value,
+        dataVencimento: dataVencimentoStr || this.form.get('dataVencimento')?.value,
+        descricao: this.form.get('descricao')?.value || `Boleto ${nomeBancoFormatado}`
+      });
+    }
+    // 👉 TRATAMENTO PARA LINHA DIGITÁVEL (47 DÍGITOS) - COLADO MANUALMENTE
+    else if (linha.length === 47) {
       const valorFinal = parseFloat(linha.substring(37, 47)) / 100;
       const fatorVencimento = parseInt(linha.substring(33, 37), 10);
       
@@ -149,14 +179,13 @@ export class BoletoMobileComponent implements OnInit {
       if (fatorVencimento > 0) {
         const dataBaseUTC = Date.UTC(1997, 9, 7);
         let msCalculado = dataBaseUTC + (fatorVencimento * 24 * 60 * 60 * 1000);
-        let dataFinal = new Date(msCalculado);
-
+        
         const dataCorteRollover = new Date(2025, 1, 22);
-        if (dataFinal < dataCorteRollover) {
+        if (new Date(msCalculado) < dataCorteRollover) {
           msCalculado += (9000 * 24 * 60 * 60 * 1000); 
-          dataFinal = new Date(msCalculado);
         }
 
+        const dataFinal = new Date(msCalculado);
         const dataVenc = new Date(dataFinal.getUTCFullYear(), dataFinal.getUTCMonth(), dataFinal.getUTCDate(), 12, 0, 0);
         dataVencimentoStr = dataVenc.toISOString().split('T')[0];
       }
@@ -170,6 +199,7 @@ export class BoletoMobileComponent implements OnInit {
         descricao: this.form.get('descricao')?.value || `Boleto ${nomeBancoFormatado}`
       });
     }
+    // 👉 TRATAMENTO PARA CONTAS DE CONSUMO (48 DÍGITOS)
     else if (linha.length === 48 && linha.startsWith('8')) {
       const barras = linha.substring(0,11) + linha.substring(12,23) + linha.substring(24,35) + linha.substring(36,47);
       const valorFinal = parseFloat(barras.substring(4, 15)) / 100;

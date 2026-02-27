@@ -9,11 +9,12 @@
     </div>
     
     <div class="scanner-container">
-      <zxing-scanner
-        [formats]="formatsEnabled"
-        (scanSuccess)="handleScanSuccess($event)"
-        (scanError)="handleScanError($event)">
-      </zxing-scanner>
+     <zxing-scanner
+      [formats]="formatsEnabled"
+      [tryHarder]="true" 
+      (scanSuccess)="handleScanSuccess($event)"
+      (scanError)="handleScanError($event)">
+    </zxing-scanner>
       <div class="scan-region-highlight"></div>
     </div>
   </div>
