@@ -5,7 +5,7 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { MatIconModule } from '@angular/material/icon';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 
-// 👉 Imports para o Scanner de Boleto
+// Imports para o Scanner
 import { ZXingScannerModule } from '@zxing/ngx-scanner'; 
 import { BarcodeFormat } from '@zxing/library';
 
@@ -39,16 +39,24 @@ export class BoletoMobileComponent implements OnInit {
   pageIndex = 0;
   boletosPaginados: any[] = [];
 
-  // --- CONTROLO DO SCANNER ---
+  // 👉 VARIÁVEIS PARA EXIBIR NA TELA (MOCK DO DESKTOP)
+  bancoExtraido: string = '';
+  valorExtraido: number | null = null;
+  vencimentoExtraido: string | null = null;
+
+  // --- CONTROLE DO SCANNER ---
   isScannerAtivo = false;
   formatsEnabled: BarcodeFormat[] = [
-    BarcodeFormat.ITF,       // 👉 OBRIGATÓRIO PARA BOLETOS BANCÁRIOS (Padrão Febraban)!
+    BarcodeFormat.ITF,
+    BarcodeFormat.EAN_13, 
+    BarcodeFormat.CODE_128, 
+    BarcodeFormat.QR_CODE 
   ];
 
   videoConstraints: MediaTrackConstraints = {
     width: { ideal: 1920, min: 1280 },
     height: { ideal: 1080, min: 720 },
-    facingMode: 'environment' // Garante que é a câmera de trás
+    facingMode: 'environment'
   };
 
   form: FormGroup = this.fb.group({
@@ -71,49 +79,130 @@ export class BoletoMobileComponent implements OnInit {
       const docEl = document.documentElement;
       if (docEl.requestFullscreen) {
         await docEl.requestFullscreen();
-        
-        // 👉 Truque do 'as any' para burlar o erro do TypeScript
         if (screen.orientation && (screen.orientation as any).lock) {
           await (screen.orientation as any).lock('landscape');
         }
       }
     } catch (err) {
-      console.warn('O navegador não suporta rotação automática. O usuário precisa girar manualmente.');
+      console.warn('O navegador não suporta rotação automática.');
     }
   }
 
   async fecharScanner(): Promise<void> {
     this.isScannerAtivo = false;
-
     try {
       if (document.fullscreenElement) {
         await document.exitFullscreen();
       }
-      
-      // 👉 Truque do 'as any' para burlar o erro do TypeScript
       if (screen.orientation && (screen.orientation as any).unlock) {
         (screen.orientation as any).unlock();
       }
-    } catch (err) {
-      console.warn('Erro ao restaurar a tela.');
-    }
+    } catch (err) {}
   }
 
   handleScanSuccess(result: string): void {
     if (result) {
+      // 👉 Filtro Anti-Leitura Parcial (Aceita apenas linha inteira de boleto)
+      if (result.length !== 44 && result.length !== 47 && result.length !== 48) {
+        console.warn('Leitura parcial ignorada: ', result);
+        return; 
+      }
+
       this.form.get('codigoBarras')?.setValue(result);
       this.processarLinhaDigitavel(); 
-      this.fecharScanner(); // Já vai destravar a tela aqui também
+      this.fecharScanner(); 
       this.notify.sucesso('Código capturado com sucesso!');
     }
   }
 
   handleScanError(error: any): void {
-    this.notify.erro('Erro ao acessar a câmera. Verifique as permissões.');
-    this.fecharScanner();
+    // Silencia erros contínuos de foco para não travar a tela
   }
 
-  // --- BUSCA E ORDENAÇÃO ---
+  // --- PROCESSAMENTO DA LINHA DIGITÁVEL ---
+  processarLinhaDigitavel(): void {
+    let linha = this.form.get('codigoBarras')?.value;
+    if (!linha) {
+      this.limparExtracao();
+      return;
+    }
+
+    linha = linha.replace(/[^0-9]/g, '');
+
+    // 👉 TRATAMENTO 44 DÍGITOS (CÂMERA)
+    if (linha.length === 44) {
+      const fatorVencimento = parseInt(linha.substring(5, 9), 10);
+      const valorFinal = parseFloat(linha.substring(9, 19)) / 100;
+      const codigoBanco = linha.substring(0, 3);
+      const nomeBancoFormatado = identificarBanco(codigoBanco);
+
+      let dataVencimentoStr = this.calcularData(fatorVencimento);
+
+      this.atualizarFormEVisores(valorFinal, dataVencimentoStr, `${codigoBanco} - ${nomeBancoFormatado}`);
+    }
+    // 👉 TRATAMENTO 47 DÍGITOS (DIGITADO/COLADO)
+    else if (linha.length === 47) {
+      const valorFinal = parseFloat(linha.substring(37, 47)) / 100;
+      const fatorVencimento = parseInt(linha.substring(33, 37), 10);
+      const codigoBanco = linha.substring(0, 3);
+      const nomeBancoFormatado = identificarBanco(codigoBanco);
+
+      let dataVencimentoStr = this.calcularData(fatorVencimento);
+
+      this.atualizarFormEVisores(valorFinal, dataVencimentoStr, `${codigoBanco} - ${nomeBancoFormatado}`);
+    }
+    // 👉 TRATAMENTO 48 DÍGITOS (CONTAS CONSUMO: ÁGUA/LUZ)
+    else if (linha.length === 48 && linha.startsWith('8')) {
+      const barras = linha.substring(0,11) + linha.substring(12,23) + linha.substring(24,35) + linha.substring(36,47);
+      const valorFinal = parseFloat(barras.substring(4, 15)) / 100;
+      const segmentoId = linha.substring(1, 2);
+      
+      const tipos: any = { '1': 'Prefeitura', '2': 'Saneamento', '3': 'Energia Elétrica', '4': 'Telecomunicações' };
+      const tipoConta = tipos[segmentoId] || 'Consumo';
+
+      this.atualizarFormEVisores(valorFinal, '', `Conta de ${tipoConta}`);
+    } else {
+      this.limparExtracao();
+    }
+  }
+
+  // Métodos Auxiliares de Extração
+  calcularData(fatorVencimento: number): string {
+    if (fatorVencimento > 0) {
+      const dataBaseUTC = Date.UTC(1997, 9, 7);
+      let msCalculado = dataBaseUTC + (fatorVencimento * 24 * 60 * 60 * 1000);
+      
+      const dataCorteRollover = new Date(2025, 1, 22);
+      if (new Date(msCalculado) < dataCorteRollover) {
+        msCalculado += (9000 * 24 * 60 * 60 * 1000);
+      }
+      
+      const dataFinal = new Date(msCalculado);
+      const dataVenc = new Date(dataFinal.getUTCFullYear(), dataFinal.getUTCMonth(), dataFinal.getUTCDate(), 12, 0, 0);
+      return dataVenc.toISOString().split('T')[0];
+    }
+    return '';
+  }
+
+  atualizarFormEVisores(valor: number, data: string, descricao: string) {
+    this.bancoExtraido = descricao;
+    this.valorExtraido = valor > 0 ? valor : null;
+    this.vencimentoExtraido = data || null;
+
+    this.form.patchValue({
+      valor: valor > 0 ? valor : this.form.get('valor')?.value,
+      dataVencimento: data || this.form.get('dataVencimento')?.value,
+      descricao: this.form.get('descricao')?.value || descricao
+    });
+  }
+
+  limparExtracao() {
+    this.bancoExtraido = '';
+    this.valorExtraido = null;
+    this.vencimentoExtraido = null;
+  }
+
+  // --- LISTAGEM E PAGINAÇÃO (MANTIDOS) ---
   listarBoletos(): void {
     this.boletoService.listarTodos().subscribe({
       next: (dados) => {
@@ -132,8 +221,7 @@ export class BoletoMobileComponent implements OnInit {
         });
 
         this.atualizarPagina();
-      },
-      error: () => this.notify.erro('Erro ao carregar boletos.')
+      }
     });
   }
 
@@ -165,94 +253,13 @@ export class BoletoMobileComponent implements OnInit {
     return 'PENDENTE';
   }
 
-  processarLinhaDigitavel(): void {
-    let linha = this.form.get('codigoBarras')?.value;
-    if (!linha) return;
-
-    linha = linha.replace(/[^0-9]/g, '');
-
-    // 👉 TRATAMENTO PARA CÓDIGO DE BARRAS (44 DÍGITOS) - CAPTURADO PELA CÂMERA
-    if (linha.length === 44) {
-      const fatorVencimento = parseInt(linha.substring(5, 9), 10);
-      const valorFinal = parseFloat(linha.substring(9, 19)) / 100;
-      const codigoBanco = linha.substring(0, 3);
-      const nomeBancoFormatado = identificarBanco(codigoBanco);
-
-      let dataVencimentoStr = '';
-      if (fatorVencimento > 0) {
-        const dataBaseUTC = Date.UTC(1997, 9, 7);
-        let msCalculado = dataBaseUTC + (fatorVencimento * 24 * 60 * 60 * 1000);
-        
-        // Correção de Rollover (mesmo critério da linha digitável)
-        const dataCorteRollover = new Date(2025, 1, 22);
-        if (new Date(msCalculado) < dataCorteRollover) {
-          msCalculado += (9000 * 24 * 60 * 60 * 1000);
-        }
-        
-        const dataFinal = new Date(msCalculado);
-        const dataVenc = new Date(dataFinal.getUTCFullYear(), dataFinal.getUTCMonth(), dataFinal.getUTCDate(), 12, 0, 0);
-        dataVencimentoStr = dataVenc.toISOString().split('T')[0];
-      }
-
-      this.form.patchValue({
-        valor: valorFinal > 0 ? valorFinal : this.form.get('valor')?.value,
-        dataVencimento: dataVencimentoStr || this.form.get('dataVencimento')?.value,
-        descricao: this.form.get('descricao')?.value || `Boleto ${nomeBancoFormatado}`
-      });
-    }
-    // 👉 TRATAMENTO PARA LINHA DIGITÁVEL (47 DÍGITOS) - COLADO MANUALMENTE
-    else if (linha.length === 47) {
-      const valorFinal = parseFloat(linha.substring(37, 47)) / 100;
-      const fatorVencimento = parseInt(linha.substring(33, 37), 10);
-      
-      let dataVencimentoStr = '';
-      if (fatorVencimento > 0) {
-        const dataBaseUTC = Date.UTC(1997, 9, 7);
-        let msCalculado = dataBaseUTC + (fatorVencimento * 24 * 60 * 60 * 1000);
-        
-        const dataCorteRollover = new Date(2025, 1, 22);
-        if (new Date(msCalculado) < dataCorteRollover) {
-          msCalculado += (9000 * 24 * 60 * 60 * 1000); 
-        }
-
-        const dataFinal = new Date(msCalculado);
-        const dataVenc = new Date(dataFinal.getUTCFullYear(), dataFinal.getUTCMonth(), dataFinal.getUTCDate(), 12, 0, 0);
-        dataVencimentoStr = dataVenc.toISOString().split('T')[0];
-      }
-
-      const codigoBanco = linha.substring(0, 3);
-      const nomeBancoFormatado = identificarBanco(codigoBanco);
-
-      this.form.patchValue({
-        valor: valorFinal > 0 ? valorFinal : this.form.get('valor')?.value,
-        dataVencimento: dataVencimentoStr || this.form.get('dataVencimento')?.value,
-        descricao: this.form.get('descricao')?.value || `Boleto ${nomeBancoFormatado}`
-      });
-    }
-    // 👉 TRATAMENTO PARA CONTAS DE CONSUMO (48 DÍGITOS)
-    else if (linha.length === 48 && linha.startsWith('8')) {
-      const barras = linha.substring(0,11) + linha.substring(12,23) + linha.substring(24,35) + linha.substring(36,47);
-      const valorFinal = parseFloat(barras.substring(4, 15)) / 100;
-      const segmentoId = linha.substring(1, 2);
-      
-      const tipos: any = { '1': 'Imposto', '2': 'Saneamento', '3': 'Energia', '4': 'Telecom' };
-      const tipoConta = tipos[segmentoId] || 'Consumo';
-
-      this.form.patchValue({
-        valor: valorFinal > 0 ? valorFinal : this.form.get('valor')?.value,
-        descricao: this.form.get('descricao')?.value || `Conta de ${tipoConta}`
-      });
-    }
-  }
-
   darBaixa(id: number): void {
     if (confirm('Confirmar o pagamento deste boleto?')) {
       this.boletoService.darBaixa(id).subscribe({
         next: () => {
-          this.notify.sucesso('Boleto marcado como pago!');
+          this.notify.sucesso('Boleto pago!');
           this.listarBoletos();
-        },
-        error: (err) => this.notify.erro(err.error?.mensagem || 'Erro ao processar o pagamento.')
+        }
       });
     }
   }
@@ -269,16 +276,16 @@ export class BoletoMobileComponent implements OnInit {
           this.isLoading = false;
           this.notify.sucesso('Boleto cadastrado!');
           this.form.reset();
+          this.limparExtracao();
           this.listarBoletos();
         },
         error: (err) => {
           this.isLoading = false;
-          this.notify.erro(err.error?.mensagem || 'Erro ao cadastrar o boleto.');
+          this.notify.erro(err.error?.mensagem || 'Erro ao cadastrar.');
         }
       });
     } else {
       this.form.markAllAsTouched();
-      this.notify.erro('Verifique se o código de barras é válido e contém valor e data.');
     }
   }
 }

@@ -48,6 +48,26 @@
         </div>
       </div>
 
+      <div class="extracted-card" *ngIf="bancoExtraido || valorExtraido">
+        <div class="extracted-header">
+          <mat-icon>auto_awesome</mat-icon>
+          <span>Dados Extraídos</span>
+        </div>
+        <div class="extracted-grid">
+          <div class="info-box institution">
+            <span class="label">Instituição</span>
+            <strong class="value">{{ bancoExtraido || 'Não identificada' }}</strong>
+          </div>
+          <div class="info-box">
+            <span class="label">Valor</span>
+            <strong class="value highlight">{{ valorExtraido ? (valorExtraido | currency:'BRL') : 'A preencher' }}</strong>
+          </div>
+          <div class="info-box">
+            <span class="label">Vencimento</span>
+            <strong class="value">{{ vencimentoExtraido ? (vencimentoExtraido | date:'dd/MM/yyyy':'UTC') : '--/--/----' }}</strong>
+          </div>
+        </div>
+      </div>
       <div class="form-group">
         <label for="descricao">Descrição da Conta</label>
         <div class="input-container" [class.has-error]="form.get('descricao')?.invalid && form.get('descricao')?.touched">
