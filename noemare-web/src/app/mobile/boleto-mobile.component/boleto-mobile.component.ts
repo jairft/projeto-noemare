@@ -42,9 +42,9 @@ export class BoletoMobileComponent implements OnInit {
   // --- CONTROLO DO SCANNER ---
   isScannerAtivo = false;
   formatsEnabled: BarcodeFormat[] = [
+    BarcodeFormat.ITF,       // 👉 OBRIGATÓRIO PARA BOLETOS BANCÁRIOS (Padrão Febraban)!
     BarcodeFormat.EAN_13, 
     BarcodeFormat.CODE_128, 
-    BarcodeFormat.ITF, 
     BarcodeFormat.QR_CODE 
   ];
 
@@ -59,7 +59,6 @@ export class BoletoMobileComponent implements OnInit {
     this.listarBoletos();
   }
 
-  // --- MÉTODOS DO SCANNER ---
   // --- MÉTODOS DO SCANNER ---
   async abrirScanner(): Promise<void> {
     this.isScannerAtivo = true;
