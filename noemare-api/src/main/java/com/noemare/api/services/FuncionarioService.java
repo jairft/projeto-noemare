@@ -1,8 +1,9 @@
 package com.noemare.api.services;
 
+import java.time.LocalDateTime; // 👉 Importado para capturar a data/hora atual
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Value; // 👉 Importado para leitura dinâmica
+import org.springframework.beans.factory.annotation.Value; 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
@@ -33,7 +34,6 @@ public class FuncionarioService {
     private final AuthenticationManager authenticationManager; 
     private final TokenService tokenService; 
 
-    
     @Value("${api.security.master-code}")
     private String codigoMestreAdmin;
 
@@ -59,6 +59,10 @@ public class FuncionarioService {
             if (funcionario.getStatusConta() == StatusConta.INATIVO) {
                 throw new RegraNegocioException("Sua conta ainda não foi ativada por um administrador.");
             }
+
+            // 👉 NOVO: Registra a data e hora exata deste login no banco de dados
+            funcionario.setUltimoLogin(LocalDateTime.now());
+            funcionarioRepository.save(funcionario);
 
             String token = tokenService.gerarToken(funcionario);
 
@@ -87,7 +91,6 @@ public class FuncionarioService {
         funcionario.setRole(request.role());
 
         if (request.role() == RoleFuncionario.ADMIN) {
-            // 👉 AJUSTADO: Validação agora usa a variável dinâmica
             if (request.codigoMestre() == null || !request.codigoMestre().equals(this.codigoMestreAdmin)) {
                 throw new RegraNegocioException("Código mestre inválido.");
             }
@@ -96,6 +99,7 @@ public class FuncionarioService {
             funcionario.setStatusConta(StatusConta.INATIVO);
         }
 
+        // Importante: No cadastro não preenchemos o último login, ele só será preenchido no primeiro acesso.
         funcionarioRepository.save(funcionario);
 
         logService.registrarLog("CADASTRAR_FUNCIONARIO", "Funcionario", funcionario.getId(), 

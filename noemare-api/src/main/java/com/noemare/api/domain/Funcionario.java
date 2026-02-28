@@ -64,6 +64,9 @@ public class Funcionario implements  UserDetails {
     @Column(name = "data_cadastro", nullable = false, updatable = false)
     private LocalDateTime dataCadastro;
 
+    @Column(name = "ultimo_login")
+    private LocalDateTime ultimoLogin;
+
     // Em Funcionario.java
     private Boolean solicitouRecuperacaoSenha = false;
 

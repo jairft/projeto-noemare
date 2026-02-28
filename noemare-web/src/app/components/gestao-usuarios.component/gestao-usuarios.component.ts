@@ -35,7 +35,7 @@ export class GestaoUsuariosComponent implements OnInit {
   private readonly confirmService = inject(ConfirmService); // <-- Injetado
   private readonly dialog = inject(MatDialog);
 
-  colunasExibidas: string[] = ['nome', 'email', 'role', 'status', 'acoes'];
+  colunasExibidas: string[] = ['nome', 'email', 'role', 'status', 'ultimoLogin', 'acoes']; // 👉 'ultimoLogin' adicionado aqui
   usuarios: any[] = [];
 
   ngOnInit(): void {

@@ -1,4 +1,4 @@
-// Define os tipos de acesso que criámos no Java
+// Define os tipos de acesso que criamos no Java
 export type RoleFuncionario = 'ADMIN' | 'USER';
 
 // Define os estados da conta
@@ -11,6 +11,10 @@ export interface User {
   email: string;
   role: RoleFuncionario;
   statusConta: StatusConta;
+
+  dataCadastro?: string; 
+  ultimoLogin?: string; 
+  solicitouRecuperacaoSenha?: boolean;
 }
 
 // Interface para a resposta do endpoint de Login
