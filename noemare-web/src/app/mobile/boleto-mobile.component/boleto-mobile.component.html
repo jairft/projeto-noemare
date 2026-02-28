@@ -13,6 +13,7 @@
       
       <zxing-scanner
         [formats]="formatsEnabled"
+        [videoConstraints]="videoConstraints"
         [tryHarder]="true"
         [autofocusEnabled]="true"
         (scanSuccess)="handleScanSuccess($event)"

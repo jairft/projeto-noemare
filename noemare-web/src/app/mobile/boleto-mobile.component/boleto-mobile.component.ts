@@ -48,6 +48,12 @@ export class BoletoMobileComponent implements OnInit {
     BarcodeFormat.QR_CODE 
   ];
 
+  videoConstraints: MediaTrackConstraints = {
+    width: { ideal: 1920, min: 1280 },
+    height: { ideal: 1080, min: 720 },
+    facingMode: 'environment' // Garante que é a câmera de trás
+  };
+
   form: FormGroup = this.fb.group({
     descricao: ['', Validators.required],
     codigoBarras: ['', Validators.required],
