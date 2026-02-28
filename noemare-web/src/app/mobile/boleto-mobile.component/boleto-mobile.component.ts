@@ -43,9 +43,6 @@ export class BoletoMobileComponent implements OnInit {
   isScannerAtivo = false;
   formatsEnabled: BarcodeFormat[] = [
     BarcodeFormat.ITF,       // 👉 OBRIGATÓRIO PARA BOLETOS BANCÁRIOS (Padrão Febraban)!
-    BarcodeFormat.EAN_13, 
-    BarcodeFormat.CODE_128, 
-    BarcodeFormat.QR_CODE 
   ];
 
   videoConstraints: MediaTrackConstraints = {
