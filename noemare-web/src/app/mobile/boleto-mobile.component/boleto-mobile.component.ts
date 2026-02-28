@@ -60,20 +60,48 @@ export class BoletoMobileComponent implements OnInit {
   }
 
   // --- MÉTODOS DO SCANNER ---
-  abrirScanner(): void {
+  // --- MÉTODOS DO SCANNER ---
+  async abrirScanner(): Promise<void> {
     this.isScannerAtivo = true;
-    this.notify.sucesso('Câmera ativada!');
+    this.notify.sucesso('Câmera ativada! Deite o celular para focar melhor.');
+
+    try {
+      const docEl = document.documentElement;
+      if (docEl.requestFullscreen) {
+        await docEl.requestFullscreen();
+        
+        // 👉 Truque do 'as any' para burlar o erro do TypeScript
+        if (screen.orientation && (screen.orientation as any).lock) {
+          await (screen.orientation as any).lock('landscape');
+        }
+      }
+    } catch (err) {
+      console.warn('O navegador não suporta rotação automática. O usuário precisa girar manualmente.');
+    }
   }
 
-  fecharScanner(): void {
+  async fecharScanner(): Promise<void> {
     this.isScannerAtivo = false;
+
+    try {
+      if (document.fullscreenElement) {
+        await document.exitFullscreen();
+      }
+      
+      // 👉 Truque do 'as any' para burlar o erro do TypeScript
+      if (screen.orientation && (screen.orientation as any).unlock) {
+        (screen.orientation as any).unlock();
+      }
+    } catch (err) {
+      console.warn('Erro ao restaurar a tela.');
+    }
   }
 
   handleScanSuccess(result: string): void {
     if (result) {
       this.form.get('codigoBarras')?.setValue(result);
       this.processarLinhaDigitavel(); 
-      this.fecharScanner();
+      this.fecharScanner(); // Já vai destravar a tela aqui também
       this.notify.sucesso('Código capturado com sucesso!');
     }
   }

@@ -1,53 +1,50 @@
-import { Component, OnInit, AfterViewInit, ViewChild, inject } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, ViewChild, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
+import { Observable } from 'rxjs';
 
 // Material
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatTableModule, MatTableDataSource } from '@angular/material/table'; // 👉 MatTableDataSource adicionado
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator'; // 👉 Paginator adicionado
-import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatTableDataSource } from '@angular/material/table';
 
-// Meus arquivos
+// Serviços e Models
 import { ClassificacaoProdutoService } from '../../services/classificacao-produto.service';
 import { ClassificacaoProduto } from '../../models/classificacao-produto.model';
 import { NgxCurrencyDirective } from 'ngx-currency';
 import { NotifyService } from '../../services/notify.service';
-import { ConfirmService } from '../../services/confirm.service'; 
-import { ConfirmDialogComponent } from '../confirm-dialogo/confirm-dialog.component';
+import { ConfirmDialogComponent } from '../../components/confirm-dialogo/confirm-dialog.component';
+
 
 @Component({
-  selector: 'app-classificacao-produto',
+  selector: 'app-classificacao-produto-mobile',
   standalone: true,
   imports: [
-    CommonModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule,
-    MatButtonModule, MatTableModule, MatCardModule, MatIconModule, MatSnackBarModule,
+    CommonModule, ReactiveFormsModule, 
+    MatIconModule, MatSnackBarModule,
     NgxCurrencyDirective, RouterModule, MatDialogModule,
-    MatPaginatorModule // 👉 Importado aqui
+    MatPaginatorModule // 👉 Import do Paginador adicionado
   ],
-  templateUrl: './classificacao-produto.component.html',
-  styleUrl: './classificacao-produto.component.scss'
+  templateUrl: './classificacao-produto-mobile.component.html',
+  styleUrls: ['./classificacao-produto-mobile.component.scss']
 })
-export class ClassificacaoProdutoComponent implements OnInit, AfterViewInit {
+export class ClassificacaoProdutoMobileComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
+  private readonly router = inject(Router);
   private readonly service = inject(ClassificacaoProdutoService);
   private readonly notify = inject(NotifyService);
-  private readonly confirmService = inject(ConfirmService); 
   private readonly dialog = inject(MatDialog);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   produtos: ClassificacaoProduto[] = [];
-  
-  // 👉 DataSource para a tabela
-  dataSource = new MatTableDataSource<ClassificacaoProduto>([]);
-  colunas: string[] = ['nome', 'tipo', 'tamanho', 'precoUnitario', 'acoes'];
+  isLoading = false;
 
-  // 👉 Paginator
+  // 👉 Variáveis para a Paginação dos Cards
+  dataSource = new MatTableDataSource<ClassificacaoProduto>([]); 
+  obs$!: Observable<any>;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   // Variáveis de controle para Edição
@@ -66,51 +63,68 @@ export class ClassificacaoProdutoComponent implements OnInit, AfterViewInit {
     this.carregarProdutos();
   }
 
-  // 👉 Conecta o paginador na tabela após a tela carregar
+  // 👉 Conecta o Paginador assim que a tela renderizar
   ngAfterViewInit(): void {
     this.dataSource.paginator = this.paginator;
+    this.obs$ = this.dataSource.connect();
+    setTimeout(() => this.cdr.detectChanges(), 50);
+  }
+
+  // 👉 Desconecta para evitar vazamento de memória
+  ngOnDestroy() {
+    if (this.dataSource) {
+      this.dataSource.disconnect();
+    }
   }
 
   carregarProdutos(): void {
     this.service.listarTodos().subscribe({
       next: (dados) => {
         this.produtos = dados;
-        this.dataSource.data = dados; // 👉 Alimenta o DataSource
+        this.dataSource.data = dados; // 👉 Alimenta o gerenciador de paginação
+        
+        if (this.paginator) {
+          this.paginator.pageSize = 6; // 👉 Trava o limite em 6 itens por página
+        }
       },
-      error: () => this.notify.erro('Erro ao carregar o catalogo de pescados.')
+      error: () => this.notify.erro('Erro ao carregar o catálogo de pescados.')
     });
   }
 
   salvar(): void {
     if (this.form.invalid) {
+      this.form.markAllAsTouched();
       this.notify.info('Preencha os dados do produto corretamente antes de salvar.');
       return;
     }
 
+    this.isLoading = true;
     const dados = this.form.value;
 
     if (this.modoEdicao && this.idProdutoEmEdicao) {
       this.service.atualizar(this.idProdutoEmEdicao, dados).subscribe({
         next: () => {
+          this.isLoading = false;
           this.notify.sucesso('Produto atualizado com sucesso!');
           this.finalizarFormulario();
           this.carregarProdutos();
         },
         error: (err) => {
-          const msg = err.error?.mensagem || 'Erro ao atualizar o produto no sistema.';
-          this.notify.erro(msg);
+          this.isLoading = false;
+          this.notify.erro(err.error?.mensagem || 'Erro ao atualizar o produto.');
         }
       });
     } else {
       this.service.cadastrar(dados).subscribe({ 
         next: () => {
-          this.notify.sucesso('Produto salvo no cardápio com sucesso!');
+          this.isLoading = false;
+          this.notify.sucesso('Produto salvo no cardápio!');
           this.finalizarFormulario();
           this.carregarProdutos();
         },
         error: (err) => {
-          const msg = err.error?.mensagem || 'Erro ao salvar o produto no sistema.';
-          this.notify.erro(msg);
+          this.isLoading = false;
+          this.notify.erro(err.error?.mensagem || 'Erro ao salvar o produto.');
         }
       });
     }
@@ -120,6 +134,8 @@ export class ClassificacaoProdutoComponent implements OnInit, AfterViewInit {
     this.modoEdicao = true;
     this.idProdutoEmEdicao = produto.id || null; 
     this.form.patchValue(produto); 
+    
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     this.notify.info(`Editando: ${produto.nome}`);
   }
 
@@ -129,19 +145,22 @@ export class ClassificacaoProdutoComponent implements OnInit, AfterViewInit {
     this.idProdutoEmEdicao = null;
   }
 
-  excluir(id: number): void {
+  excluir(id: number | undefined): void {
+    if(!id) return;
+
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      width: '400px',
+      width: '90%', 
+      maxWidth: '400px',
       data: {
-        titulo: 'Excluir Item do Catálogo',
+        titulo: 'Excluir Item',
         mensagem: 'Tem certeza que deseja remover este item?<br><b>Esta ação não poderá ser desfeita.</b>',
         tipo: 'perigo',
         icone: 'delete_forever',
-        textoConfirmar: 'Remover Item'
+        textoConfirmar: 'Remover'
       }
     });
 
-    dialogRef.afterClosed().subscribe((confirmado: boolean | string | null) => {
+    dialogRef.afterClosed().subscribe((confirmado) => {
       if (confirmado) {
         this.service.excluir(id).subscribe({
           next: () => {
@@ -149,11 +168,14 @@ export class ClassificacaoProdutoComponent implements OnInit, AfterViewInit {
             this.carregarProdutos();
           },
           error: (err) => {
-            const msg = err.error?.mensagem || 'Não é possível excluir um produto que já possui movimentações.';
-            this.notify.erro(msg);
+            this.notify.erro(err.error?.mensagem || 'Não é possível excluir um produto que já possui movimentações.');
           }
         });
       }
     });
+  }
+
+  voltar(): void {
+    this.router.navigate(['/home-mobile']); 
   }
 }

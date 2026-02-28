@@ -5,7 +5,7 @@
       <button class="btn-close-scanner" (click)="fecharScanner()">
         <mat-icon>close</mat-icon>
       </button>
-      <p>Aponte para o código de barras</p>
+      <p>Gire o celular na horizontal e aponte para o código</p>
     </div>
     
     <div class="scanner-container">
@@ -14,6 +14,7 @@
       <zxing-scanner
         [formats]="formatsEnabled"
         [tryHarder]="true"
+        [autofocusEnabled]="true"
         (scanSuccess)="handleScanSuccess($event)"
         (scanError)="handleScanError($event)">
       </zxing-scanner>
@@ -61,5 +62,5 @@
       </button>
     </form>
 
-    </main>
+  </main>
 </div>

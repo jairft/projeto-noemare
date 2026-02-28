@@ -111,6 +111,16 @@ export const routes: Routes = [
     title: 'Novo Boleto' 
   },
   { 
+    path: 'novo-emprestimo-mobile', 
+    loadComponent: () => import('./mobile/adicionar-emprestimo-mobile.component/adicionar-emprestimo-mobile.component')
+      .then(m => m.AdicionarEmprestimoMobileComponent)
+  },
+  { 
+    path: 'pescados-mobile', 
+    loadComponent: () => import('./mobile/classificacao-produto-mobile.component/classificacao-produto-mobile.component')
+      .then(m => m.ClassificacaoProdutoMobileComponent)
+  },
+  { 
     path: 'mobile/notas/novo', 
     loadComponent: () => import('./mobile/lancar-nota-mobile.component/lancar-nota-mobile.component').then(c => c.LancarNotaMobileComponent), 
     canActivate: [authGuard] 

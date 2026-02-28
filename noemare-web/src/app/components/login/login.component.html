@@ -115,14 +115,15 @@
         </div>
 
         <!-- Botão entrar -->
-        <button
-          class="login-btn"
-          type="submit"
-          [disabled]="loginForm.invalid"
-          [class.login-btn--disabled]="loginForm.invalid">
-          <mat-icon>login</mat-icon>
-          Entrar
-        </button>
+       <button
+        class="login-btn"
+        type="submit"
+        [disabled]="loginForm.invalid || isLoading"
+        [class.login-btn--disabled]="loginForm.invalid || isLoading">
+        <mat-icon *ngIf="!isLoading">login</mat-icon>
+        <span *ngIf="!isLoading">Entrar</span>
+        <div class="spinner-small" *ngIf="isLoading"></div>
+      </button>
 
       </form>
 

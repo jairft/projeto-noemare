@@ -1,0 +1,113 @@
+<div class="mobile-wrapper">
+  
+  <header class="mobile-header">
+    <button class="btn-back" (click)="voltar()">
+      <mat-icon>arrow_back_ios_new</mat-icon>
+    </button>
+    <h1>Catálogo de Pescados</h1>
+    <div class="spacer"></div>
+  </header>
+
+  <main class="mobile-content">
+    
+    <section class="form-section">
+      <p class="section-subtitle">{{ modoEdicao ? 'Editando Produto' : 'Novo Pescado' }}</p>
+
+      <form [formGroup]="form" (ngSubmit)="salvar()" class="form-card" [class.is-editing]="modoEdicao">
+        
+        <div class="form-group">
+          <label>Nome do Produto*</label>
+          <div class="input-container" [class.has-error]="form.get('nome')?.invalid && form.get('nome')?.touched">
+            <mat-icon>label</mat-icon>
+            <input type="text" formControlName="nome" placeholder="Ex: Robalo Inteiro">
+          </div>
+        </div>
+
+        <div class="form-group-row">
+          <div class="form-group half">
+            <label>Tipo*</label>
+            <div class="input-container" [class.has-error]="form.get('tipo')?.invalid && form.get('tipo')?.touched">
+              <mat-icon>phishing</mat-icon>
+              <input type="text" formControlName="tipo" placeholder="Ex: Viva">
+            </div>
+          </div>
+
+          <div class="form-group half">
+            <label>Tamanho</label>
+            <div class="input-container">
+              <mat-icon>straighten</mat-icon>
+              <input type="text" formControlName="tamanho" placeholder="Ex: G">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Preço Base (Kg/Un)*</label>
+          <div class="input-container price-container" [class.has-error]="form.get('precoUnitario')?.invalid && form.get('precoUnitario')?.touched">
+            <mat-icon>attach_money</mat-icon>
+            <input type="tel" currencyMask formControlName="precoUnitario" [options]="{ prefix: 'R$ ', thousands: '.', decimal: ',' }">
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn-cancel" *ngIf="modoEdicao" (click)="finalizarFormulario()">
+            Cancelar
+          </button>
+          <button type="submit" class="btn-submit" [disabled]="form.invalid || isLoading">
+            <mat-icon *ngIf="!isLoading">{{ modoEdicao ? 'update' : 'add_circle' }}</mat-icon>
+            <span *ngIf="!isLoading">{{ modoEdicao ? 'Atualizar' : 'Adicionar' }}</span>
+            <div class="spinner-small" *ngIf="isLoading"></div>
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <section class="catalog-section">
+      <div class="catalog-header">
+        <h2>Catálogo Cadastrado</h2>
+        <span class="badge">{{ produtos.length }} itens</span>
+      </div>
+
+      <div class="empty-state" *ngIf="produtos.length === 0">
+        <mat-icon>set_meal</mat-icon>
+        <p>Nenhum produto cadastrado no momento.</p>
+      </div>
+
+     <div class="cards-list" *ngIf="produtos.length > 0">
+        
+        <div class="product-card" *ngFor="let p of obs$ | async" [class.active-edit]="p.id === idProdutoEmEdicao">
+          
+          <div class="card-main">
+            <div class="product-info">
+              <h3>{{ p.nome }}</h3>
+              <div class="tags">
+                <span class="tag tag-tipo">{{ p.tipo }}</span>
+                <span class="tag tag-size" *ngIf="p.tamanho">{{ p.tamanho }}</span>
+              </div>
+            </div>
+            
+            <div class="product-price">
+              <span class="label">Preço Base</span>
+              <strong class="value">{{ p.precoUnitario | currency:'BRL':'symbol':'1.2-2' }}</strong>
+            </div>
+          </div>
+
+          <div class="card-actions">
+            <button class="action-btn edit-btn" (click)="editar(p)">
+              <mat-icon>edit</mat-icon> Editar
+            </button>
+            <button class="action-btn delete-btn" (click)="excluir(p.id)">
+              <mat-icon>delete_outline</mat-icon> Excluir
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="paginator-wrapper" [style.display]="produtos.length > 0 ? 'block' : 'none'">
+        <mat-paginator [pageSizeOptions]="[6, 12, 24]" [pageSize]="6" hidePageSize></mat-paginator>
+      </div>
+
+    </section>
+  </main>
+</div>

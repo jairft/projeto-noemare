@@ -1,44 +1,47 @@
 .baixa-container {
-  // Aumentamos para 32px no topo para o título "respirar" em relação à borda
+  // Desktop
   padding: 32px 24px 24px 24px; 
   background: #ffffff;
-  border-radius: 24px; // Bordas bem arredondadas como no seu print
-}
+  border-radius: 24px; 
 
-.baixa-container {
-  // Aumentamos para 32px no topo para o título "respirar" em relação à borda
-  padding: 32px 24px 24px 24px; 
-  background: #ffffff;
-  border-radius: 24px; // Bordas bem arredondadas como no seu print
+  // Mobile
+  @media (max-width: 600px) {
+    padding: 24px 16px 16px 16px; // Reduzimos o padding para ganhar espaço na tela
+    border-radius: 16px; // Bordas ligeiramente menores
+  }
 }
 
 .baixa-header {
   display: flex;
   align-items: center;
   gap: 16px;
-  // Aumentamos a distância para o card de resumo abaixo
   margin-bottom: 32px; 
   padding: 0;
 
   &__icon {
     width: 44px;
     height: 44px;
-    background: #eff6ff; // Azul bem suave
+    background: #eff6ff; 
     color: #3b82f6;
     border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0; // Garante que o ícone não seja esmagado no celular
     
     mat-icon { font-size: 24px; width: 24px; height: 24px; }
   }
 
   &__title {
     margin: 0;
-    font-size: 1.5rem; // Título levemente maior e imponente
+    font-size: 1.5rem; 
     font-weight: 800;
     color: #1e293b;
     line-height: 1.2;
+
+    @media (max-width: 600px) {
+      font-size: 1.25rem; // Fonte um pouco menor no mobile
+    }
   }
 
   &__subtitle {
@@ -57,6 +60,14 @@
   display: flex;
   align-items: center;
   margin-bottom: 28px;
+
+  // No mobile, empilhamos os valores para não espremer o texto
+  @media (max-width: 600px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px;
+  }
 
   &__item {
     flex: 1;
@@ -85,6 +96,13 @@
     height: 32px;
     background: #e2e8f0;
     margin: 0 20px;
+
+    // No mobile, a barrinha vertical vira uma linha horizontal divisória
+    @media (max-width: 600px) {
+      width: 100%;
+      height: 1px;
+      margin: 4px 0;
+    }
   }
 }
 
@@ -97,10 +115,15 @@
 }
 
 .baixa-actions {
-  padding: 16px 8px 8px;
+  padding: 16px 0 0 0;
   display: flex;
   gap: 12px;
   justify-content: flex-end;
+
+  // No celular, botões empilhados (Confirmar em cima, Cancelar embaixo)
+  @media (max-width: 600px) {
+    flex-direction: column-reverse;
+  }
 
   button {
     height: 48px;
@@ -109,8 +132,14 @@
     font-weight: 600;
     display: flex;
     align-items: center;
+    justify-content: center; // Centralizado para o mobile
     gap: 8px;
     transition: all 0.2s;
+
+    // No celular, os botões ocupam a largura total
+    @media (max-width: 600px) {
+      width: 100%;
+    }
   }
 }
 

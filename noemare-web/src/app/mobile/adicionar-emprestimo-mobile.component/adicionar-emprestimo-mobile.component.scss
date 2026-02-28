@@ -1,0 +1,174 @@
+.mobile-wrapper {
+  background-color: #f8fafc;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.mobile-header {
+  padding: 2.5rem 1.25rem 1.5rem 1.25rem; // Espaço extra no topo para a barra de status do celular
+  display: flex;
+  align-items: center;
+  justify-content: space-between; // Garante que o título fique no centro
+  background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+  border-bottom-left-radius: 24px; // Bordas arredondadas
+  border-bottom-right-radius: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+  h1 { 
+    font-size: 1.2rem; 
+    font-weight: 600; 
+    margin: 0; 
+    color: white; // Texto branco
+  }
+  
+  .btn-back { 
+    background: rgba(255, 255, 255, 0.15); // Fundo translúcido
+    border: none; 
+    color: white; 
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    transition: background 0.2s;
+    
+    &:active {
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+      margin-right: 2px; // Ajuste fino visual para a seta do Material Icon
+    }
+  }
+  
+  .spacer { 
+    width: 40px; // Mesmo tamanho do botão de voltar para equilibrar e manter o H1 no centro perfeito
+  }
+}
+
+.mobile-content {
+  padding: 16px;
+}
+
+.section-subtitle {
+  color: #64748b; font-size: 0.9rem; margin-bottom: 16px; font-weight: 500;
+}
+
+/* Formulário */
+.form-card {
+  background: white; border-radius: 12px; padding: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); margin-bottom: 24px;
+}
+
+.form-group-row {
+  display: flex; gap: 12px;
+  .half { flex: 1; }
+}
+
+.form-group {
+  margin-bottom: 16px;
+  label { display: block; font-size: 0.85rem; color: #475569; margin-bottom: 6px; font-weight: 600; }
+  
+  .input-container {
+    display: flex; align-items: center; background: #f1f5f9;
+    border-radius: 8px; padding: 0 12px; height: 48px;
+    border: 1px solid transparent; transition: border-color 0.2s;
+
+    &:focus-within { border-color: #3b82f6; background: white; }
+    
+    mat-icon { color: #64748b; margin-right: 8px; font-size: 20px; width: 20px; height: 20px; }
+    
+    input, .native-select {
+      flex: 1; background: transparent; border: none; outline: none;
+      font-size: 1rem; color: #1e293b; width: 100%; height: 100%;
+    }
+
+    &.textarea-container { height: auto; padding: 12px; align-items: flex-start; }
+    textarea { flex: 1; background: transparent; border: none; outline: none; font-size: 1rem; color: #1e293b; resize: none; }
+  }
+}
+
+.summary-box {
+  background: #e0f2fe; padding: 16px; border-radius: 8px;
+  display: flex; justify-content: space-between; align-items: center;
+  margin: 24px 0 16px;
+  span { color: #0369a1; font-size: 0.9rem; }
+  strong { color: #0369a1; font-size: 1.25rem; font-weight: 700; }
+}
+
+.btn-submit {
+  width: 100%; height: 50px; border-radius: 8px;
+  background-color: #2563eb; color: white; border: none;
+  font-size: 1rem; font-weight: 600;
+  display: flex; justify-content: center; align-items: center; gap: 8px;
+  &:disabled { background-color: #94a3b8; }
+}
+
+/* Histórico (Cards) */
+.history-section {
+  margin-top: 24px;
+  .history-header {
+    margin-bottom: 16px;
+    h2 { font-size: 1.1rem; color: #1e293b; margin-bottom: 12px; font-weight: 700; }
+    
+    .search-box {
+      display: flex; align-items: center; background: white;
+      border-radius: 8px; padding: 0 12px; height: 44px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      mat-icon { color: #94a3b8; margin-right: 8px; }
+      input { flex: 1; border: none; outline: none; background: transparent; font-size: 0.95rem; }
+    }
+  }
+}
+
+.cards-list {
+  display: flex; flex-direction: column; gap: 12px;
+}
+
+.history-card {
+  background: white; border-radius: 12px; padding: 16px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-left: 4px solid #3b82f6;
+
+  &.quitado { border-left-color: #10b981; opacity: 0.85; }
+
+  .card-top {
+    display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;
+    .fornecedor-info {
+      h3 { margin: 0; font-size: 1rem; color: #1e293b; font-weight: 600; }
+      .date { font-size: 0.8rem; color: #64748b; }
+    }
+    .pill {
+      font-size: 0.7rem; padding: 4px 8px; border-radius: 12px; font-weight: 600;
+      &.pill-invest { background: #dcfce7; color: #166534; }
+      &.pill-adiant { background: #fef3c7; color: #92400e; }
+    }
+  }
+
+  .card-body {
+    display: flex; justify-content: space-between; background: #f8fafc; padding: 12px; border-radius: 8px; margin-bottom: 12px;
+    .value-block {
+      display: flex; flex-direction: column;
+      .label { font-size: 0.75rem; color: #64748b; margin-bottom: 4px; }
+      .value { font-size: 0.95rem; font-weight: 600; color: #1e293b; }
+      .highlight { font-weight: 700; }
+    }
+  }
+
+  .card-actions {
+    .btn-action {
+      width: 100%; background: transparent; border: 1px solid #e2e8f0; border-radius: 8px;
+      padding: 10px; display: flex; align-items: center; justify-content: center; gap: 8px;
+      font-weight: 600; color: #3b82f6; font-size: 0.9rem;
+      &:disabled { color: #10b981; border-color: #10b981; background: #ecfdf5; }
+    }
+  }
+}
+
+.paginator-wrapper {
+  margin-top: 16px; background: white; border-radius: 8px; overflow: hidden;
+}

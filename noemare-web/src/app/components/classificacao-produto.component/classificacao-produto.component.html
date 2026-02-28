@@ -85,7 +85,7 @@
   </div>
 
   <!-- ===== CARD: TABELA ===== -->
-  <div class="pesc-card pesc-card--table">
+ <div class="pesc-card pesc-card--table">
 
     <div class="pesc-card__header">
       <div class="pesc-card__header-icon pesc-card__header-icon--teal">
@@ -97,16 +97,15 @@
       </div>
     </div>
 
-    <!-- Estado vazio -->
     <div class="pesc-empty" *ngIf="produtos.length === 0">
       <mat-icon>set_meal</mat-icon>
       <h3>Nenhum produto cadastrado</h3>
       <p>Adicione um pescado usando o formulário acima.</p>
     </div>
 
-    <!-- Tabela -->
     <div class="pesc-table-wrapper" *ngIf="produtos.length > 0">
-      <table mat-table [dataSource]="produtos" class="pesc-table">
+      
+      <table mat-table [dataSource]="dataSource" class="pesc-table">
 
         <ng-container matColumnDef="nome">
           <th mat-header-cell *matHeaderCellDef>Produto</th>
@@ -157,6 +156,8 @@
         <tr mat-row *matRowDef="let row; columns: colunas;" class="pesc-table__row"></tr>
 
       </table>
+      
+      <mat-paginator [pageSizeOptions]="[6, 12, 24]" [pageSize]="6" showFirstLastButtons aria-label="Selecionar página"></mat-paginator>
     </div>
 
   </div>

@@ -1,0 +1,138 @@
+<div class="mobile-wrapper">
+  
+  <header class="mobile-header">
+    <button class="btn-back" (click)="voltar()">
+      <mat-icon>arrow_back_ios_new</mat-icon>
+    </button>
+    <h1>Novo Empréstimo</h1>
+    <div class="spacer"></div>
+  </header>
+
+  <main class="mobile-content">
+    
+    <section class="form-section">
+      <p class="section-subtitle">Preencha os dados do Empréstimo</p>
+
+      <form [formGroup]="emprestimoForm" (ngSubmit)="salvarEmprestimo()" class="form-card">
+        
+        <div class="form-group">
+          <label>Fornecedor (Beneficiário)*</label>
+          <div class="input-container">
+            <mat-icon>storefront</mat-icon>
+            <select formControlName="fornecedorId" class="native-select">
+              <option [ngValue]="null" disabled>Selecione um fornecedor</option>
+              <option *ngFor="let f of fornecedores" [value]="f.id">{{ f.nome }}</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group-row">
+          <div class="form-group half">
+            <label>Tipo*</label>
+            <div class="input-container">
+              <select formControlName="tipo" class="native-select">
+                <option [ngValue]="null" disabled>Tipo</option>
+                <option *ngFor="let tipo of tiposEmprestimo" [value]="tipo">{{ tipo }}</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group half">
+            <label>Data*</label>
+            <div class="input-container">
+              <input matInput [matDatepicker]="pickerData" formControlName="dataEmprestimo" readonly (click)="pickerData.open()">
+              <mat-datepicker-toggle matIconSuffix [for]="pickerData"></mat-datepicker-toggle>
+              <mat-datepicker #pickerData></mat-datepicker>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Valor Total (R$)*</label>
+          <div class="input-container">
+            <mat-icon>attach_money</mat-icon>
+            <input type="tel" currencyMask formControlName="valorTotal" [options]="{ prefix: 'R$ ', thousands: '.', decimal: ',', align: 'left' }">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Observações</label>
+          <div class="input-container textarea-container">
+            <textarea formControlName="descricao" rows="3" placeholder="Opcional"></textarea>
+          </div>
+        </div>
+
+        <div class="summary-box">
+          <span>Valor do Empréstimo</span>
+          <strong>{{ emprestimoForm.get('valorTotal')?.value | currency:'BRL':'symbol':'1.2-2' }}</strong>
+        </div>
+
+        <button type="submit" class="btn-submit" [disabled]="emprestimoForm.invalid || isLoading">
+          <mat-icon *ngIf="!isLoading">save</mat-icon>
+          <span *ngIf="!isLoading">Confirmar Empréstimo</span>
+          <div class="spinner-small" *ngIf="isLoading"></div>
+        </button>
+
+      </form>
+    </section>
+
+    <section class="history-section">
+      <div class="history-header">
+        <h2>Últimos Lançamentos</h2>
+        <div class="search-box">
+          <mat-icon>search</mat-icon>
+          <input type="text" (keyup)="aplicarFiltro($event)" placeholder="Buscar fornecedor..." #inputBusca>
+        </div>
+      </div>
+
+      <div class="empty-state" *ngIf="dataSource.filteredData.length === 0 && inputBusca.value">
+        <mat-icon>search_off</mat-icon>
+        <p>Nenhum registro para "<strong>{{ inputBusca.value }}</strong>"</p>
+      </div>
+
+      <div class="cards-list" *ngIf="dataSource.filteredData.length > 0">
+        <div class="history-card" *ngFor="let inv of obs$ | async" [class.quitado]="inv.saldoRestante <= 0">
+          
+          <div class="card-top">
+            <div class="fornecedor-info">
+              <h3>{{ inv.fornecedorNome || inv.fornecedor?.nome }}</h3>
+              <span class="date">{{ inv.dataEmprestimo | date:'dd/MM/yyyy' }}</span>
+            </div>
+            <span class="pill" [class.pill-invest]="inv.tipo === 'INVESTIMENTO'" [class.pill-adiant]="inv.tipo === 'ADIANTAMENTO'">
+              {{ inv.tipo | titlecase }}
+            </span>
+          </div>
+
+          <div class="card-body">
+            <div class="value-block">
+              <span class="label">Total</span>
+              <span class="value">{{ inv.valorTotal | currency:'BRL':'symbol':'1.2-2' }}</span>
+            </div>
+            <div class="value-block">
+              <span class="label">Restante</span>
+              <span class="value highlight" [style.color]="inv.saldoRestante <= 0 ? '#059669' : '#ef4444'">
+                {{ inv.saldoRestante | currency:'BRL':'symbol':'1.2-2' }}
+              </span>
+            </div>
+          </div>
+
+          <div class="card-actions">
+            <button class="btn-action" (click)="abrirModalBaixa(inv)" [disabled]="inv.saldoRestante <= 0">
+              <mat-icon [style.color]="inv.saldoRestante <= 0 ? '#059669' : '#3b82f6'">
+                {{ inv.saldoRestante <= 0 ? 'check_circle' : 'payments' }}
+              </mat-icon>
+              {{ inv.saldoRestante <= 0 ? 'Quitado' : 'Registrar Baixa' }}
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="paginator-wrapper" [style.display]="dataSource.filteredData.length > 0 ? 'block' : 'none'">
+        <mat-paginator [pageSizeOptions]="[5, 10, 20]" [pageSize]="5" hidePageSize></mat-paginator>
+      </div>
+
+    </section>
+
+  </main>
+</div>

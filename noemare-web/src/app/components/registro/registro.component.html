@@ -161,12 +161,13 @@
         </div>
 
         <!-- Botão -->
-        <button class="reg-btn" type="submit"
-          [disabled]="registroForm.invalid"
-          [class.reg-btn--disabled]="registroForm.invalid">
-          <mat-icon>how_to_reg</mat-icon>
-          Cadastrar
-        </button>
+       <button class="reg-btn" type="submit"
+            [disabled]="registroForm.invalid || isLoading"
+            [class.reg-btn--disabled]="registroForm.invalid || isLoading">
+            <mat-icon *ngIf="!isLoading">how_to_reg</mat-icon>
+            <span *ngIf="!isLoading">Cadastrar</span>
+            <div class="spinner-small" *ngIf="isLoading"></div>
+      </button>
 
       </form>
 
