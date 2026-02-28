@@ -40,7 +40,8 @@ export class AuditoriaComponent implements OnInit, AfterViewInit {
 
   // Fonte de dados e colunas
   logs = new MatTableDataSource<LogLancamento>([]);
-  colunasExibidas: string[] = ['dataHora', 'usuario', 'acao', 'entidade', 'detalhes'];
+  // No seu auditoria.component.ts, altere para:
+ colunasExibidas: string[] = ['id', 'dataHora', 'usuario', 'acao', 'entidade', 'detalhes']; // 👉 'id' adicionado no início
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 

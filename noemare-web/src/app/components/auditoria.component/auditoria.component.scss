@@ -479,3 +479,18 @@ $radius-sm:     8px;
     transform: translateY(0);
   }
 }
+
+.hist-table__id {
+  font-family: 'Monaco', 'Consolas', monospace; // Fonte mono para parecer código/id
+  font-weight: 600;
+  color: #94a3b8; // Um cinza mais suave para não poluir
+  font-size: 0.85rem;
+  background: #f1f5f9; // Um fundo bem clarinho
+  border-radius: 4px;
+}
+
+// Ajuste a largura da coluna ID para ela não ocupar espaço demais
+.mat-column-id {
+  width: 80px;
+  padding-right: 16px !important;
+}

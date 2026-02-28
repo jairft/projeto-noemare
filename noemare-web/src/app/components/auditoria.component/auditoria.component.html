@@ -55,6 +55,13 @@
     <div class="hist-card__body hist-card__body--flush">
       <table mat-table [dataSource]="logs" class="hist-table">
 
+        <ng-container matColumnDef="id">
+        <th mat-header-cell *matHeaderCellDef>ID</th>
+          <td mat-cell *matCellDef="let log">
+            <span class="hist-table__id">#{{ log.id }}</span>
+          </td>
+      </ng-container>
+
         <ng-container matColumnDef="dataHora">
           <th mat-header-cell *matHeaderCellDef>Data e Hora</th>
           <td mat-cell *matCellDef="let log">
