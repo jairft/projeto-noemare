@@ -435,3 +435,47 @@ $radius-sm:     8px;
     .mat-mdc-icon-button:disabled { color: $text-3 !important; opacity: 0.4; }
   }
 }
+
+.hist-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 2rem;
+  gap: 1.5rem;
+
+  // Garante que no celular o botão fique embaixo do título
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  &__title-area {
+    flex: 1;
+  }
+}
+
+// Estilização do novo botão de configuração
+.btn-config-logs {
+  background-color: white !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #334155 !important;
+  font-weight: 500 !important;
+  transition: all 0.2s ease-in-out !important;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+
+  &:hover {
+    background-color: #f8fafc !important;
+    border-color: #94a3b8 !important;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}

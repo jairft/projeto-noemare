@@ -14,12 +14,21 @@
 
 <div class="hist-wrapper">
   <header class="hist-header">
-    <div class="hist-header__eyebrow">
-      <span class="hist-header__dot hist-header__dot--danger"></span>
-      Acesso Restrito
+    <div class="hist-header__title-area">
+      <div class="hist-header__eyebrow">
+        <span class="hist-header__dot hist-header__dot--danger"></span>
+        Acesso Restrito
+      </div>
+      <h1 class="hist-header__title">Logs de Auditoria</h1>
+      <p class="hist-header__subtitle">Rastreamento de todas as ações sensíveis realizadas no sistema.</p>
     </div>
-    <h1 class="hist-header__title">Logs de Auditoria</h1>
-    <p class="hist-header__subtitle">Rastreamento de todas as ações sensíveis realizadas no sistema.</p>
+
+    <div>
+      <button mat-flat-button class="btn-config-logs" (click)="abrirConfiguracoes()">
+        <mat-icon>settings</mat-icon>
+        Configurar Limpeza Automática
+      </button>
+    </div>
   </header>
 
   <div class="hist-card">

@@ -1,0 +1,54 @@
+<div class="cfg-modal">
+  <header class="cfg-modal__header">
+    <div class="cfg-modal__icon">
+      <mat-icon>auto_delete</mat-icon>
+    </div>
+    <div class="cfg-modal__title-group">
+      <h2 class="cfg-modal__title">Limpeza Automática</h2>
+      <p class="cfg-modal__subtitle">Configure as regras de retenção de auditoria</p>
+    </div>
+    <button mat-icon-button (click)="fechar()" class="cfg-modal__close">
+      <mat-icon>close</mat-icon>
+    </button>
+  </header>
+
+  <mat-dialog-content class="cfg-modal__content">
+    <div class="cfg-modal__info-box">
+      <mat-icon>info_outline</mat-icon>
+      <p>
+        Registros de auditoria com data superior ao limite definido serão removidos permanentemente para otimizar o banco de dados.
+      </p>
+    </div>
+
+    <form [formGroup]="form" class="cfg-modal__form">
+      <div class="cfg-modal__input-row">
+        <mat-form-field appearance="outline" class="cfg-modal__field">
+          <mat-label>Tempo de Retenção</mat-label>
+          <input matInput type="number" formControlName="diasRetencaoLogs" placeholder="Ex: 30">
+          <span matTextSuffix>dias</span>
+          <mat-hint>Período que os logs ficam visíveis</mat-hint>
+        </mat-form-field>
+      </div>
+
+      <div class="cfg-modal__input-row">
+        <mat-form-field appearance="outline" class="cfg-modal__field">
+          <mat-label>Horário da Varredura</mat-label>
+          <input matInput type="time" formControlName="horarioLimpezaLogs">
+          <mat-icon matSuffix>schedule</mat-icon>
+          <mat-hint>Momento da limpeza diária</mat-hint>
+        </mat-form-field>
+      </div>
+    </form>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end" class="cfg-modal__actions">
+    <button mat-button (click)="fechar()" class="cfg-modal__btn-cancel">Cancelar</button>
+    <button mat-flat-button color="primary" 
+            class="cfg-modal__btn-save" 
+            [disabled]="form.invalid"
+            (click)="salvar()">
+      <mat-icon>done</mat-icon>
+      Salvar Alterações
+    </button>
+  </mat-dialog-actions>
+</div>
