@@ -380,6 +380,19 @@ $warning-light: #fef3c7;
   position: relative;
   overflow: hidden;
 
+  zxing-scanner {
+    width: 100%; 
+    height: 100%;
+    display: block;
+  }
+
+  /* 👉 O SEGREDO: Força o vídeo a cobrir a tela toda, matando as bordas pretas */
+  ::ng-deep zxing-scanner video {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important; 
+  }
+
   /* A linha vermelha animada */
   .scan-line {
     position: absolute;
