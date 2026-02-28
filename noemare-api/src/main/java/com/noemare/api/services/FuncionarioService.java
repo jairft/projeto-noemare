@@ -3,6 +3,10 @@ package com.noemare.api.services;
 import java.time.LocalDateTime; // 👉 Importado para capturar a data/hora atual
 import java.util.List;
 
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
 import org.springframework.beans.factory.annotation.Value; 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -60,9 +64,18 @@ public class FuncionarioService {
                 throw new RegraNegocioException("Sua conta ainda não foi ativada por um administrador.");
             }
 
-            // 👉 NOVO: Registra a data e hora exata deste login no banco de dados
+            // 1. Atualiza a data do último login
             funcionario.setUltimoLogin(LocalDateTime.now());
             funcionarioRepository.save(funcionario);
+
+            // 👉 2. NOVO: Identifica o dispositivo e salva no log!
+            String dispositivo = identificarDispositivo();
+            logService.registrarLog(
+                "LOGIN_EFETUADO", 
+                "Funcionario", 
+                funcionario.getId(), 
+                "Login realizado com sucesso via: " + dispositivo
+            );
 
             String token = tokenService.gerarToken(funcionario);
 
@@ -207,5 +220,24 @@ public class FuncionarioService {
         funcionarioRepository.save(funcionario);
 
         logService.registrarLog("REDEFINIR_SENHA", "Funcionario", funcionario.getId(), "Senha redefinida pelo Admin: " + adminLogado.getEmail());
+    }
+
+    private String identificarDispositivo() {
+        try {
+            // Captura a requisição HTTP atual
+            HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+            String userAgent = request.getHeader("User-Agent");
+
+            if (userAgent == null) return "Desconhecido";
+
+            // Se o texto contiver indicativos de celular, é Mobile
+            String uaLower = userAgent.toLowerCase();
+            if (uaLower.contains("mobi") || uaLower.contains("android") || uaLower.contains("iphone")) {
+                return "Mobile";
+            }
+            return "Web/Desktop";
+        } catch (Exception e) {
+            return "Desconhecido";
+        }
     }
 }
