@@ -6,6 +6,7 @@ import java.util.List;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import org.springframework.beans.factory.annotation.Value; 
 import org.springframework.security.authentication.AuthenticationManager;
@@ -58,17 +59,19 @@ public class FuncionarioService {
             var usernamePassword = new UsernamePasswordAuthenticationToken(data.email(), data.senha());
             Authentication auth = this.authenticationManager.authenticate(usernamePassword);
 
+            SecurityContextHolder.getContext().setAuthentication(auth);
+
             Funcionario funcionario = (Funcionario) auth.getPrincipal();
 
             if (funcionario.getStatusConta() == StatusConta.INATIVO) {
                 throw new RegraNegocioException("Sua conta ainda não foi ativada por um administrador.");
             }
 
-            // 1. Atualiza a data do último login
+            // Atualiza a data do último login
             funcionario.setUltimoLogin(LocalDateTime.now());
             funcionarioRepository.save(funcionario);
 
-            // 👉 2. NOVO: Identifica o dispositivo e salva no log!
+            // Agora o LogService vai encontrar o usuário certinho no contexto!
             String dispositivo = identificarDispositivo();
             logService.registrarLog(
                 "LOGIN_EFETUADO", 
