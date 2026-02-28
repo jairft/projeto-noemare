@@ -1,54 +1,59 @@
-<div class="cfg-modal">
-  <header class="cfg-modal__header">
-    <div class="cfg-modal__icon">
-      <mat-icon>auto_delete</mat-icon>
+<div class="premium-modal">
+  <header class="premium-modal__header">
+    <div class="premium-modal__brand">
+      <div class="premium-modal__icon-wrapper">
+        <mat-icon>settings_backup_restore</mat-icon>
+      </div>
+      <div class="premium-modal__title-group">
+        <h2 class="premium-modal__title">Limpeza Automática</h2>
+        <p class="premium-modal__subtitle">Gestão de ciclo de vida dos logs de auditoria</p>
+      </div>
     </div>
-    <div class="cfg-modal__title-group">
-      <h2 class="cfg-modal__title">Limpeza Automática</h2>
-      <p class="cfg-modal__subtitle">Configure as regras de retenção de auditoria</p>
-    </div>
-    <button mat-icon-button (click)="fechar()" class="cfg-modal__close">
+    <button mat-icon-button (click)="fechar()" class="premium-modal__close-btn">
       <mat-icon>close</mat-icon>
     </button>
   </header>
 
-  <mat-dialog-content class="cfg-modal__content">
-    <div class="cfg-modal__info-box">
-      <mat-icon>info_outline</mat-icon>
-      <p>
-        Registros de auditoria com data superior ao limite definido serão removidos permanentemente para otimizar o banco de dados.
-      </p>
+  <mat-dialog-content class="premium-modal__content">
+    <div class="premium-modal__alert">
+      <div class="premium-modal__alert-icon">
+        <mat-icon>info</mat-icon>
+      </div>
+      <div class="premium-modal__alert-text">
+        Os registros que ultrapassarem o limite definido serão <strong>removidos permanentemente</strong> para manter a alta performance do banco de dados.
+      </div>
     </div>
 
-    <form [formGroup]="form" class="cfg-modal__form">
-      <div class="cfg-modal__input-row">
-        <mat-form-field appearance="outline" class="cfg-modal__field">
-          <mat-label>Tempo de Retenção</mat-label>
+    <form [formGroup]="form" class="premium-modal__form">
+      <div class="premium-modal__input-group">
+        <label class="premium-modal__label">Período de Retenção</label>
+        <mat-form-field appearance="outline" class="premium-modal__field">
           <input matInput type="number" formControlName="diasRetencaoLogs" placeholder="Ex: 30">
-          <span matTextSuffix>dias</span>
-          <mat-hint>Período que os logs ficam visíveis</mat-hint>
+          <span matTextSuffix class="premium-modal__suffix">dias</span>
+          <mat-icon matPrefix>history</mat-icon>
         </mat-form-field>
+        <span class="premium-modal__hint">Tempo que os dados permanecem acessíveis no painel.</span>
       </div>
 
-      <div class="cfg-modal__input-row">
-        <mat-form-field appearance="outline" class="cfg-modal__field">
-          <mat-label>Horário da Varredura</mat-label>
+      <div class="premium-modal__input-group">
+        <label class="premium-modal__label">Horário da Execução</label>
+        <mat-form-field appearance="outline" class="premium-modal__field">
           <input matInput type="time" formControlName="horarioLimpezaLogs">
-          <mat-icon matSuffix>schedule</mat-icon>
-          <mat-hint>Momento da limpeza diária</mat-hint>
+          <mat-icon matPrefix>event_repeat</mat-icon>
         </mat-form-field>
+        <span class="premium-modal__hint">Recomendamos horários de baixo tráfego (madrugada).</span>
       </div>
     </form>
   </mat-dialog-content>
 
-  <mat-dialog-actions align="end" class="cfg-modal__actions">
-    <button mat-button (click)="fechar()" class="cfg-modal__btn-cancel">Cancelar</button>
-    <button mat-flat-button color="primary" 
-            class="cfg-modal__btn-save" 
+  <mat-dialog-actions align="end" class="premium-modal__actions">
+    <button mat-button (click)="fechar()" class="premium-modal__btn-secondary">Cancelar</button>
+    <button mat-flat-button 
+            class="premium-modal__btn-primary" 
             [disabled]="form.invalid"
             (click)="salvar()">
-      <mat-icon>done</mat-icon>
-      Salvar Alterações
+      <mat-icon>check_circle</mat-icon>
+      Aplicar Configurações
     </button>
   </mat-dialog-actions>
 </div>
