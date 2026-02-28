@@ -61,29 +61,40 @@
         </div>
 
         <div class="auto-filled-grid">
-          <div class="info-block">
-            <span class="info-label">Instituição Bancária</span>
-            <div class="info-value bank">
-              <mat-icon>account_balance</mat-icon>
-              {{ form.get('nomeBanco')?.value || 'Banco não identificado' }}
+            <div class="info-block">
+              <span class="info-label">Instituição Bancária</span>
+              <div class="info-value bank">
+                <mat-icon>account_balance</mat-icon>
+                {{ form.get('nomeBanco')?.value || 'Banco não identificado' }}
+              </div>
             </div>
-          </div>
 
-          <div class="info-block">
-            <span class="info-label">Valor do Documento</span>
-            <div class="info-value price">
-              {{ form.get('valor')?.value | currency:'BRL' }}
+            <div class="info-block">
+              <span class="info-label">Valor do Documento</span>
+              <div class="info-value price">
+                {{ form.get('valor')?.value | currency:'BRL' }}
+              </div>
             </div>
-          </div>
 
-          <div class="info-block">
-            <span class="info-label">Vencimento</span>
-            <div class="info-value date">
-              <mat-icon>event</mat-icon>
-              {{ form.get('dataVencimento')?.value | date:'dd/MM/yyyy' }}
+            <div class="info-block">
+              <span class="info-label">Vencimento</span>
+              
+              <mat-form-field appearance="outline" class="form-field-mini" *ngIf="isConsumo">
+                <input matInput [matDatepicker]="picker" formControlName="dataVencimento" placeholder="Escolha a data">
+                <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-datepicker #picker></mat-datepicker>
+              </mat-form-field>
+
+              <div class="info-value date" *ngIf="!isConsumo">
+                <mat-icon>event</mat-icon>
+                {{ form.get('dataVencimento')?.value | date:'dd/MM/yyyy' }}
+              </div>
+              
+              <small class="edit-hint" *ngIf="isConsumo">
+                <mat-icon>edit</mat-icon> Insira o vencimento manualmente
+              </small>
             </div>
           </div>
-        </div>
 
         <div class="barcode-visual-box">
           <span class="barcode-label">Representação Visual do Código</span>

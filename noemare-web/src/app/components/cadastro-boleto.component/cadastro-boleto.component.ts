@@ -10,6 +10,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog'; // 👉 Inclusão do Modal
+import { NgxCurrencyDirective } from 'ngx-currency';
 
 // @ts-ignore
 import JsBarcode from 'jsbarcode';
@@ -48,6 +49,8 @@ export class CadastroBoletoComponent implements OnInit {
 
   codigoBarrasVisual = '';
   boletosSalvos: any[] = [];
+
+  isConsumo = false;
 
   pageSize = 6;
   pageIndex = 0;
@@ -155,19 +158,24 @@ listarBoletosDoBanco(): void {
     );
   }
 
+
   processarLinhaDigitavel(): void {
     let linha = this.form.get('codigoBarras')?.value;
+
     if (!linha) {
       this.codigoBarrasVisual = '';
+      this.isConsumo = false;
       this.form.patchValue({ nomeBanco: '', valor: '', dataVencimento: '' });
       return;
     }
 
-    linha = linha.replace(/[^0-9]/g, '');
+    // Remove caracteres não numéricos
+    linha = String(linha).replace(/[^0-9]/g, '');
     this.codigoBarrasVisual = this.gerarDadosCodigoBarras(linha);
 
-    // 👉 1. BOLETOS NORMAIS (Têm 47 dígitos e NUNCA começam com o dígito 8 de consumo)
+    // 👉 1. BOLETOS BANCÁRIOS COMUNS (47 dígitos)
     if (linha.length === 47 && !linha.startsWith('8')) {
+      this.isConsumo = false;
       const valorFinal = parseFloat(linha.substring(37, 47)) / 100;
       const fatorVencimento = parseInt(linha.substring(33, 37), 10);
       const dataVencimentoObj = this.calcularDataVencimento(fatorVencimento);
@@ -178,16 +186,50 @@ listarBoletosDoBanco(): void {
         nomeBanco: this.identificarBanco(linha.substring(0, 3))
       });
       this.gerarImagemCodigoBarras();
+      return;
     }
-    // 👉 2. CONTAS DE CONSUMO (Têm 48 dígitos e SEMPRE começam com 8)
-    else if (linha.length === 48 && linha.startsWith('8')) {
+
+    // 👉 2. CONTAS DE CONSUMO / CONVÊNIOS (48 dígitos)
+    if (linha.length === 48 && linha.startsWith('8')) {
+      this.isConsumo = true; // Ativa a edição manual da data no HTML
+
+      // Reorganiza para extrair o valor correto de contas de consumo
+      const barras =
+        linha.substring(0, 11) +
+        linha.substring(12, 23) +
+        linha.substring(24, 35) +
+        linha.substring(36, 47);
+
+      const valorFinal = parseFloat(barras.substring(4, 15)) / 100;
+      const segmentoId = linha.substring(1, 2);
+
+      // Mapeamento dos tipos de convênio
+      const tipos: any = {
+        '1': 'Prefeitura / Taxas',
+        '2': 'Saneamento / Água',
+        '3': 'Energia Elétrica',
+        '4': 'Telecomunicações',
+        '5': 'Órgãos Governamentais',
+        '6': 'Carnês / Assemelhados',
+        '7': 'Multas de Trânsito',
+        '9': 'Exclusivo do Banco'
+      };
+
+      const tipoConta = tipos[segmentoId] || 'Consumo';
+
       this.form.patchValue({
-        valor: parseFloat(this.codigoBarrasVisual.substring(4, 15)) / 100,
-        nomeBanco: 'Conta de Consumo',
-        dataVencimento: '' // O SEGREDO: Limpa qualquer data maluca que tenha sido gerada por acidente!
+        valor: valorFinal > 0 ? valorFinal : this.form.get('valor')?.value,
+        nomeBanco: `Conta de ${tipoConta}`,
+        dataVencimento: '' // Limpa para preenchimento manual obrigatório
       });
+
       this.gerarImagemCodigoBarras();
+      return;
     }
+
+    // Se não atingir os critérios, limpa a extração automática
+    this.isConsumo = false;
+    this.form.patchValue({ nomeBanco: '', valor: '', dataVencimento: '' });
   }
 
   gerarImagemCodigoBarras(): void {

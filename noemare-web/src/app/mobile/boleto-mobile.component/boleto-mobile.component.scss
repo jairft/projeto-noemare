@@ -409,3 +409,34 @@ $warning-light: #fef3c7;
   50% { top: 65%; }
   100% { top: 35%; }
 }
+
+.mobile-date-input {
+  border: 1px solid #bae6fd;
+  border-radius: 6px;
+  background: white;
+  padding: 4px 8px;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #1e293b;
+  width: 100%;
+  margin-top: 2px;
+  outline: none;
+
+  &:focus {
+    border-color: #2563eb;
+  }
+}
+
+.edit-hint {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.65rem;
+  color: #2563eb;
+  font-weight: 700;
+  margin-top: 8px;
+  text-transform: uppercase;
+  
+  mat-icon { font-size: 14px; width: 14px; height: 14px; }
+}

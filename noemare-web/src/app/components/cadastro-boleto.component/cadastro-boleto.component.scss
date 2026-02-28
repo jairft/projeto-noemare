@@ -720,3 +720,45 @@ $shadow-sm:     0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
     height: auto;
   }
 }
+
+.auto-filled-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+
+  .info-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .form-field-mini {
+  width: 100%;
+  max-width: 160px;
+  margin-top: -8px; // Alinha com o texto dos outros blocos
+  ::v-deep .mat-mdc-form-field-subscript-wrapper { display: none; }
+}
+
+.edit-hint {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  color: #2563eb;
+  font-weight: 600;
+  margin-top: 2px;
+  mat-icon { font-size: 14px; width: 14px; height: 14px; }
+}
+
+  .lock-hint {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10px;
+    margin-top: -4px;
+    mat-icon { font-size: 12px; width: 12px; height: 12px; }
+  }
+  .lock-hint { color: #64748b; }
+  .edit-hint { color: #2563eb; font-weight: 600; }
+}

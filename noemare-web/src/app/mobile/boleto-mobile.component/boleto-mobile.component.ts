@@ -41,6 +41,8 @@ export class BoletoMobileComponent implements OnInit {
   pageIndex = 0;
   boletosPaginados: any[] = [];
 
+  isConsumo = false;
+
   // 👉 VARIÁVEIS PARA EXIBIR NA TELA
   bancoExtraido: string = '';
   valorExtraido: number | null = null;
@@ -174,34 +176,39 @@ export class BoletoMobileComponent implements OnInit {
 
     if (!linha) {
       this.limparExtracao();
+      this.isConsumo = false;
       return;
     }
 
     linha = String(linha).replace(/[^0-9]/g, '');
 
-    if (linha.length === 44) {
-      const fatorVencimento = parseInt(linha.substring(5, 9), 10);
-      const valorFinal = parseFloat(linha.substring(9, 19)) / 100;
-      const codigoBanco = linha.substring(0, 3);
-      const nomeBancoFormatado = identificarBanco(codigoBanco);
+    // 👉 1. BOLETOS BANCÁRIOS (44 ou 47 dígitos)
+    if ((linha.length === 44 || linha.length === 47) && !linha.startsWith('8')) {
+      this.isConsumo = false;
+      
+      let valorFinal = 0;
+      let fatorVencimento = 0;
+      let codigoBanco = linha.substring(0, 3);
 
+      if (linha.length === 44) {
+        fatorVencimento = parseInt(linha.substring(5, 9), 10);
+        valorFinal = parseFloat(linha.substring(9, 19)) / 100;
+      } else {
+        fatorVencimento = parseInt(linha.substring(33, 37), 10);
+        valorFinal = parseFloat(linha.substring(37, 47)) / 100;
+      }
+
+      const nomeBancoFormatado = identificarBanco(codigoBanco);
       const dataVencimentoStr = this.calcularData(fatorVencimento);
+
       this.atualizarFormEVisores(valorFinal, dataVencimentoStr, `${codigoBanco} - ${nomeBancoFormatado}`);
       return;
     }
 
-    if (linha.length === 47) {
-      const valorFinal = parseFloat(linha.substring(37, 47)) / 100;
-      const fatorVencimento = parseInt(linha.substring(33, 37), 10);
-      const codigoBanco = linha.substring(0, 3);
-      const nomeBancoFormatado = identificarBanco(codigoBanco);
-
-      const dataVencimentoStr = this.calcularData(fatorVencimento);
-      this.atualizarFormEVisores(valorFinal, dataVencimentoStr, `${codigoBanco} - ${nomeBancoFormatado}`);
-      return;
-    }
-
+    // 👉 2. CONTAS DE CONSUMO (48 dígitos)
     if (linha.length === 48 && linha.startsWith('8')) {
+      this.isConsumo = true; // 👉 Habilita edição manual
+
       const barras =
         linha.substring(0, 11) +
         linha.substring(12, 23) +
@@ -212,10 +219,14 @@ export class BoletoMobileComponent implements OnInit {
       const segmentoId = linha.substring(1, 2);
 
       const tipos: MapaTiposConsumo = {
-        '1': 'Prefeitura',
-        '2': 'Saneamento',
+        '1': 'Prefeitura / Taxas',
+        '2': 'Saneamento / Água',
         '3': 'Energia Elétrica',
-        '4': 'Telecomunicações'
+        '4': 'Telecomunicações',
+        '5': 'Órgãos Governamentais',
+        '6': 'Carnês / Assemelhados',
+        '7': 'Multas de Trânsito',
+        '9': 'Exclusivo do Banco'
       };
 
       const tipoConta = tipos[segmentoId] || 'Consumo';
@@ -224,6 +235,7 @@ export class BoletoMobileComponent implements OnInit {
     }
 
     this.limparExtracao();
+    this.isConsumo = false;
   }
 
   // ===========================
