@@ -11,15 +11,19 @@
     <div class="scanner-container">
       <div class="scan-line"></div>
       
-      <zxing-scanner
+     <zxing-scanner
+        [device]="currentDevice"
         [formats]="formatsEnabled"
         [videoConstraints]="videoConstraints"
         [tryHarder]="true"
         [autofocusEnabled]="true"
         (scanSuccess)="handleScanSuccess($event)"
-        (scanError)="handleScanError($event)">
+        (scanError)="handleScanError($event)"
+        (camerasFound)="onCamerasFound($event)"
+        (camerasNotFound)="onCamerasNotFound()"
+        (permissionResponse)="onPermissionResponse($event)">
       </zxing-scanner>
-      
+        
       <div class="scan-region-highlight"></div>
     </div>
   </div>
