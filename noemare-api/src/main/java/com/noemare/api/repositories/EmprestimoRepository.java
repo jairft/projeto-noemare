@@ -98,4 +98,14 @@ public interface EmprestimoRepository extends JpaRepository<Emprestimo, Long> {
     
     @Query("SELECT COALESCE(SUM(e.valorTotal - e.saldoRestante), 0) FROM Emprestimo e WHERE e.fornecedor.id = :fornecedorId AND e.tipo = :tipo")
     BigDecimal somarValorPagoPorFornecedorETipo(@Param("fornecedorId") Long fornecedorId, @Param("tipo") TipoEmprestimo tipo);
+
+    List<Emprestimo> findByFornecedorIdAndTipoOrderByDataEmprestimoDesc(Long fornecedorId, TipoEmprestimo tipo);
+
+    @Query("SELECT DISTINCT e FROM Emprestimo e LEFT JOIN FETCH e.pagamentos " +
+           "WHERE e.fornecedor.id = :fornecedorId AND e.tipo = :tipo " +
+           "ORDER BY e.dataEmprestimo DESC")
+    List<Emprestimo> findHistoricoCompletoByFornecedorIdAndTipo(
+        @Param("fornecedorId") Long fornecedorId, 
+        @Param("tipo") TipoEmprestimo tipo
+    );
 }

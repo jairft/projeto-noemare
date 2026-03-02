@@ -49,7 +49,6 @@ public interface NotaFornecedorRepository extends JpaRepository<NotaFornecedor, 
     @Query("SELECT COUNT(n) FROM NotaFornecedor n WHERE n.status <> 'PAGA' AND YEAR(n.dataNota) = :ano")
     long countPendentesPorAno(@Param("ano") Integer ano);
 
-    // 👉 AJUSTE: Nome alterado para bater com o Service (era somarSaldoCredorPorFornecedorEAno)
     @Query("SELECT SUM(n.valorTotal - n.valorPago) FROM NotaFornecedor n " +
            "WHERE n.fornecedor.id = :fornecedorId AND n.status <> 'PAGA' AND YEAR(n.dataNota) = :ano")
     BigDecimal somarTotalPendentePorFornecedorEAno(@Param("fornecedorId") Long fornecedorId, @Param("ano") Integer ano);
@@ -66,7 +65,6 @@ public interface NotaFornecedorRepository extends JpaRepository<NotaFornecedor, 
            "GROUP BY MONTH(n.dataNota)")
     List<Object[]> somarVolumePorMesNoAno(@Param("ano") Integer ano);
 
-    // 👉 NOVO: Busca produção filtrada por ano (safra)
     @Query("SELECT new com.noemare.api.dtos.response.ProducaoItemResumoResponse(" +
            "p.nome, p.tipo, p.tamanho, SUM(i.quantidadeKg)) " +
            "FROM NotaItem i " +
@@ -76,7 +74,6 @@ public interface NotaFornecedorRepository extends JpaRepository<NotaFornecedor, 
            "GROUP BY p.nome, p.tipo, p.tamanho")
     List<ProducaoItemResumoResponse> buscarResumoProducaoPorFornecedorEAno(@Param("fornecedorId") Long fornecedorId, @Param("ano") Integer ano);
 
-    // Mantido para compatibilidade se necessário
     @Query("SELECT new com.noemare.api.dtos.response.ProducaoItemResumoResponse(" +
            "p.nome, p.tipo, p.tamanho, SUM(i.quantidadeKg)) " +
            "FROM NotaItem i " +
@@ -86,13 +83,24 @@ public interface NotaFornecedorRepository extends JpaRepository<NotaFornecedor, 
            "GROUP BY p.nome, p.tipo, p.tamanho")
     List<ProducaoItemResumoResponse> buscarResumoProducaoPorFornecedor(@Param("fornecedorId") Long fornecedorId);
 
-    // 👉 Adicione este método para resolver o erro 'undefined'
-       @Query("SELECT SUM(n.valorTotal - n.valorPago) FROM NotaFornecedor n " +
-              "WHERE n.fornecedor.id = :fornecedorId " +
-              "AND n.status <> 'PAGA' " +
-              "AND YEAR(n.dataNota) = :ano")
-       BigDecimal somarSaldoCredorPorFornecedorEAno(
-       @Param("fornecedorId") Long fornecedorId, 
-       @Param("ano") Integer ano
-       );
+    @Query("SELECT SUM(n.valorTotal - n.valorPago) FROM NotaFornecedor n " +
+           "WHERE n.fornecedor.id = :fornecedorId " +
+           "AND n.status <> 'PAGA' " +
+           "AND YEAR(n.dataNota) = :ano")
+    BigDecimal somarSaldoCredorPorFornecedorEAno(
+        @Param("fornecedorId") Long fornecedorId, 
+        @Param("ano") Integer ano
+    );
+
+    // 👉 NOVO: Traz todas as notas do fornecedor já com os itens e produtos de uma só vez (Evita Lentidão/N+1)
+    @Query("SELECT DISTINCT n FROM NotaFornecedor n " +
+           "LEFT JOIN FETCH n.itens i " +
+           "LEFT JOIN FETCH i.produto " +
+           "WHERE n.fornecedor.id = :fornecedorId " +
+           "ORDER BY n.dataNota DESC")
+    List<NotaFornecedor> findHistoricoCompletoByFornecedorId(@Param("fornecedorId") Long fornecedorId);
+
+    boolean existsByNumeroNota(String numeroNota);
+    
+    boolean existsByNumeroNotaAndIdNot(String numeroNota, Long id);
 }

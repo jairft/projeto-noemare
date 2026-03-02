@@ -10,15 +10,14 @@ spring:
     time-zone: America/Sao_Paulo
 
   datasource:
-    # URL dinâmica: Tenta ler do ambiente, senão usa o padrão local
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/noemare_db}
-    username: ${SPRING_DATASOURCE_USERNAME:noemare_admin}
-    password: ${SPRING_DATASOURCE_PASSWORD:noemare_password}
+    # URL apontando para o Render com sslmode=require (obrigatório para acesso externo)
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://dpg-d6guuc0gjchc73cedd10-a.oregon-postgres.render.com/noemare?sslmode=require}
+    username: ${SPRING_DATASOURCE_USERNAME:jair_admin}
+    password: ${SPRING_DATASOURCE_PASSWORD:CImdW3kO88iq2I2UH5uwfyIZOoDtgoGH}
 
   jpa:
     hibernate:
       ddl-auto: validate
-    show-sql: true
     properties:
       hibernate:
         format_sql: true

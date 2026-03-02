@@ -2,7 +2,9 @@ package com.noemare.api.controllers;
 
 import java.util.List;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,7 +31,6 @@ public class FornecedorController {
 
     private final FornecedorService service;
 
-    // Injeção por construtor conforme seu padrão
     public FornecedorController(FornecedorService service) {
         this.service = service;
     }
@@ -47,7 +48,6 @@ public class FornecedorController {
 
     @PostMapping
     public ResponseEntity<FornecedorResponse> salvar(@RequestBody @Valid FornecedorRequest request) {
-        // O serviço tratará a inicialização dos saldos e data
         return ResponseEntity.status(HttpStatus.CREATED).body(service.salvar(request));
     }
 
@@ -55,7 +55,6 @@ public class FornecedorController {
     public ResponseEntity<FornecedorResponse> atualizarNome(
             @PathVariable Long id, 
             @RequestBody String novoNome) {
-        // Apenas o nome possui setter público para edição direta
         return ResponseEntity.ok(service.atualizarNome(id, novoNome));
     }
 
@@ -75,8 +74,22 @@ public class FornecedorController {
 
     @GetMapping("/{id}/historico-geral")
     public ResponseEntity<HistoricoGeralFornecedorResponse> obterHistoricoGeral(@PathVariable Long id) {
-        // Este método chama a lógica de soma de Kg e Valores que criamos no Service
         return ResponseEntity.ok(service.obterHistoricoGeral(id));
+    }
+
+    // 👉 NOVO: Endpoint para baixar o extrato em PDF
+    @GetMapping("/{id}/relatorio-pdf")
+    public ResponseEntity<byte[]> gerarRelatorioPdf(@PathVariable Long id) {
+        byte[] pdf = service.gerarRelatorioPdf(id);
+        
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        // Define o nome do arquivo que aparecerá no download
+        headers.setContentDispositionFormData("attachment", "extrato-fornecedor.pdf");
+        
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(pdf);
     }
 
     @DeleteMapping("/{id}")

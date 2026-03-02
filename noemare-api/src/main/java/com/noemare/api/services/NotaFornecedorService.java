@@ -51,13 +51,17 @@ public class NotaFornecedorService {
         nota.setFornecedor(fornecedor);
         nota.setDescricao(request.descricao());
         
-        // 👉 TRATAMENTO NOVO: Se vier vazio ou muito longo, ajusta para o padrão
         String numero = request.numeroNota() != null && !request.numeroNota().trim().isEmpty() 
             ? request.numeroNota().trim() 
             : "S/N";
         
-        // Se a string passar de 50 caracteres (limite do seu banco), ele corta
         if(numero.length() > 50) numero = numero.substring(0, 50);
+
+        // 👉 NOVA VALIDAÇÃO: Impede cadastro de número duplicado (ignorando "S/N")
+        if (!numero.equals("S/N") && notaRepository.existsByNumeroNota(numero)) {
+            throw new RegraNegocioException("Já existe uma nota cadastrada com o número " + numero + ".");
+        }
+
         nota.setNumeroNota(numero);
 
         if (request.dataNota() != null) {
@@ -102,15 +106,18 @@ public class NotaFornecedorService {
         }
 
         Fornecedor fornecedor = nota.getFornecedor();
-
         fornecedor.subtrairSaldoCredor(nota.getValorTotal());
 
-        // 👉 Aplica a mesma lógica de segurança de tamanho e nulidade aqui na edição
         String numero = request.numeroNota() != null && !request.numeroNota().trim().isEmpty() 
             ? request.numeroNota().trim() 
             : "S/N";
         if(numero.length() > 50) numero = numero.substring(0, 50);
         
+        // 👉 NOVA VALIDAÇÃO: Impede edição para um número duplicado que pertença a outra nota
+        if (!numero.equals("S/N") && notaRepository.existsByNumeroNotaAndIdNot(numero, id)) {
+            throw new RegraNegocioException("Já existe outra nota cadastrada com o número " + numero + ".");
+        }
+
         nota.setNumeroNota(numero);
         nota.setDescricao(request.descricao());
         

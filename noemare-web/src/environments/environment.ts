@@ -1,6 +1,7 @@
 export const environment = {
-  production: true,
-  apiUrl: 'https://noemare-api.onrender.com/api',
-  // 👉 Mude para "noemare-web", pois a rota está no Angular:
+  production: false, // Como é dev, o ideal é false
+  
+  apiUrl: 'http://localhost:8080/api', 
+  
   mobileUrl: 'https://noemare-web.onrender.com/login-mobile' 
 };

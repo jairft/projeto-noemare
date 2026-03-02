@@ -2,10 +2,13 @@ package com.noemare.api.domain;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.noemare.api.domain.enums.StatusEmprestimo; // Atualizado
 import com.noemare.api.domain.enums.TipoEmprestimo; // Atualizado
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -16,6 +19,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -63,6 +67,9 @@ public class Emprestimo {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private StatusEmprestimo status; // Atualizado
+
+    @OneToMany(mappedBy = "emprestimo", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PagamentoEmprestimo> pagamentos = new ArrayList<>();
 
     @PrePersist
     public void prePersist() {

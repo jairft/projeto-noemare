@@ -2,13 +2,14 @@ package com.noemare.api.dtos.response;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.noemare.api.domain.Emprestimo; // Atualizado
+import com.noemare.api.domain.Emprestimo; 
 import com.noemare.api.domain.enums.StatusEmprestimo;
 import com.noemare.api.domain.enums.TipoEmprestimo;
 
-public record EmprestimoResponse( // Atualizado
+public record EmprestimoResponse( 
         Long id,
         Long fornecedorId,
         String fornecedorNome,
@@ -17,20 +18,28 @@ public record EmprestimoResponse( // Atualizado
         BigDecimal saldoRestante,
         StatusEmprestimo status,
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-        LocalDateTime dataEmprestimo, // Atualizado
-        String descricao
+        LocalDateTime dataEmprestimo, 
+        String descricao,
+    
+        List<PagamentoEmprestimoResponse> pagamentos
 ) {
-    public EmprestimoResponse(Emprestimo emprestimo) { // Atualizado
+    public EmprestimoResponse(Emprestimo emprestimo) { 
         this(
             emprestimo.getId(),
             emprestimo.getFornecedor().getId(),
             emprestimo.getFornecedor().getNome(),
             emprestimo.getTipo(),
             emprestimo.getValorTotal(),
-            emprestimo.getSaldoRestante(), // Garantido pelo seu @PrePersist
-            emprestimo.getStatus(),        // Garantido pelo seu @PrePersist
-            emprestimo.getDataEmprestimo(), // Atualizado
-            emprestimo.getDescricao()
+            emprestimo.getSaldoRestante(), 
+            emprestimo.getStatus(),        
+            emprestimo.getDataEmprestimo(), 
+            emprestimo.getDescricao(),
+          
+            emprestimo.getPagamentos() != null ? 
+                emprestimo.getPagamentos().stream()
+                          .map(PagamentoEmprestimoResponse::new)
+                          .toList() 
+                : List.of() // Garante que retorne um array vazio [] em vez de null
         );
     }
 }

@@ -55,4 +55,8 @@ export class FornecedorService {
   excluir(id: number): Observable<void> {
     return this.http.delete<void>(`${this.API}/${id}`);
   }
+
+  gerarRelatorioPdf(id: number): Observable<Blob> {
+    return this.http.get(`${this.API}/${id}/relatorio-pdf`, { responseType: 'blob' });
+  }
 }

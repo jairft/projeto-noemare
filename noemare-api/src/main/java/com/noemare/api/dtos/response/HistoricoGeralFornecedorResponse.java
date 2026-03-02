@@ -6,5 +6,6 @@ import java.util.List;
 public record HistoricoGeralFornecedorResponse(
     BigDecimal kgGeral,
     BigDecimal valorGeral,
-    List<ItemAgrupadoResponse> itensAgrupados
+    List<ItemAgrupadoResponse> itensAgrupados,
+    List<NotaHistoricoResponse> notas
 ) {}
