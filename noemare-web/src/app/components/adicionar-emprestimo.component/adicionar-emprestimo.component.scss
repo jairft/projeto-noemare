@@ -557,3 +557,49 @@ $radius-sm:     10px;
   background-color: #fbfcfd; // Leve destaque para itens resolvidos
   opacity: 0.85; // Menos contraste visual para focar no que importa
 }
+
+/* ----------------------------------------
+   Estado de Loading (Tabela de Empréstimos)
+---------------------------------------- */
+.inv-loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 1rem;
+  color: #64748b; 
+  text-align: center;
+  animation: fadeIn 0.3s ease-in-out;
+
+  .inv-loading-icon {
+    font-size: 38px;
+    width: 38px;
+    height: 38px;
+    color: #2563eb; 
+    margin-bottom: 1rem;
+    animation: spin 1s linear infinite;
+  }
+
+  h3 {
+    font-size: 1.1rem;
+    font-family: 'Sora', sans-serif;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 0.5rem 0;
+  }
+
+  p {
+    font-size: 0.85rem;
+    margin: 0;
+  }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}

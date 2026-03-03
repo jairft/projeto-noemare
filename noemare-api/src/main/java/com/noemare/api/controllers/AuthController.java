@@ -28,7 +28,7 @@ public class AuthController {
         return funcionarioService.login(data);
     }
 
-    // --- ROTA MOVIDA PARA CÁ ---
+    
     @PostMapping("/esqueci-senha")
     public ResponseEntity<Void> solicitarRecuperacaoSenha(@RequestBody @Valid EmailRequest request) {
         funcionarioService.solicitarRecuperacaoSenha(request.email());

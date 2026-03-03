@@ -225,62 +225,78 @@
         </div>
 
         <div class="nota-card__body">
-         <table mat-table [dataSource]="notasRecentes" class="recent-notes-table">
           
-          <ng-container matColumnDef="dataHora">
-            <th mat-header-cell *matHeaderCellDef> DATA / HORA </th>
-            <td mat-cell *matCellDef="let element" class="fw-bold"> 
-              {{ element.dataNota | date:'dd/MM/yyyy' }} 
-            </td>
+          <div class="nota-loading-state" *ngIf="isLoading">
+            <mat-icon class="nota-loading-icon">autorenew</mat-icon>
+            <h3>Buscando notas...</h3>
+            <p>Atualizando as notas lançadas recentemente.</p>
+          </div>
+
+          <ng-container *ngIf="!isLoading">
+            
+            <div class="nota-no-results" *ngIf="notasRecentes.data.length === 0" style="padding: 32px; text-align: center; color: #64748b;">
+              <mat-icon style="font-size: 48px; width: 48px; height: 48px; margin-bottom: 12px; color: #cbd5e1;">receipt</mat-icon>
+              <p style="font-size: 1.1rem; color: #475569; margin: 0;">Nenhuma nota lançada ainda.</p>
+            </div>
+
+            <table mat-table [dataSource]="notasRecentes" class="recent-notes-table" *ngIf="notasRecentes.data.length > 0">
+              
+              <ng-container matColumnDef="dataHora">
+                <th mat-header-cell *matHeaderCellDef> DATA / HORA </th>
+                <td mat-cell *matCellDef="let element" class="fw-bold"> 
+                  {{ element.dataNota | date:'dd/MM/yyyy' }} 
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="fornecedor">
+                <th mat-header-cell *matHeaderCellDef> FORNECEDOR </th>
+                <td mat-cell *matCellDef="let element" class="fw-bold"> 
+                  {{ element.fornecedorNome || element.fornecedor?.nome }} 
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="status">
+                <th mat-header-cell *matHeaderCellDef> STATUS </th>
+                <td mat-cell *matCellDef="let element">
+                  <span class="status-badge" [ngClass]="'status-' + (element.status ? element.status.toLowerCase() : 'aberta')">
+                    {{ element.status || 'ABERTA' }}
+                  </span>
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="valor">
+                <th mat-header-cell *matHeaderCellDef> TOTAL </th>
+                <td mat-cell *matCellDef="let element" class="text-success fw-bold"> 
+                  {{ element.valorTotal | currency:'BRL' }} 
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="acoes">
+                <th mat-header-cell *matHeaderCellDef> AÇÕES </th>
+                <td mat-cell *matCellDef="let element">
+                  <button mat-icon-button 
+                          (click)="editarNota(element)" 
+                          [disabled]="element.status !== 'ABERTA'"
+                          [matTooltip]="element.status === 'ABERTA' ? 'Editar Nota' : 'Nota bloqueada para edição'">
+                    
+                    <mat-icon *ngIf="element.status === 'ABERTA' || !element.status" color="primary">edit</mat-icon>
+                    <mat-icon *ngIf="element.status !== 'ABERTA'" class="icon-locked">lock</mat-icon>
+                    
+                  </button>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="colunasNotasRecentes"></tr>
+              <tr mat-row *matRowDef="let row; columns: colunasNotasRecentes;" [class.row-locked]="row.status !== 'ABERTA'"></tr>
+            </table>
+
+            <mat-paginator *ngIf="notasRecentes.data.length > 0"
+                          [pageSize]="3" 
+                          [pageSizeOptions]="[3, 5, 10]" 
+                          showFirstLastButtons
+                          class="paginador-notas">
+            </mat-paginator>
           </ng-container>
-
-          <ng-container matColumnDef="fornecedor">
-            <th mat-header-cell *matHeaderCellDef> FORNECEDOR </th>
-            <td mat-cell *matCellDef="let element" class="fw-bold"> 
-              {{ element.fornecedorNome || element.fornecedor?.nome }} 
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="status">
-            <th mat-header-cell *matHeaderCellDef> STATUS </th>
-            <td mat-cell *matCellDef="let element">
-              <span class="status-badge" [ngClass]="'status-' + (element.status ? element.status.toLowerCase() : 'aberta')">
-                {{ element.status || 'ABERTA' }}
-              </span>
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="valor">
-            <th mat-header-cell *matHeaderCellDef> TOTAL </th>
-            <td mat-cell *matCellDef="let element" class="text-success fw-bold"> 
-              {{ element.valorTotal | currency:'BRL' }} 
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="acoes">
-            <th mat-header-cell *matHeaderCellDef> AÇÕES </th>
-            <td mat-cell *matCellDef="let element">
-              <button mat-icon-button 
-                      (click)="editarNota(element)" 
-                      [disabled]="element.status !== 'ABERTA'"
-                      [matTooltip]="element.status === 'ABERTA' ? 'Editar Nota' : 'Nota bloqueada para edição'">
-                
-                <mat-icon *ngIf="element.status === 'ABERTA' || !element.status" color="primary">edit</mat-icon>
-                <mat-icon *ngIf="element.status !== 'ABERTA'" class="icon-locked">lock</mat-icon>
-                
-              </button>
-            </td>
-          </ng-container>
-
-          <tr mat-header-row *matHeaderRowDef="colunasNotasRecentes"></tr>
-          <tr mat-row *matRowDef="let row; columns: colunasNotasRecentes;" [class.row-locked]="row.status !== 'ABERTA'"></tr>
-        </table>
-
-          <mat-paginator [pageSize]="3" 
-                         [pageSizeOptions]="[3, 5, 10]" 
-                         showFirstLastButtons
-                         class="paginador-notas">
-          </mat-paginator>
 
         </div>
       </div>

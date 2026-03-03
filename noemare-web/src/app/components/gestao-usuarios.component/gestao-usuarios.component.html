@@ -25,7 +25,7 @@
     </div>
   </header>
 
- <div class="usr-summary-grid">
+  <div class="usr-summary-grid">
     <div class="usr-summary-card">
       <div class="usr-summary-card__icon usr-summary-card__icon--blue">
         <mat-icon>people</mat-icon>
@@ -67,115 +67,122 @@
 
   <div class="usr-table-card">
 
-    <div class="usr-empty" *ngIf="usuarios.length === 0">
-      <mat-icon>people_outline</mat-icon>
-      <h3>Nenhum funcionário cadastrado</h3>
-      <p>Os usuários registrados aparecerão aqui.</p>
+    <div class="usr-loading-state" *ngIf="isLoading">
+      <mat-icon class="usr-loading-icon">autorenew</mat-icon>
+      <h3>Sincronizando usuários...</h3>
+      <p>Buscando lista de funcionários e permissões.</p>
     </div>
 
-    <div class="usr-table-wrapper" *ngIf="usuarios.length > 0">
-      <table mat-table [dataSource]="usuarios" class="usr-table">
+    <ng-container *ngIf="!isLoading">
+      
+      <div class="usr-empty" *ngIf="usuarios.length === 0">
+        <mat-icon>people_outline</mat-icon>
+        <h3>Nenhum funcionário cadastrado</h3>
+        <p>Os usuários registrados aparecerão aqui.</p>
+      </div>
 
-        <ng-container matColumnDef="nome">
-          <th mat-header-cell *matHeaderCellDef>Funcionário</th>
-          <td mat-cell *matCellDef="let u">
-            <div class="usr-cell">
-              <div class="usr-cell__avatar">
-                {{ u.nome?.charAt(0)?.toUpperCase() }}
+      <div class="usr-table-wrapper" *ngIf="usuarios.length > 0">
+        <table mat-table [dataSource]="dataSource" class="usr-table">
+
+          <ng-container matColumnDef="nome">
+            <th mat-header-cell *matHeaderCellDef>Funcionário</th>
+            <td mat-cell *matCellDef="let u">
+              <div class="usr-cell">
+                <div class="usr-cell__avatar">
+                  {{ u.nome?.charAt(0)?.toUpperCase() }}
+                </div>
+                <div class="usr-cell__info">
+                  <span class="usr-cell__name">{{ u.nome }}</span>
+                  <span class="usr-cell__role">{{ u.role === 'ADMIN' ? 'Administrador' : 'Colaborador' }}</span>
+                </div>
               </div>
-              <div class="usr-cell__info">
-                <span class="usr-cell__name">{{ u.nome }}</span>
-                <span class="usr-cell__role">{{ u.role === 'ADMIN' ? 'Administrador' : 'Colaborador' }}</span>
-              </div>
-            </div>
-          </td>
-        </ng-container>
+            </td>
+          </ng-container>
 
-        <ng-container matColumnDef="email">
-          <th mat-header-cell *matHeaderCellDef>E-mail</th>
-          <td mat-cell *matCellDef="let u">
-            <span class="usr-email">{{ u.email }}</span>
-          </td>
-        </ng-container>
+          <ng-container matColumnDef="email">
+            <th mat-header-cell *matHeaderCellDef>E-mail</th>
+            <td mat-cell *matCellDef="let u">
+              <span class="usr-email">{{ u.email }}</span>
+            </td>
+          </ng-container>
 
-        <ng-container matColumnDef="role">
-          <th mat-header-cell *matHeaderCellDef>Perfil</th>
-          <td mat-cell *matCellDef="let u">
-            <span class="usr-role-pill"
-              [class.usr-role-pill--admin]="u.role === 'ADMIN'"
-              [class.usr-role-pill--user]="u.role !== 'ADMIN'">
-              <mat-icon>{{ u.role === 'ADMIN' ? 'admin_panel_settings' : 'person' }}</mat-icon>
-              {{ u.role === 'ADMIN' ? 'Administrador' : 'Colaborador' }}
-            </span>
-          </td>
-        </ng-container>
-
-        <ng-container matColumnDef="status">
-          <th mat-header-cell *matHeaderCellDef>Status</th>
-          <td mat-cell *matCellDef="let u">
-            <span class="usr-pill"
-              [class.usr-pill--active]="u.statusConta === 'ATIVO'"
-              [class.usr-pill--pending]="u.statusConta !== 'ATIVO'">
-              <mat-icon *ngIf="u.statusConta === 'ATIVO'">fiber_manual_record</mat-icon>
-              <mat-icon *ngIf="u.statusConta !== 'ATIVO'">fiber_manual_record</mat-icon>
-              {{ u.statusConta === 'ATIVO' ? 'ATIVO' : 'PENDENTE' }}
-            </span>
-          </td>
-        </ng-container>
-
-        <ng-container matColumnDef="ultimoLogin">
-          <th mat-header-cell *matHeaderCellDef>Último Acesso</th>
-          <td mat-cell *matCellDef="let u">
-            <div style="display: flex; align-items: center; gap: 6px; color: #64748b; font-size: 0.85rem;" *ngIf="u.ultimoLogin">
-              <mat-icon style="font-size: 16px; width: 16px; height: 16px;">schedule</mat-icon>
-              {{ u.ultimoLogin | date:'dd/MM/yyyy HH:mm' }}
-            </div>
-            <div style="color: #94a3b8; font-size: 0.8rem; font-style: italic;" *ngIf="!u.ultimoLogin">
-              Nunca acessou
-            </div>
-          </td>
-        </ng-container>
-
-       <ng-container matColumnDef="acoes">
-          <th mat-header-cell *matHeaderCellDef style="text-align: center;">Ações</th>
-          <td mat-cell *matCellDef="let u">
-            
-            <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
-              
-              <button class="usr-btn-activate"
-                *ngIf="u.statusConta !== 'ATIVO'"
-                (click)="ativarUsuario(u)"
-                matTooltip="Liberar Acesso">
-                <mat-icon>check_circle_outline</mat-icon>
-                Liberar Acesso
-              </button>
-              
-              <span class="usr-activated" *ngIf="u.statusConta === 'ATIVO'">
-                <mat-icon>verified</mat-icon>
-                Liberado
+          <ng-container matColumnDef="role">
+            <th mat-header-cell *matHeaderCellDef>Perfil</th>
+            <td mat-cell *matCellDef="let u">
+              <span class="usr-role-pill"
+                [class.usr-role-pill--admin]="u.role === 'ADMIN'"
+                [class.usr-role-pill--user]="u.role !== 'ADMIN'">
+                <mat-icon>{{ u.role === 'ADMIN' ? 'admin_panel_settings' : 'person' }}</mat-icon>
+                {{ u.role === 'ADMIN' ? 'Administrador' : 'Colaborador' }}
               </span>
+            </td>
+          </ng-container>
 
-              <button mat-icon-button color="warn" 
-                      matTooltip="Excluir Colaborador" 
-                      *ngIf="u.role !== 'ADMIN'" 
-                      (click)="excluirUsuario(u)">
-                <mat-icon>delete_outline</mat-icon>
-              </button>
-              
-            </div>
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>Status</th>
+            <td mat-cell *matCellDef="let u">
+              <span class="usr-pill"
+                [class.usr-pill--active]="u.statusConta === 'ATIVO'"
+                [class.usr-pill--pending]="u.statusConta !== 'ATIVO'">
+                <mat-icon>fiber_manual_record</mat-icon>
+                {{ u.statusConta === 'ATIVO' ? 'ATIVO' : 'PENDENTE' }}
+              </span>
+            </td>
+          </ng-container>
 
-          </td>
-        </ng-container>
+          <ng-container matColumnDef="ultimoLogin">
+            <th mat-header-cell *matHeaderCellDef>Último Acesso</th>
+            <td mat-cell *matCellDef="let u">
+              <div style="display: flex; align-items: center; gap: 6px; color: #64748b; font-size: 0.85rem;" *ngIf="u.ultimoLogin">
+                <mat-icon style="font-size: 16px; width: 16px; height: 16px;">schedule</mat-icon>
+                {{ u.ultimoLogin | date:'dd/MM/yyyy HH:mm' }}
+              </div>
+              <div style="color: #94a3b8; font-size: 0.8rem; font-style: italic;" *ngIf="!u.ultimoLogin">
+                Nunca acessou
+              </div>
+            </td>
+          </ng-container>
 
-        <tr mat-header-row *matHeaderRowDef="colunasExibidas"></tr>
-        <tr mat-row *matRowDef="let row; columns: colunasExibidas;" class="usr-table__row"></tr>
+         <ng-container matColumnDef="acoes">
+            <th mat-header-cell *matHeaderCellDef style="text-align: center;">Ações</th>
+            <td mat-cell *matCellDef="let u">
+              <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <button class="usr-btn-activate"
+                  *ngIf="u.statusConta !== 'ATIVO'"
+                  (click)="ativarUsuario(u)"
+                  matTooltip="Liberar Acesso">
+                  <mat-icon>check_circle_outline</mat-icon>
+                  Liberar Acesso
+                </button>
+                <span class="usr-activated" *ngIf="u.statusConta === 'ATIVO'">
+                  <mat-icon>verified</mat-icon>
+                  Liberado
+                </span>
+                <button mat-icon-button color="warn" 
+                        matTooltip="Excluir Colaborador" 
+                        *ngIf="u.role !== 'ADMIN'" 
+                        (click)="excluirUsuario(u)">
+                  <mat-icon>delete_outline</mat-icon>
+                </button>
+              </div>
+            </td>
+          </ng-container>
 
-      </table>
-    </div>
+          <tr mat-header-row *matHeaderRowDef="colunasExibidas"></tr>
+          <tr mat-row *matRowDef="let row; columns: colunasExibidas;" class="usr-table__row"></tr>
+        </table>
+
+        <mat-paginator [pageSize]="5" 
+                       [hidePageSize]="true" 
+                       showFirstLastButtons 
+                       class="paginador-usuarios">
+        </mat-paginator>
+
+      </div>
+    </ng-container>
   </div>
 
- <div class="usr-table-card usr-table-card--alert" *ngIf="solicitacoesSenha && solicitacoesSenha.length > 0">
-    
+  <div class="usr-table-card usr-table-card--alert" *ngIf="!isLoading && solicitacoesSenha && solicitacoesSenha.length > 0">
     <div class="usr-alert-header">
       <mat-icon class="usr-alert-icon">notification_important</mat-icon>
       <div>
@@ -185,7 +192,6 @@
     </div>
 
     <table mat-table [dataSource]="solicitacoesSenha" class="usr-table">
-      
       <ng-container matColumnDef="nome">
         <th mat-header-cell *matHeaderCellDef>Funcionário</th>
         <td mat-cell *matCellDef="let u">

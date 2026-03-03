@@ -9,16 +9,15 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCardModule } from '@angular/material/card';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog'; // 👉 Adicionado
-import { MatButtonModule } from '@angular/material/button'; // 👉 Adicionado
+import { MatDialog, MatDialogModule } from '@angular/material/dialog'; 
+import { MatButtonModule } from '@angular/material/button'; 
 
 // Service e Model
 import { AuditoriaService } from '../../services/auditoria.service';
 import { LogLancamento } from '../../models/log.model';
 import { NotifyService } from '../../services/notify.service'; 
-import { ConfiguracaoService } from '../../services/configuracao.service'; // 👉 Importe o serviço
+import { ConfiguracaoService } from '../../services/configuracao.service'; 
 import { ConfigLogsDialogComponent } from './modal-config-logs/config-logs-dialog.component';
-
 
 @Component({
   selector: 'app-auditoria',
@@ -26,7 +25,7 @@ import { ConfigLogsDialogComponent } from './modal-config-logs/config-logs-dialo
   imports: [
     CommonModule, RouterModule, MatTableModule, MatPaginatorModule,
     MatIconModule, MatInputModule, MatFormFieldModule, MatCardModule,
-    MatDialogModule, MatButtonModule // 👉 Adicionados nos imports
+    MatDialogModule, MatButtonModule 
   ],
   templateUrl: './auditoria.component.html',
   styleUrl: './auditoria.component.scss'
@@ -35,61 +34,65 @@ export class AuditoriaComponent implements OnInit, AfterViewInit {
 
   private readonly auditoriaService = inject(AuditoriaService);
   private readonly notify = inject(NotifyService); 
-  private readonly dialog = inject(MatDialog); // 👉 Injetado
-  private readonly configService = inject(ConfiguracaoService); // 👉 Injetado
+  private readonly dialog = inject(MatDialog); 
+  private readonly configService = inject(ConfiguracaoService); 
 
-  // Fonte de dados e colunas
+  isLoading: boolean = true; // 👉 Estado de loading ativado por padrão
+
   logs = new MatTableDataSource<LogLancamento>([]);
-  // No seu auditoria.component.ts, altere para:
- colunasExibidas: string[] = ['id', 'dataHora', 'usuario', 'acao', 'entidade', 'detalhes']; // 👉 'id' adicionado no início
+  colunasExibidas: string[] = ['id', 'dataHora', 'usuario', 'acao', 'entidade', 'detalhes']; 
 
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  // 👉 SOLUÇÃO: Usamos o Setter para o paginador renderizar perfeitamente quando sair do loading
+  private _paginator!: MatPaginator;
+  @ViewChild(MatPaginator) set matPaginator(mp: MatPaginator) {
+    if (mp) {
+      this._paginator = mp;
+      this.logs.paginator = this._paginator;
+    }
+  }
 
   ngOnInit(): void {
     this.carregarLogs();
   }
 
   ngAfterViewInit(): void {
-    this.logs.paginator = this.paginator;
+    // Retirado a atribuição direta do paginator daqui, pois o Setter já resolve.
   }
 
   carregarLogs(): void {
+    this.isLoading = true; // Liga o loading
+
     this.auditoriaService.listarTodos().subscribe({
       next: (dados) => {
         this.logs.data = dados.sort((a, b) => {
           return new Date(b.dataHora).getTime() - new Date(a.dataHora).getTime();
         });
         
-        if (this.paginator) {
-          this.logs.paginator = this.paginator;
-        }
-        
+        this.isLoading = false; // Desliga o loading
+
         if (dados.length === 0) {
-          this.notify.info('Nenhum registro de atividade encontrado.');
+          // Opcional: pode retirar este notify já que a tabela terá um Empty State visual
+          // this.notify.info('Nenhum registro de atividade encontrado.');
         }
       },
       error: (err) => {
         console.error(err);
         this.notify.erro('Não foi possível buscar os registros de auditoria.');
+        this.isLoading = false; // Desliga o loading em caso de erro
       }
     });
   }
 
-  // 👉 NOVO: Método que abre a tela de configurações
   abrirConfiguracoes(): void {
-    // 1. Busca os dados atuais no back-end
     this.configService.obterConfiguracao().subscribe({
       next: (configAtual) => {
-        // 2. Abre o modal passando a configuração atual
         const dialogRef = this.dialog.open(ConfigLogsDialogComponent, {
           width: '450px',
           data: configAtual
         });
 
-        // 3. Fica ouvindo o fechamento do modal
         dialogRef.afterClosed().subscribe(resultado => {
           if (resultado) {
-            // Se o usuário clicou em salvar, envia para a API
             this.configService.atualizarConfiguracao(resultado).subscribe({
               next: () => this.notify.sucesso('Regras de limpeza automática atualizadas com sucesso!'),
               error: () => this.notify.erro('Erro ao tentar atualizar as configurações.')

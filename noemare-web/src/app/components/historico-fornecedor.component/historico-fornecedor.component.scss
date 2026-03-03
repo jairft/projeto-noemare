@@ -837,3 +837,51 @@ $radius-sm:     10px;
     min-height: 52px;
   }
 }
+
+/* ----------------------------------------
+   Estado de Loading
+---------------------------------------- */
+.hf-loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 6rem 1rem;
+  color: #64748b; /* text-slate-500 */
+  text-align: center;
+  animation: fadeIn 0.3s ease-in-out;
+
+  .hf-loading-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    color: #2563eb; /* primary blue */
+    margin-bottom: 1.5rem;
+    animation: spin 1s linear infinite;
+  }
+
+  h3 {
+    font-size: 1.25rem;
+    font-family: 'Sora', sans-serif;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 0.5rem 0;
+  }
+
+  p {
+    font-size: 0.9rem;
+    margin: 0;
+    max-width: 300px;
+    line-height: 1.5;
+  }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}

@@ -70,13 +70,20 @@
   </div>
 
   <div class="forn-table-card">
-    <div class="forn-empty-state" *ngIf="dataSource.data.length === 0">
+    
+    <div class="forn-loading-state" *ngIf="isLoading">
+      <mat-icon class="forn-loading-icon">autorenew</mat-icon>
+      <h3>Buscando fornecedores...</h3>
+      <p>Aguarde enquanto sincronizamos os dados com o servidor.</p>
+    </div>
+
+    <div class="forn-empty-state" *ngIf="!isLoading && dataSource.data.length === 0">
       <mat-icon>storefront</mat-icon>
       <h3>Nenhum fornecedor encontrado</h3>
       <p>Cadastre um novo fornecedor para começar.</p>
     </div>
 
-    <div class="forn-table-wrapper" *ngIf="dataSource.data.length > 0">
+    <div class="forn-table-wrapper" *ngIf="!isLoading && dataSource.data.length > 0">
       <table mat-table [dataSource]="dataSource" class="forn-table">
 
         <ng-container matColumnDef="nome">

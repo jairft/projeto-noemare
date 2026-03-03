@@ -39,7 +39,7 @@
     </div>
   </header>
 
- <div class="fin-summary-grid">
+  <div class="fin-summary-grid">
     <div class="fin-kpi-card">
       <div class="fin-kpi-header">
         <div class="icon-wrapper blue">
@@ -80,147 +80,167 @@
     </div>
   </div>
 
-  <div class="fin-table-card">
+ <div class="fin-table-card">
     
-    <div class="fin-batch-bar" *ngIf="selecao.selected.length > 0">
-      <div class="fin-batch-bar__info">
-        <mat-icon>checklist</mat-icon>
-        <span>
-          <strong>{{ selecao.selected.length }} notas</strong> selecionadas de 
-          <strong>{{ selecao.selected[0].fornecedor }}</strong>
-          (Total Pendente: <strong>{{ valorTotalSelecionado | currency:'BRL' }}</strong>)
-        </span>
-      </div>
-      <div class="fin-batch-bar__actions">
-        <button mat-icon-button (click)="selecao.clear()" matTooltip="Cancelar seleção" style="color: #64748b;">
-          <mat-icon>close</mat-icon>
-        </button>
-        <button mat-flat-button color="primary" class="fin-btn-lote" (click)="abrirBaixaEmLote()">
-          <mat-icon>payments</mat-icon> Pagar Lote
-        </button>
-      </div>
+    <div class="fin-loading-state" *ngIf="isLoading">
+      <mat-icon class="fin-loading-icon">autorenew</mat-icon>
+      <h3>Buscando títulos...</h3>
+      <p>Aguarde enquanto sincronizamos as contas a pagar com o servidor.</p>
     </div>
 
-    <div class="fin-empty-state" *ngIf="contasAPagar.length === 0">
-      <mat-icon class="fin-empty-state__icon">inventory_2</mat-icon>
-      <h3>Nenhum registro encontrado</h3>
-      <p>Não existem notas fiscais lançadas no sistema até o momento.</p>
-    </div>
+    <ng-container *ngIf="!isLoading">
+      
+      <div class="fin-batch-bar" *ngIf="selecao.selected.length > 0">
+        <div class="fin-batch-bar__info">
+          <mat-icon>checklist</mat-icon>
+          <span>
+            <strong>{{ selecao.selected.length }} notas</strong> selecionadas de 
+            <strong>{{ selecao.selected[0].fornecedor }}</strong>
+            (Total Pendente: <strong>{{ valorTotalSelecionado | currency:'BRL' }}</strong>)
+          </span>
+        </div>
+        <div class="fin-batch-bar__actions">
+          <button mat-icon-button (click)="selecao.clear()" matTooltip="Cancelar seleção" style="color: #64748b;">
+            <mat-icon>close</mat-icon>
+          </button>
+          <button mat-flat-button color="primary" class="fin-btn-lote" (click)="abrirBaixaEmLote()">
+            <mat-icon>payments</mat-icon> Pagar Lote
+          </button>
+        </div>
+      </div>
 
-    <div class="fin-table-wrapper" *ngIf="contasAPagar.length > 0">
-      <table>
-        <thead>
-          <tr>
-            <th *ngIf="fornecedorSelecionado" style="width: 80px; text-align: center;">
-              <mat-checkbox
-                color="primary"
-                (change)="$event ? toggleAllRows() : null"
-                [checked]="selecao.hasValue() && isAllSelected()"
-                [indeterminate]="selecao.hasValue() && !isAllSelected()"
-                [disabled]="notasPendentesNaVisualizacao.length === 0"
-                matTooltip="Selecionar todas">
-              </mat-checkbox>
-            </th>
-            
-            <th style="width: 100px;">Nº da Nota</th>
-            
-            <th>Fornecedor</th>
-            <th>Data da Nota</th>
-            
-            <th class="th-right">Valor Total</th>
-            <th class="th-right">Já Pago</th>
-            <th class="th-right">Falta Pagar</th>
-            
-            <th style="text-align: center;">Status</th>
-            <th class="fin-th-center" style="text-align: center !important;">Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let conta of contasPaginadas" [class.fin-row--selected]="selecao.isSelected(conta)">
-            
-            <td *ngIf="fornecedorSelecionado" style="text-align: center;">
-              <mat-checkbox 
-                color="primary"
-                (change)="toggleSelecao(conta)"
-                [checked]="selecao.isSelected(conta)"
-                [disabled]="conta.status === 'PAGA'"
-                matTooltip="{{ conta.status === 'PAGA' ? 'Nota já quitada' : 'Selecionar para lote' }}">
-              </mat-checkbox>
-            </td>
+      <div class="fin-empty-state" *ngIf="contasAPagar.length === 0">
+        <mat-icon class="fin-empty-state__icon">inventory_2</mat-icon>
+        <h3>Nenhum registro encontrado</h3>
+        <p>Não existem notas fiscais lançadas no sistema até o momento.</p>
+      </div>
 
-            <td>
-              <span class="fin-nota-badge">{{ conta.numeroNota }}</span>
-            </td>
+      <div class="fin-table-wrapper" *ngIf="contasAPagar.length > 0">
+        <table>
+          <thead>
+            <tr>
+              <th *ngIf="fornecedorSelecionado" style="width: 80px; text-align: center;">
+                <mat-checkbox
+                  color="primary"
+                  (change)="$event ? toggleAllRows() : null"
+                  [checked]="selecao.hasValue() && isAllSelected()"
+                  [indeterminate]="selecao.hasValue() && !isAllSelected()"
+                  [disabled]="notasPendentesNaVisualizacao.length === 0"
+                  matTooltip="Selecionar todas">
+                </mat-checkbox>
+              </th>
+              
+              <th style="width: 100px;">Nº da Nota</th>
+              
+              <th>Fornecedor</th>
+              <th>Data da Nota</th>
+              
+              <th class="th-right">Valor Total</th>
+              <th class="th-right">Já Pago</th>
+              <th class="th-right">Falta Pagar</th>
+              
+              <th style="text-align: center;">Status</th>
+              <th class="fin-th-center" style="text-align: center !important;">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let conta of contasPaginadas" [class.fin-row--selected]="selecao.isSelected(conta)">
+              
+              <td *ngIf="fornecedorSelecionado" style="text-align: center;">
+                <mat-checkbox 
+                  color="primary"
+                  (change)="toggleSelecao(conta)"
+                  [checked]="selecao.isSelected(conta)"
+                  [disabled]="conta.status === 'PAGA'"
+                  matTooltip="{{ conta.status === 'PAGA' ? 'Nota já quitada' : 'Selecionar para lote' }}">
+                </mat-checkbox>
+              </td>
 
-            <td>
-              <div class="fin-fornecedor">
-                <div class="fin-fornecedor__avatar">
-                  <mat-icon>store</mat-icon>
+              <td>
+                <span class="fin-nota-badge">{{ conta.numeroNota }}</span>
+              </td>
+
+              <td>
+                <div class="fin-fornecedor">
+                  <div class="fin-fornecedor__avatar">
+                    <mat-icon>store</mat-icon>
+                  </div>
+                  <span class="fin-fornecedor__name">{{ conta.fornecedor }}</span>
                 </div>
-                <span class="fin-fornecedor__name">{{ conta.fornecedor }}</span>
-              </div>
-            </td>
+              </td>
 
-            <td>
-              <div style="display: flex; flex-direction: column;">
-                <span class="fin-date">{{ conta.data }}</span>
-              </div>
-            </td>
-            
-            <td class="td-right"><span class="fin-value">{{ conta.valorTotalFormatado }}</span></td>
-            <td class="td-right"><span class="fin-value fin-value--paid">{{ conta.valorPago }}</span></td>
+              <td>
+                <div style="display: flex; flex-direction: column;">
+                  <span class="fin-date">{{ conta.data }}</span>
+                </div>
+              </td>
+              
+              <td class="td-right"><span class="fin-value">{{ conta.valorTotalFormatado }}</span></td>
+              <td class="td-right"><span class="fin-value fin-value--paid">{{ conta.valorPago }}</span></td>
 
-            <td class="td-right">
-              <span *ngIf="conta.status !== 'PAGA'" class="fin-falta td-currency-highlight">{{ conta.faltaPagar }}</span>
-              <span *ngIf="conta.status === 'PAGA'" class="fin-dash">—</span>
-            </td>
+              <td class="td-right">
+                <span *ngIf="conta.status !== 'PAGA'" class="fin-falta td-currency-highlight">{{ conta.faltaPagar }}</span>
+                <span *ngIf="conta.status === 'PAGA'" class="fin-dash">—</span>
+              </td>
 
-            <td style="text-align: center;">
-              <span class="fin-pill"
-                [class.fin-pill--warning]="conta.status === 'ABERTA'"
-                [class.fin-pill--info]="conta.status === 'PARCIAL'"
-                [class.fin-pill--success]="conta.status === 'PAGA'">
-                {{ conta.status }}
-              </span>
-            </td>
+              <td style="text-align: center;">
+                <span class="fin-pill"
+                  [class.fin-pill--warning]="conta.status === 'ABERTA'"
+                  [class.fin-pill--info]="conta.status === 'PARCIAL'"
+                  [class.fin-pill--success]="conta.status === 'PAGA'">
+                  {{ conta.status }}
+                </span>
+              </td>
 
-            <td class="fin-td-center">
-              <div style="display: flex; gap: 8px; align-items: center; justify-content: center;">
-                <button mat-icon-button color="primary" matTooltip="Ver Histórico" (click)="abrirModalHistorico(conta)">
-                  <mat-icon>history</mat-icon>
-                </button>
+              <td class="fin-td-center">
+                <div style="display: flex; gap: 8px; align-items: center; justify-content: center;">
+                  
+                  <button mat-icon-button 
+                          color="primary" 
+                          matTooltip="Editar Nota" 
+                          (click)="editarNota(conta)"
+                          [disabled]="conta.status !== 'ABERTA'">
+                    <mat-icon>edit</mat-icon>
+                  </button>
 
-                <button
-                  *ngIf="conta.status !== 'PAGA'"
-                  class="fin-btn-baixa"
-                  (click)="abrirBaixaPagamento(conta)"
-                  [disabled]="selecao.hasValue()"
-                  [matTooltip]="selecao.hasValue() ? 'Desmarque o lote para pagar individualmente' : 'Realizar Pagamento'">
-                  <mat-icon>payments</mat-icon>
-                  Dar Baixa
-                </button>
+                  <button mat-icon-button color="primary" matTooltip="Ver Histórico" (click)="abrirModalHistorico(conta)">
+                    <mat-icon>history</mat-icon>
+                  </button>
 
-                <button
-                  *ngIf="conta.status === 'PAGA'"
-                  class="fin-btn-quitada"
-                  disabled
-                  matTooltip="Nota já quitada">
-                  <mat-icon>check_circle</mat-icon>
-                  Quitada
-                </button>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+                  <button
+                    *ngIf="conta.status !== 'PAGA'"
+                    class="fin-btn-baixa"
+                    (click)="abrirBaixaPagamento(conta)"
+                    [disabled]="selecao.hasValue()"
+                    [matTooltip]="selecao.hasValue() ? 'Desmarque o lote para pagar individualmente' : 'Realizar Pagamento'">
+                    <mat-icon>payments</mat-icon>
+                    Dar Baixa
+                  </button>
 
-      <mat-paginator 
-        [length]="contasAPagar.length"
-        [pageSize]="pageSize"
-        [hidePageSize]="true"
-        (page)="handlePageEvent($event)"
-        aria-label="Selecionar página">
-      </mat-paginator>
-    </div>
+                  <button
+                    *ngIf="conta.status === 'PAGA'"
+                    class="fin-btn-quitada"
+                    disabled
+                    matTooltip="Nota já quitada">
+                    <mat-icon>check_circle</mat-icon>
+                    Quitada
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <mat-paginator 
+          [length]="contasAPagar.length"
+          [pageSize]="pageSize"
+          [hidePageSize]="true"
+          (page)="handlePageEvent($event)"
+          aria-label="Selecionar página">
+        </mat-paginator>
+      </div>
+
+    </ng-container>
+
   </div>
 </div>

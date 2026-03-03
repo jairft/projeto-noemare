@@ -188,7 +188,7 @@ public class EmprestimoService { // Atualizado
                 cellId.setBorder(Rectangle.NO_BORDER);
                 invTable.addCell(cellId);
 
-                PdfPCell cellData = new PdfPCell(new Phrase("DATA: " + inv.getDataEmprestimo().format(dateOnlyFormatter), fontSub));
+                PdfPCell cellData = new PdfPCell(new Phrase("Data: " + inv.getDataEmprestimo().format(dateOnlyFormatter), fontSub));
                 cellData.setBorder(Rectangle.NO_BORDER);
                 invTable.addCell(cellData);
 
@@ -282,13 +282,13 @@ public class EmprestimoService { // Atualizado
             footerTable.setWidthPercentage(100);
             footerTable.setSpacingBefore(20f);
 
-            PdfPCell totalLabel = new PdfPCell(new Phrase("TOTAL DO INVESTIMENTO: " + currencyFormatter.format(totalInvestido), fontTotal));
+            PdfPCell totalLabel = new PdfPCell(new Phrase("TOTAL INVESTIMENTOS: " + currencyFormatter.format(totalInvestido), fontTotal));
             totalLabel.setBorder(Rectangle.TOP);
             totalLabel.setBorderColor(accentBlue);
             totalLabel.setPaddingTop(10f);
             footerTable.addCell(totalLabel);
 
-            PdfPCell totalVal = new PdfPCell(new Phrase("SALDO A RESTANTE: " + currencyFormatter.format(totalSaldoRestante), fontTotal));
+            PdfPCell totalVal = new PdfPCell(new Phrase("SALDO A PAGAR: " +currencyFormatter.format(totalSaldoRestante), fontTotal));
             totalVal.setBorder(Rectangle.TOP);
             totalVal.setBorderColor(accentBlue);
             totalVal.setPaddingTop(10f);

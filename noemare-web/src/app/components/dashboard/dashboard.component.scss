@@ -1342,3 +1342,33 @@ $sidebar-width: 240px;
     }
   }
 }
+
+/* Loader localizado para gráficos */
+.dash-mini-loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 250px; /* Ajuste para a mesma altura do seu gráfico */
+  color: #64748b;
+  animation: fadeIn 0.3s ease-in;
+
+  .dash-spin-icon {
+    color: #2563eb;
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+    margin-bottom: 8px;
+    animation: spin 1s linear infinite;
+  }
+
+  span {
+    font-size: 0.85rem;
+    font-family: 'Sora', sans-serif;
+  }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

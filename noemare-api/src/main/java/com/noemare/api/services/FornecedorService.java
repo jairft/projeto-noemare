@@ -263,7 +263,7 @@ public class FornecedorService {
 
             NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
             
-            // 👉 Dois formatadores: Um sem hora para a Nota, um com hora para o Relatório
+            // Dois formatadores: Um sem hora para a Nota, um com hora para o Relatório
             DateTimeFormatter dateNotaFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
             DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
@@ -271,19 +271,19 @@ public class FornecedorService {
             PdfPTable headerLine = new PdfPTable(1);
             headerLine.setWidthPercentage(100);
             
-            // 👉 AJUSTE: Nome da Empresa Centralizado
+            // Nome da Empresa Centralizado
             PdfPCell brandCell = new PdfPCell(new Phrase("NOÉ MARÉ", fontBrand));
             brandCell.setBorder(Rectangle.NO_BORDER);
-            brandCell.setHorizontalAlignment(Element.ALIGN_CENTER); // Centralizado aqui
+            brandCell.setHorizontalAlignment(Element.ALIGN_CENTER); 
             headerLine.addCell(brandCell);
 
-            // 👉 AJUSTE: Subtítulo também centralizado para acompanhar o visual
-            PdfPCell titleCell = new PdfPCell(new Phrase("EXTRATO DE COMPRAS DETALHADO", fontTitle));
+            // Subtítulo também centralizado
+            PdfPCell titleCell = new PdfPCell(new Phrase("EXTRATO DE NOTAS", fontTitle));
             titleCell.setBorder(Rectangle.BOTTOM);
             titleCell.setBorderColor(accentBlue);
             titleCell.setBorderWidth(2f);
             titleCell.setPaddingBottom(10f);
-            titleCell.setHorizontalAlignment(Element.ALIGN_CENTER); // Centralizado aqui
+            titleCell.setHorizontalAlignment(Element.ALIGN_CENTER); 
             headerLine.addCell(titleCell);
             
             document.add(headerLine);
@@ -298,6 +298,9 @@ public class FornecedorService {
             BigDecimal pesoTotalGeral = BigDecimal.ZERO;
             BigDecimal valorTotalGeral = BigDecimal.ZERO;
 
+            // 👉 Variável de controle para sabermos em qual nota estamos
+            int indexNota = 0; 
+
             // 3. Listagem de Notas
             for (NotaFornecedor nota : notas) {
                 // Header da Nota
@@ -310,7 +313,7 @@ public class FornecedorService {
                 cellNota.setBorder(Rectangle.NO_BORDER);
                 noteTable.addCell(cellNota);
 
-                // 👉 AJUSTE: Usando `dateNotaFormatter` para mostrar apenas DD/MM/YYYY nas notas
+                // Usando `dateNotaFormatter` para mostrar apenas DD/MM/YYYY nas notas
                 PdfPCell cellData = new PdfPCell(new Phrase("Data da Nota: " + nota.getDataNota().format(dateNotaFormatter), fontSub));
                 cellData.setBorder(Rectangle.NO_BORDER);
                 noteTable.addCell(cellData);
@@ -358,6 +361,24 @@ public class FornecedorService {
                     count++;
                 }
                 document.add(itemsTable);
+
+                // 👉 NOVO: Adiciona a linha separadora elegante (apenas se não for a última nota)
+                if (indexNota < notas.size() - 1) {
+                    PdfPTable separatorTable = new PdfPTable(1);
+                    separatorTable.setWidthPercentage(100);
+                    separatorTable.setSpacingBefore(10f); // Espaço acima da linha
+                    
+                    PdfPCell separatorCell = new PdfPCell(new Phrase(" "));
+                    separatorCell.setBorder(Rectangle.BOTTOM);
+                    separatorCell.setBorderColor(borderGray); // Usa aquele cinza claro que você já tem
+                    separatorCell.setBorderWidth(1f);
+                    
+                    separatorTable.addCell(separatorCell);
+                    document.add(separatorTable);
+                }
+                
+                // Incrementa o índice
+                indexNota++;
 
                 pesoTotalGeral = pesoTotalGeral.add(nota.getItens().stream().map(NotaItem::getQuantidadeKg).reduce(BigDecimal.ZERO, BigDecimal::add));
                 valorTotalGeral = valorTotalGeral.add(nota.getValorTotal());

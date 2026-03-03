@@ -12,7 +12,7 @@
   </div>
 </div>
 
-<div class="forn-wrapper" *ngIf="dados">
+<div class="forn-wrapper">
 
   <header class="forn-header">
     <div>
@@ -23,166 +23,189 @@
       <h1 class="forn-header__title">Relatório de Desempenho</h1>
       <p class="forn-header__subtitle">Resumo consolidado de volumes, compras e pagamentos da safra.</p>
     </div>
-    <button class="forn-btn-new no-print" (click)="imprimir()">
+    
+    <button class="forn-btn-new no-print" (click)="imprimir()" *ngIf="!isLoading && !isRelatorioVazio">
       <mat-icon>print</mat-icon>
       Imprimir PDF
     </button>
   </header>
 
-  <div class="forn-kpi-grid">
-    <div class="forn-kpi forn-kpi--info">
-      <div class="forn-kpi__info">
-        <span class="forn-kpi__label">Volume Total (Safra)</span>
-        <strong class="forn-kpi__value">{{ dados.totalKgGeral | number:'1.2-2' }} KG</strong>
-      </div>
-      <div class="forn-kpi__icon"><mat-icon>scale</mat-icon></div>
-    </div>
-
-    <div class="forn-kpi forn-kpi--primary">
-      <div class="forn-kpi__info">
-        <span class="forn-kpi__label">Total Comprado (Safra)</span>
-        <strong class="forn-kpi__value">{{ dados.totalCompradoGeral | currency:'BRL' }}</strong>
-      </div>
-      <div class="forn-kpi__icon"><mat-icon>shopping_cart</mat-icon></div>
-    </div>
-
-    <div class="forn-kpi forn-kpi--success">
-      <div class="forn-kpi__info">
-        <span class="forn-kpi__label">Total Pago</span>
-        <strong class="forn-kpi__value">{{ dados.totalPagoGeral | currency:'BRL' }}</strong>
-      </div>
-      <div class="forn-kpi__icon"><mat-icon>check_circle</mat-icon></div>
-    </div>
-
-    <div class="forn-kpi forn-kpi--danger">
-      <div class="forn-kpi__info">
-        <span class="forn-kpi__label">Saldo em Aberto</span>
-        <strong class="forn-kpi__value">{{ dados.saldoPendenteGeral | currency:'BRL' }}</strong>
-      </div>
-      <div class="forn-kpi__icon"><mat-icon>account_balance_wallet</mat-icon></div>
-    </div>
+  <div class="forn-loading-state" *ngIf="isLoading">
+    <mat-icon class="forn-loading-icon">autorenew</mat-icon>
+    <h3>Gerando relatório...</h3>
+    <p>Consolidando volumes, compras e pagamentos da safra {{ anoAtivo }}.</p>
   </div>
 
-  <div class="forn-card">
-    <div class="forn-card__header">
-      <div>
-        <h2 class="forn-card__title">Detalhamento por Fornecedor</h2>
-        <p class="forn-card__subtitle">Resumo financeiro por parceiro na safra {{ anoAtivo }}</p>
+  <ng-container *ngIf="!isLoading">
+
+    <div class="forn-empty-state-card" *ngIf="isRelatorioVazio">
+      <div class="forn-empty-state-content">
+        <mat-icon>insert_chart_outlined</mat-icon>
+        <h3>Nenhuma movimentação na Safra {{ anoAtivo }}</h3>
+        <p>Não há registros de compras, notas ou pagamentos lançados para este período.</p>
       </div>
-      <span class="forn-card__count">{{ dados.fornecedores?.length }} fornecedores</span>
     </div>
 
-    <div class="forn-table-wrap">
-      <table mat-table [dataSource]="dados.fornecedores" class="forn-table">
-        <ng-container matColumnDef="nome">
-          <th mat-header-cell *matHeaderCellDef>Fornecedor</th>
-          <td mat-cell *matCellDef="let f">
-            <div class="forn-cell">
-              <div class="forn-cell__avatar">{{ f.nome | slice:0:1 }}</div>
-              <span class="forn-cell__name">{{ f.nome }}</span>
-            </div>
-          </td>
-        </ng-container>
+    <ng-container *ngIf="!isRelatorioVazio">
+      
+      <div class="forn-kpi-grid">
+        <div class="forn-kpi forn-kpi--info">
+          <div class="forn-kpi__info">
+            <span class="forn-kpi__label">Volume Total (Safra)</span>
+            <strong class="forn-kpi__value">{{ dados.totalKgGeral | number:'1.2-2' }} KG</strong>
+          </div>
+          <div class="forn-kpi__icon"><mat-icon>scale</mat-icon></div>
+        </div>
 
-        <ng-container matColumnDef="comprado">
-          <th mat-header-cell *matHeaderCellDef>Total Compras</th>
-          <td mat-cell *matCellDef="let f">
-            <span class="forn-val">{{ f.totalComprado | currency:'BRL' }}</span>
-          </td>
-        </ng-container>
+        <div class="forn-kpi forn-kpi--primary">
+          <div class="forn-kpi__info">
+            <span class="forn-kpi__label">Total Comprado (Safra)</span>
+            <strong class="forn-kpi__value">{{ dados.totalCompradoGeral | currency:'BRL' }}</strong>
+          </div>
+          <div class="forn-kpi__icon"><mat-icon>shopping_cart</mat-icon></div>
+        </div>
 
-        <ng-container matColumnDef="pago">
-          <th mat-header-cell *matHeaderCellDef>Total Pago</th>
-          <td mat-cell *matCellDef="let f">
-            <span class="forn-val forn-val--success">{{ f.totalPago | currency:'BRL' }}</span>
-          </td>
-        </ng-container>
+        <div class="forn-kpi forn-kpi--success">
+          <div class="forn-kpi__info">
+            <span class="forn-kpi__label">Total Pago</span>
+            <strong class="forn-kpi__value">{{ dados.totalPagoGeral | currency:'BRL' }}</strong>
+          </div>
+          <div class="forn-kpi__icon"><mat-icon>check_circle</mat-icon></div>
+        </div>
 
-       <ng-container matColumnDef="pendente">
-        <th mat-header-cell *matHeaderCellDef>Pendência (Notas)</th>
-        <td mat-cell *matCellDef="let f">
-            <span class="forn-pill"
-            [class.forn-pill--inactive]="f.pendenciaNotas > 0" 
-            [class.forn-pill--active]="f.pendenciaNotas === 0">
-            <span class="forn-pill__dot"></span>
-            {{ f.pendenciaNotas | currency:'BRL' }} </span>
-        </td>
-        </ng-container>
-
-        <ng-container matColumnDef="devedor">
-        <th mat-header-cell *matHeaderCellDef>Saldo Devedor (Adiant.)</th>
-        <td mat-cell *matCellDef="let f">
-            <span class="forn-val" 
-                [style.color]="f.saldoDevedor > 0 ? '#ef4444' : '#64748b'"
-                [style.font-weight]="f.saldoDevedor > 0 ? '700' : '400'">
-            {{ f.saldoDevedor | currency:'BRL' }} </span>
-        </td>
-        </ng-container>
-
-        <ng-container matColumnDef="investimento">
-        <th mat-header-cell *matHeaderCellDef>Saldo Devedor (Invest.)</th>
-        <td mat-cell *matCellDef="let f">
-            <span class="forn-val" 
-                [style.color]="f.saldoInvestimento > 0 ? '#2563eb' : '#64748b'"
-                [style.font-weight]="f.saldoInvestimento > 0 ? '700' : '400'">
-            {{ f.saldoInvestimento | currency:'BRL' }} </span>
-        </td>
-        </ng-container>
-
-        <tr mat-header-row *matHeaderRowDef="colunas"></tr>
-        <tr mat-row *matRowDef="let row; columns: colunas;" class="forn-table__row"></tr>
-      </table>
-    </div>
-  </div>
-
-  <div class="forn-card" style="margin-top: 24px;">
-    <div class="forn-card__header">
-      <div>
-        <h2 class="forn-card__title">Consolidado por Pescado</h2>
-        <p class="forn-card__subtitle">Resumo de volumes e valores por espécie na safra {{ anoAtivo }}</p>
+        <div class="forn-kpi forn-kpi--danger">
+          <div class="forn-kpi__info">
+            <span class="forn-kpi__label">Saldo em Aberto</span>
+            <strong class="forn-kpi__value">{{ dados.saldoPendenteGeral | currency:'BRL' }}</strong>
+          </div>
+          <div class="forn-kpi__icon"><mat-icon>account_balance_wallet</mat-icon></div>
+        </div>
       </div>
-      <span class="forn-card__count">{{ dados.itens?.length }} itens</span>
-    </div>
 
-    <div class="forn-table-wrap">
-      <table mat-table [dataSource]="dados.itens" class="forn-table">
+      <div class="forn-card">
+        <div class="forn-card__header">
+          <div>
+            <h2 class="forn-card__title">Detalhamento por Fornecedor</h2>
+            <p class="forn-card__subtitle">Resumo financeiro por parceiro na safra {{ anoAtivo }}</p>
+          </div>
+          <span class="forn-card__count">{{ dados.fornecedores?.length }} fornecedores</span>
+        </div>
 
-        <ng-container matColumnDef="produto">
-          <th mat-header-cell *matHeaderCellDef>Espécie / Produto</th>
-          <td mat-cell *matCellDef="let i">
-            <div class="forn-cell">
-              <div class="forn-cell__avatar" style="background: #e0e7ff; color: #4338ca;">
-                <mat-icon style="font-size: 18px; width: 18px; height: 18px;">set_meal</mat-icon>
-              </div>
-              <span class="forn-cell__name">{{ i.produto }}</span>
-            </div>
-          </td>
-        </ng-container>
+        <div class="forn-table-wrap">
+          <table mat-table [dataSource]="dados.fornecedores" class="forn-table">
+            <ng-container matColumnDef="nome">
+              <th mat-header-cell *matHeaderCellDef>Fornecedor</th>
+              <td mat-cell *matCellDef="let f">
+                <div class="forn-cell">
+                  <div class="forn-cell__avatar">{{ f.nome | slice:0:1 }}</div>
+                  <span class="forn-cell__name">{{ f.nome }}</span>
+                </div>
+              </td>
+            </ng-container>
 
-        <ng-container matColumnDef="quantidadeKg">
-          <th mat-header-cell *matHeaderCellDef>Peso Total</th>
-          <td mat-cell *matCellDef="let i">
-            <strong class="forn-val" style="color: #0f172a;">{{ i.quantidadeKg | number:'1.2-2' }} KG</strong>
-          </td>
-        </ng-container>
+            <ng-container matColumnDef="comprado">
+              <th mat-header-cell *matHeaderCellDef>Total Compras</th>
+              <td mat-cell *matCellDef="let f">
+                <span class="forn-val">{{ f.totalComprado | currency:'BRL' }}</span>
+              </td>
+            </ng-container>
 
-        <ng-container matColumnDef="precoUnitario">
-          <th mat-header-cell *matHeaderCellDef>Preço Médio (KG)</th>
-          <td mat-cell *matCellDef="let i">
-            <span class="forn-val" style="color: #64748b;">{{ i.precoUnitario | currency:'BRL' }}</span>
-          </td>
-        </ng-container>
+            <ng-container matColumnDef="pago">
+              <th mat-header-cell *matHeaderCellDef>Total Pago</th>
+              <td mat-cell *matCellDef="let f">
+                <span class="forn-val forn-val--success">{{ f.totalPago | currency:'BRL' }}</span>
+              </td>
+            </ng-container>
 
-        <ng-container matColumnDef="valorTotal">
-          <th mat-header-cell *matHeaderCellDef>Valor Investido</th>
-          <td mat-cell *matCellDef="let i">
-            <span class="forn-val">{{ i.valorTotal | currency:'BRL' }}</span>
-          </td>
-        </ng-container>
+            <ng-container matColumnDef="pendente">
+              <th mat-header-cell *matHeaderCellDef>Pendência (Notas)</th>
+              <td mat-cell *matCellDef="let f">
+                <span class="forn-pill"
+                [class.forn-pill--inactive]="f.pendenciaNotas > 0" 
+                [class.forn-pill--active]="f.pendenciaNotas === 0">
+                <span class="forn-pill__dot"></span>
+                {{ f.pendenciaNotas | currency:'BRL' }} </span>
+              </td>
+            </ng-container>
 
-        <tr mat-header-row *matHeaderRowDef="colunasItens"></tr>
-        <tr mat-row *matRowDef="let row; columns: colunasItens;" class="forn-table__row"></tr>
-      </table>
-    </div>
-  </div>
+            <ng-container matColumnDef="devedor">
+              <th mat-header-cell *matHeaderCellDef>Saldo Devedor (Adiant.)</th>
+              <td mat-cell *matCellDef="let f">
+                <span class="forn-val" 
+                    [style.color]="f.saldoDevedor > 0 ? '#ef4444' : '#64748b'"
+                    [style.font-weight]="f.saldoDevedor > 0 ? '700' : '400'">
+                {{ f.saldoDevedor | currency:'BRL' }} </span>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="investimento">
+              <th mat-header-cell *matHeaderCellDef>Saldo Devedor (Invest.)</th>
+              <td mat-cell *matCellDef="let f">
+                <span class="forn-val" 
+                    [style.color]="f.saldoInvestimento > 0 ? '#2563eb' : '#64748b'"
+                    [style.font-weight]="f.saldoInvestimento > 0 ? '700' : '400'">
+                {{ f.saldoInvestimento | currency:'BRL' }} </span>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="colunas"></tr>
+            <tr mat-row *matRowDef="let row; columns: colunas;" class="forn-table__row"></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="forn-card" style="margin-top: 24px;">
+        <div class="forn-card__header">
+          <div>
+            <h2 class="forn-card__title">Consolidado por Pescado</h2>
+            <p class="forn-card__subtitle">Resumo de volumes e valores por espécie na safra {{ anoAtivo }}</p>
+          </div>
+          <span class="forn-card__count">{{ dados.itens?.length }} itens</span>
+        </div>
+
+        <div class="forn-table-wrap">
+          <table mat-table [dataSource]="dados.itens" class="forn-table">
+
+            <ng-container matColumnDef="produto">
+              <th mat-header-cell *matHeaderCellDef>Espécie / Produto</th>
+              <td mat-cell *matCellDef="let i">
+                <div class="forn-cell">
+                  <div class="forn-cell__avatar" style="background: #e0e7ff; color: #4338ca;">
+                    <mat-icon style="font-size: 18px; width: 18px; height: 18px;">set_meal</mat-icon>
+                  </div>
+                  <span class="forn-cell__name">{{ i.produto }}</span>
+                </div>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="quantidadeKg">
+              <th mat-header-cell *matHeaderCellDef>Peso Total</th>
+              <td mat-cell *matCellDef="let i">
+                <strong class="forn-val" style="color: #0f172a;">{{ i.quantidadeKg | number:'1.2-2' }} KG</strong>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="precoUnitario">
+              <th mat-header-cell *matHeaderCellDef>Preço Médio (KG)</th>
+              <td mat-cell *matCellDef="let i">
+                <span class="forn-val" style="color: #64748b;">{{ i.precoUnitario | currency:'BRL' }}</span>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="valorTotal">
+              <th mat-header-cell *matHeaderCellDef>Valor Investido</th>
+              <td mat-cell *matCellDef="let i">
+                <span class="forn-val">{{ i.valorTotal | currency:'BRL' }}</span>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="colunasItens"></tr>
+            <tr mat-row *matRowDef="let row; columns: colunasItens;" class="forn-table__row"></tr>
+          </table>
+        </div>
+      </div>
+
+    </ng-container>
+  </ng-container>
+
 </div>

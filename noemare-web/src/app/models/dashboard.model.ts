@@ -25,3 +25,13 @@ export interface DashboardFornecedorResponse {
   totalLiquidoAReceber: number;
   fornecedores: HistoricoIndividualFornecedorResponse[];
 }
+
+// Atualize ou crie a interface principal do topo do Dashboard
+export interface DashboardResumoResponse {
+  totalAPagar: number;
+  totalAdiantado: number;
+  totalPagoMes: number;
+  notasPendentes: number;
+  volumePorMes: { [key: number]: number }; 
+  volumeTotalAno: number; // 👉 É ESTE CAMPO AQUI QUE VAI TIRAR O "CARREGANDO..."!
+}

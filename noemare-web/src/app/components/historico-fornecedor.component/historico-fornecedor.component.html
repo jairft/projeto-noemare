@@ -25,169 +25,178 @@
     </div>
   </header>
 
-  <div class="hf-kpi-grid" *ngIf="dados">
+  <ng-container *ngIf="dados; else loadingTemplate">
     
-    <div class="hf-kpi hf-kpi--large hf-kpi--success">
-      <div class="hf-kpi__info">
-        <span class="hf-kpi__label">TOTAL LÍQUIDO (A RECEBER)</span>
-        <strong class="hf-kpi__value">{{ dados.totalLiquidoAReceber | currency:'BRL' }}</strong>
-      </div>
-      <div class="hf-kpi__icon"><mat-icon>account_balance_wallet</mat-icon></div>
-    </div>
-
-    <div class="hf-kpi hf-kpi--large hf-kpi--danger">
-      <div class="hf-kpi__info">
-        <span class="hf-kpi__label">TOTAL LÍQUIDO (A PAGAR)</span>
-        <strong class="hf-kpi__value">{{ dados.totalLiquidoAPagar | currency:'BRL' }}</strong>
-      </div>
-      <div class="hf-kpi__icon"><mat-icon>payments</mat-icon></div>
-    </div>
-
-    <div class="hf-kpi">
-      <div class="hf-kpi__info">
-        <span class="hf-kpi__label">Total Adiantado</span>
-        <strong class="hf-kpi__value--small">{{ dados.totalAdiantadoGlobal | currency:'BRL' }}</strong>
-      </div>
-      <div class="hf-kpi__icon-small hf-icon-green"><mat-icon>trending_up</mat-icon></div>
-    </div>
-
-    <div class="hf-kpi">
-      <div class="hf-kpi__info">
-        <span class="hf-kpi__label">Total Investimento</span>
-        <strong class="hf-kpi__value--small">{{ dados.totalInvestimentoGlobal | currency:'BRL' }}</strong>
-      </div>
-      <div class="hf-kpi__icon-small hf-icon-blue"><mat-icon>monetization_on</mat-icon></div>
-    </div>
-
-    <div class="hf-kpi">
-      <div class="hf-kpi__info">
-        <span class="hf-kpi__label">Investimento Pago</span>
-        <strong class="hf-kpi__value--small">{{ dados.totalPagoInvestimentoGlobal | currency:'BRL' }}</strong>
-      </div>
-      <div class="hf-kpi__icon-small hf-icon-purple"><mat-icon>price_check</mat-icon></div>
-    </div>
-
-    <div class="hf-kpi">
-      <div class="hf-kpi__info">
-        <span class="hf-kpi__label">Total Notas</span>
-        <strong class="hf-kpi__value--small">{{ dados.totalNotasGlobal | currency:'BRL' }}</strong>
-      </div>
-      <div class="hf-kpi__icon-small hf-icon-red"><mat-icon>receipt_long</mat-icon></div>
-    </div>
-
-  </div>
-
-  <div class="hf-card" *ngIf="dados">
-
-    <div class="hf-card__header">
-      <div style="display: flex; align-items: center; gap: 0.75rem;">
-        <div class="hf-card__stripe"></div>
-        <div>
-          <h2 class="hf-card__title">Extrato por Fornecedor</h2>
-          <p class="hf-card__subtitle">Clique para ver a produção acumulada de cada parceiro</p>
+    <div class="hf-kpi-grid">
+      <div class="hf-kpi hf-kpi--large hf-kpi--success">
+        <div class="hf-kpi__info">
+          <span class="hf-kpi__label">TOTAL LÍQUIDO (A RECEBER)</span>
+          <strong class="hf-kpi__value">{{ dados.totalLiquidoAReceber | currency:'BRL' }}</strong>
         </div>
+        <div class="hf-kpi__icon"><mat-icon>account_balance_wallet</mat-icon></div>
       </div>
-      
-      <div class="hf-card__actions">
-        <div class="hf-search">
-          <mat-icon>search</mat-icon>
-          <input type="text" placeholder="Buscar fornecedor..." (keyup)="aplicarFiltro($event)">
+
+      <div class="hf-kpi hf-kpi--large hf-kpi--danger">
+        <div class="hf-kpi__info">
+          <span class="hf-kpi__label">TOTAL LÍQUIDO (A PAGAR)</span>
+          <strong class="hf-kpi__value">{{ dados.totalLiquidoAPagar | currency:'BRL' }}</strong>
         </div>
-        <span class="hf-card__count">{{ totalItems }} encontrados</span>
+        <div class="hf-kpi__icon"><mat-icon>payments</mat-icon></div>
+      </div>
+
+      <div class="hf-kpi">
+        <div class="hf-kpi__info">
+          <span class="hf-kpi__label">Total Adiantado</span>
+          <strong class="hf-kpi__value--small">{{ dados.totalAdiantadoGlobal | currency:'BRL' }}</strong>
+        </div>
+        <div class="hf-kpi__icon-small hf-icon-green"><mat-icon>trending_up</mat-icon></div>
+      </div>
+
+      <div class="hf-kpi">
+        <div class="hf-kpi__info">
+          <span class="hf-kpi__label">Total Investimento</span>
+          <strong class="hf-kpi__value--small">{{ dados.totalInvestimentoGlobal | currency:'BRL' }}</strong>
+        </div>
+        <div class="hf-kpi__icon-small hf-icon-blue"><mat-icon>monetization_on</mat-icon></div>
+      </div>
+
+      <div class="hf-kpi">
+        <div class="hf-kpi__info">
+          <span class="hf-kpi__label">Investimento Pago</span>
+          <strong class="hf-kpi__value--small">{{ dados.totalPagoInvestimentoGlobal | currency:'BRL' }}</strong>
+        </div>
+        <div class="hf-kpi__icon-small hf-icon-purple"><mat-icon>price_check</mat-icon></div>
+      </div>
+
+      <div class="hf-kpi">
+        <div class="hf-kpi__info">
+          <span class="hf-kpi__label">Total Notas</span>
+          <strong class="hf-kpi__value--small">{{ dados.totalNotasGlobal | currency:'BRL' }}</strong>
+        </div>
+        <div class="hf-kpi__icon-small hf-icon-red"><mat-icon>receipt_long</mat-icon></div>
       </div>
     </div>
 
-    <mat-accordion class="hf-accordion" multi="false">
-      <mat-expansion-panel
-        *ngFor="let f of fornecedoresPaginados; let i = index"
-        class="hf-panel"
-        [style.animation-delay]="(i % pageSize) * 55 + 'ms'">
-
-        <mat-expansion-panel-header class="hf-panel__header" [collapsedHeight]="'68px'" [expandedHeight]="'68px'">
-          <mat-panel-title>
-            <div class="hf-panel__title-row">
-              <div class="hf-panel__avatar">{{ (f.nomeFornecedor || 'F').charAt(0) | uppercase }}</div>
-              <div class="hf-panel__name-group">
-                <span class="hf-panel__name">{{ f.nomeFornecedor }}</span>
-                
-                <span class="hf-panel__saldo hf-panel__saldo--neg" *ngIf="f.saldoLiquido > 0">
-                  <mat-icon>payment</mat-icon> A Pagar: {{ f.saldoLiquido | currency:'BRL' }}
-                </span>
-                
-                <span class="hf-panel__saldo hf-panel__saldo--pos" *ngIf="f.saldoLiquido < 0">
-                  <mat-icon>savings</mat-icon> A Receber: {{ (f.saldoLiquido * -1) | currency:'BRL' }}
-                </span>
-                
-                <span class="hf-panel__saldo hf-panel__saldo--zerado" *ngIf="f.saldoLiquido === 0">
-                  <mat-icon>check_circle</mat-icon> Quitado
-                </span>
-              </div>
-            </div>
-          </mat-panel-title>
-          <mat-panel-description>
-            <div class="hf-panel__badges">
-              <div class="hf-badge hf-badge--success">
-                <span class="hf-badge__label">Adiantado</span>
-                <span class="hf-badge__val">{{ f.saldoAdiantamento | currency:'BRL' }}</span>
-              </div>
-              
-              <div class="hf-badge hf-badge--info">
-                <span class="hf-badge__label">Investimento</span>
-                <span class="hf-badge__val">{{ f.saldoInvestimento | currency:'BRL' }}</span>
-              </div>
-
-              <div class="hf-badge hf-badge--purple">
-                <span class="hf-badge__label">Invest. Pago</span>
-                <span class="hf-badge__val">{{ f.investimentoPago | currency:'BRL' }}</span>
-              </div>
-
-              <div class="hf-badge hf-badge--danger">
-                <span class="hf-badge__label">Notas</span>
-                <span class="hf-badge__val">{{ f.saldoNotas | currency:'BRL' }}</span>
-              </div>
-            </div>
-          </mat-panel-description>
-        </mat-expansion-panel-header>
-
-        <div class="hf-detail">
-          <div class="hf-detail__header">
-            <div class="hf-detail__icon-wrap">
-              <mat-icon>inventory_2</mat-icon>
-            </div>
-            <span>Produção Acumulada</span>
-            <span class="hf-detail__count">{{ f.producao.length }} itens</span>
-          </div>
-
-          <div class="hf-production-grid">
-            <div class="hf-prod-item" *ngFor="let item of f.producao">
-              <div class="hf-prod-item__left">
-                <span class="hf-prod-item__name">{{ item.nomeProduto }} {{ item.tipoProduto }}</span>
-                <span class="hf-prod-item__size">{{ item.tamanho }}</span>
-              </div>
-              <strong class="hf-prod-item__kg">
-                {{ item.totalKg | number:'1.2-2' }}
-                <small>Kg</small>
-              </strong>
-            </div>
-
-            <div class="hf-empty" *ngIf="f.producao.length === 0">
-              <mat-icon>inbox</mat-icon>
-              <span>Nenhuma produção registrada</span>
-            </div>
+    <div class="hf-card">
+      <div class="hf-card__header">
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <div class="hf-card__stripe"></div>
+          <div>
+            <h2 class="hf-card__title">Extrato por Fornecedor</h2>
+            <p class="hf-card__subtitle">Clique para ver a produção acumulada de cada parceiro</p>
           </div>
         </div>
+        
+        <div class="hf-card__actions">
+          <div class="hf-search">
+            <mat-icon>search</mat-icon>
+            <input type="text" placeholder="Buscar fornecedor..." (keyup)="aplicarFiltro($event)">
+          </div>
+          <span class="hf-card__count">{{ totalItems }} encontrados</span>
+        </div>
+      </div>
 
-      </mat-expansion-panel>
-    </mat-accordion>
+      <mat-accordion class="hf-accordion" multi="false">
+        <mat-expansion-panel
+          *ngFor="let f of fornecedoresPaginados; let i = index"
+          class="hf-panel"
+          [style.animation-delay]="(i % pageSize) * 55 + 'ms'">
 
-    <mat-paginator
-      class="hf-paginator"
-      [length]="totalItems"
-      [pageSize]="pageSize"
-      [pageSizeOptions]="[6, 12, 24]"
-      (page)="onPageChange($event)"
-      showFirstLastButtons>
-    </mat-paginator>
+          <mat-expansion-panel-header class="hf-panel__header" [collapsedHeight]="'68px'" [expandedHeight]="'68px'">
+            <mat-panel-title>
+              <div class="hf-panel__title-row">
+                <div class="hf-panel__avatar">{{ (f.nomeFornecedor || 'F').charAt(0) | uppercase }}</div>
+                <div class="hf-panel__name-group">
+                  <span class="hf-panel__name">{{ f.nomeFornecedor }}</span>
+                  
+                  <span class="hf-panel__saldo hf-panel__saldo--neg" *ngIf="f.saldoLiquido > 0">
+                    <mat-icon>payment</mat-icon> A Pagar: {{ f.saldoLiquido | currency:'BRL' }}
+                  </span>
+                  
+                  <span class="hf-panel__saldo hf-panel__saldo--pos" *ngIf="f.saldoLiquido < 0">
+                    <mat-icon>savings</mat-icon> A Receber: {{ (f.saldoLiquido * -1) | currency:'BRL' }}
+                  </span>
+                  
+                  <span class="hf-panel__saldo hf-panel__saldo--zerado" *ngIf="f.saldoLiquido === 0">
+                    <mat-icon>check_circle</mat-icon> Quitado
+                  </span>
+                </div>
+              </div>
+            </mat-panel-title>
+            <mat-panel-description>
+              <div class="hf-panel__badges">
+                <div class="hf-badge hf-badge--success">
+                  <span class="hf-badge__label">Adiantado</span>
+                  <span class="hf-badge__val">{{ f.saldoAdiantamento | currency:'BRL' }}</span>
+                </div>
+                
+                <div class="hf-badge hf-badge--info">
+                  <span class="hf-badge__label">Investimento</span>
+                  <span class="hf-badge__val">{{ f.saldoInvestimento | currency:'BRL' }}</span>
+                </div>
 
-  </div>
+                <div class="hf-badge hf-badge--purple">
+                  <span class="hf-badge__label">Invest. Pago</span>
+                  <span class="hf-badge__val">{{ f.investimentoPago | currency:'BRL' }}</span>
+                </div>
+
+                <div class="hf-badge hf-badge--danger">
+                  <span class="hf-badge__label">Notas</span>
+                  <span class="hf-badge__val">{{ f.saldoNotas | currency:'BRL' }}</span>
+                </div>
+              </div>
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+
+          <div class="hf-detail">
+            <div class="hf-detail__header">
+              <div class="hf-detail__icon-wrap">
+                <mat-icon>inventory_2</mat-icon>
+              </div>
+              <span>Produção Acumulada</span>
+              <span class="hf-detail__count">{{ f.producao.length }} itens</span>
+            </div>
+
+            <div class="hf-production-grid">
+              <div class="hf-prod-item" *ngFor="let item of f.producao">
+                <div class="hf-prod-item__left">
+                  <span class="hf-prod-item__name">{{ item.nomeProduto }} {{ item.tipoProduto }}</span>
+                  <span class="hf-prod-item__size">{{ item.tamanho }}</span>
+                </div>
+                <strong class="hf-prod-item__kg">
+                  {{ item.totalKg | number:'1.2-2' }}
+                  <small>Kg</small>
+                </strong>
+              </div>
+
+              <div class="hf-empty" *ngIf="f.producao.length === 0">
+                <mat-icon>inbox</mat-icon>
+                <span>Nenhuma produção registrada</span>
+              </div>
+            </div>
+          </div>
+
+        </mat-expansion-panel>
+      </mat-accordion>
+
+      <mat-paginator
+        class="hf-paginator"
+        [length]="totalItems"
+        [pageSize]="pageSize"
+        [pageSizeOptions]="[6, 12, 24]"
+        (page)="onPageChange($event)"
+        showFirstLastButtons>
+      </mat-paginator>
+
+    </div>
+  </ng-container>
+
+  <ng-template #loadingTemplate>
+    <div class="hf-loading-state">
+      <mat-icon class="hf-loading-icon">autorenew</mat-icon>
+      <h3>Carregando extratos...</h3>
+      <p>Buscando os saldos credores e devedores de todos os parceiros.</p>
+    </div>
+  </ng-template>
+
 </div>

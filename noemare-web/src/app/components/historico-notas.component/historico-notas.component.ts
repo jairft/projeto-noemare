@@ -22,9 +22,9 @@ import { NotaFornecedorService } from '../../services/nota-fornecedor.service';
 import { HistoricoNotaResponse, HistoricoNotaItemResponse } from '../../models/nota.model';
 import { NotifyService } from '../../services/notify.service'; 
 import { AnoContextoService } from '../../services/ano-contexto.service';
-import { ConfirmService } from '../../services/confirm.service'; // 👉 Injetado
+import { ConfirmService } from '../../services/confirm.service'; 
 
-// Componentes de Modal (Apenas para referência de classe)
+// Componentes de Modal 
 import { ReciboNotaComponent } from './recibo-nota.component/recibo-nota.component';
 
 @Component({
@@ -36,7 +36,6 @@ import { ReciboNotaComponent } from './recibo-nota.component/recibo-nota.compone
     MatDatepickerModule, MatNativeDateModule, MatFormFieldModule, 
     MatInputModule, MatDialogModule, MatTooltipModule,
     MatPaginatorModule
-    // ✅ Zero Warnings: ConfirmDialogComponent e ReciboNotaComponent removidos daqui
   ],
   templateUrl: './historico-notas.component.html',
   styleUrl: './historico-notas.component.scss'
@@ -48,7 +47,9 @@ export class HistoricoNotasComponent implements OnInit, AfterViewInit {
   private readonly dialog = inject(MatDialog);
   private readonly notify = inject(NotifyService); 
   private readonly anoContexto = inject(AnoContextoService);
-  private readonly confirmService = inject(ConfirmService); // 👉 Injetado
+  private readonly confirmService = inject(ConfirmService); 
+
+  isLoading: boolean = true; // Começa carregando
 
   filtroForm: FormGroup = this.fb.group({
     dataInicio: [null],
@@ -56,7 +57,6 @@ export class HistoricoNotasComponent implements OnInit, AfterViewInit {
   });
 
   notas = new MatTableDataSource<HistoricoNotaResponse>([]);
-  // Adicione a coluna 'numeroNota' na posição desejada (eu coloquei antes do fornecedor)
   colunasExibidas: string[] = ['numeroNota', 'dataHora', 'fornecedor', 'pescados', 'valorTotal', 'acoes'];
   
   anoAtual!: number;
@@ -75,6 +75,8 @@ export class HistoricoNotasComponent implements OnInit, AfterViewInit {
   }
 
   buscarHistorico(): void {
+    this.isLoading = true; // 👉 Liga o loading sempre que for buscar
+
     const { dataInicio, dataFim } = this.filtroForm.value;
     const inicioStr = dataInicio ? this.formatarDataIso(dataInicio) : undefined;
     const fimStr = dataFim ? this.formatarDataIso(dataFim) : undefined;
@@ -82,16 +84,18 @@ export class HistoricoNotasComponent implements OnInit, AfterViewInit {
     this.notaService.buscarHistoricoFiltrado(this.anoAtual, inicioStr, fimStr).subscribe({
       next: (dados) => {
         this.notas.data = dados;
+        this.isLoading = false; // 👉 Desliga o loading no sucesso
       },
-      error: () => this.notify.erro('Não foi possível carregar o histórico.')
+      error: () => {
+        this.notify.erro('Não foi possível carregar o histórico.');
+        this.isLoading = false; // 👉 Desliga o loading também se der erro
+      }
     });
   }
 
-  // 👉 ATUALIZADO: Usando o ConfirmService (Sem confirm nativo e sem warnings)
   excluirNota(nota: HistoricoNotaResponse): void {
     const valorFormatado = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(nota.valorTotal);
     
-    // Criamos uma mensagem rica com HTML para o dialog
     const mensagem = `
       Deseja realmente excluir a nota de <b>${nota.fornecedorNome}</b>?<br>
       <b>Valor:</b> ${valorFormatado}<br>
@@ -104,7 +108,7 @@ export class HistoricoNotasComponent implements OnInit, AfterViewInit {
           this.notaService.excluir(nota.id).subscribe({
             next: () => {
               this.notify.sucesso('Nota excluída com sucesso!');
-              this.buscarHistorico(); 
+              this.buscarHistorico(); // Vai acionar o loading automaticamente!
             },
             error: (err: HttpErrorResponse) => {
               const msg = err.error?.message || err.error?.mensagem || 'Erro ao tentar excluir a nota.';
@@ -117,7 +121,7 @@ export class HistoricoNotasComponent implements OnInit, AfterViewInit {
 
   limparFiltro(): void {
     this.filtroForm.reset();
-    this.buscarHistorico();
+    this.buscarHistorico(); // Vai acionar o loading automaticamente!
     this.notify.info('Filtros de data removidos.'); 
   }
 

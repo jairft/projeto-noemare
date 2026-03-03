@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, inject } from '@angular/core';
+import { Component, OnInit, ViewChild, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 
@@ -27,11 +27,10 @@ import { AnoContextoService } from '../../services/ano-contexto.service';
 import { RelatorioService } from '../../services/relatorio.service';
 import { RelatorioAnualResponse } from '../../models/relatorio-anual';
 
-// Componentes de Modal (Apenas referência de classe, fora do array de imports)
+// Componentes de Modal
 import { HistoricoPagamentoComponent } from '../financeiro/historico-pagamento.component/historico-pagamento.component';
 import { QrMobileDialogComponent } from '../qr-mobile-dialog.component/qr-mobile-dialog.component';
 import { ResumoDiaDialogComponent } from '../resumo-dia-dialog/resumo-dia-dialog.component';
-
 
 @Component({
   selector: 'app-dashboard',
@@ -42,7 +41,6 @@ import { ResumoDiaDialogComponent } from '../resumo-dia-dialog/resumo-dia-dialog
     MatToolbarModule, MatButtonModule, MatCardModule,
     MatTableModule, MatTooltipModule, MatMenuModule, MatDialogModule,
     BaseChartDirective
-    // ✅ Sem warnings: os componentes de modal não entram aqui
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
@@ -57,8 +55,9 @@ export class DashboardComponent implements OnInit {
   private readonly boletoService = inject(BoletoService); 
   private readonly anoContexto = inject(AnoContextoService); 
   private readonly relatorioService = inject(RelatorioService); 
+  private readonly cdr = inject(ChangeDetectorRef);
 
-  userName: string = 'Carregando...';         
+  userName: string = 'Carregando...';        
   userRole: string = '...';
 
   anoSelecionado!: number;
@@ -73,23 +72,29 @@ export class DashboardComponent implements OnInit {
 
   notificacoes: any[] = [];
   totalKgCentro: string = '0,00';
+  
+  isLoadingKPIs: boolean = true; 
+  isLoadingMovs: boolean = true;
+  isLoadingRosca: boolean = true; 
 
   @ViewChild('barChart') barChart: BaseChartDirective | undefined;
   @ViewChild('donutChart') donutChart: BaseChartDirective | undefined;
 
   // ==========================================================
-  // CONFIGURAÇÕES DOS GRÁFICOS (Mantidas intactas)
+  // CONFIGURAÇÕES DOS GRÁFICOS
   // ==========================================================
   public barChartData: ChartConfiguration<'bar'>['data'] = {
     labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
     datasets: [{
-      data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], label: 'Volume Comprado (KG)',
+      data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], // Inicia zerado para animar depois
+      label: 'Volume Comprado (KG)',
       backgroundColor: '#2563eb', hoverBackgroundColor: '#1d4ed8', borderRadius: 6, barPercentage: 0.6
     }]
   };
 
   public barChartOptions: ChartOptions<'bar'> = {
     responsive: true, maintainAspectRatio: false,
+    animation: { duration: 1500, easing: 'easeOutQuart' }, // 👉 Garante animação suave
     plugins: {
       legend: { display: false },
       tooltip: {
@@ -117,6 +122,7 @@ export class DashboardComponent implements OnInit {
   
   public doughnutChartOptions: ChartOptions<'doughnut'> = {
     responsive: true, maintainAspectRatio: false, cutout: '75%',
+    animation: { duration: 2000, animateRotate: true, animateScale: true }, // 👉 Efeito de rotação
     plugins: {
       legend: { display: true, position: 'right', labels: { usePointStyle: true, pointStyle: 'circle', font: { family: 'Sora', size: 11, weight: 600 }, color: '#475569', padding: 20 } },
       tooltip: { backgroundColor: '#0f172a', padding: 12, cornerRadius: 10, titleFont: { family: 'Sora', size: 13 }, bodyFont: { family: 'Sora', size: 12, weight: 'bold' }, callbacks: { label: (context) => ` ${context.label}: ${context.parsed} KG` } }
@@ -147,28 +153,18 @@ export class DashboardComponent implements OnInit {
       this.anoSelecionado = ano;
       this.carregarResumo();
       this.carregarMovimentacoesRecentes();
-      
-      // 👉 CHAMA A LÓGICA DO MODAL DIÁRIO AO SELECIONAR/CARREGAR O ANO
       this.verificarResumoDoDia(ano);
     });
   }
 
-  // ==========================================================
-  // 👉 NOVA SESSÃO: LÓGICA DO RESUMO DIÁRIO
-  // ==========================================================
   verificarResumoDoDia(ano: number): void {
     const jaVisualizou = sessionStorage.getItem('resumo_visto');
-
     if (!jaVisualizou) {
-      // Certifique-se de que o seu BoletoService tem esse método implementado apontando para o backend
       this.boletoService.buscarNotificacoes(ano).subscribe({
         next: (notificacoes: any[]) => {
-          // Filtra apenas o que for urgente ou aviso
           const alertas = notificacoes.filter(n => n.tipo === 'AVISO' || n.tipo === 'URGENTE');
-
           if (alertas.length > 0) {
             this.abrirModalResumoDia(alertas);
-            // Salva na sessão: só aparecerá de novo se fechar a aba/navegador
             sessionStorage.setItem('resumo_visto', 'true');
           }
         },
@@ -177,24 +173,19 @@ export class DashboardComponent implements OnInit {
     }
   }
 
- abrirModalResumoDia(alertas: any[]): void {
-  this.dialog.open(ResumoDiaDialogComponent, {
-    panelClass: 'notif-dialog-panel',
-    backdropClass: 'modal-backdrop-blur',
-    width: '460px',
-    maxWidth: '95vw',
-    data: { alertas } // 👈 estava faltando isso
-  });
-}
+  abrirModalResumoDia(alertas: any[]): void {
+    this.dialog.open(ResumoDiaDialogComponent, {
+      panelClass: 'notif-dialog-panel',
+      backdropClass: 'modal-backdrop-blur',
+      width: '460px',
+      maxWidth: '95vw',
+      data: { alertas } 
+    });
+  }
 
-  
-
-  // ==========================================================
-  // MÉTODOS EXISTENTES
-  // ==========================================================
   mudarAno(ano: number): void { this.anoContexto.setAno(ano); }
 
- carregarNotificacoes(): void {
+  carregarNotificacoes(): void {
     this.boletoService.buscarNotificacoes(this.anoSelecionado).subscribe({
       next: (dados) => { this.notificacoes = dados; },
       error: (err) => { console.error('Erro ao carregar notificações:', err); }
@@ -204,75 +195,104 @@ export class DashboardComponent implements OnInit {
   irParaBoleto(id: number): void { this.router.navigate(['/boletos/novo']); }
 
   carregarResumo(): void {
+    // 👉 1. KPIs e GRÁFICO DE BARRAS
+    this.isLoadingKPIs = true;
     this.dashboardService.obterResumo().subscribe({
-      next: (res) => {
+      next: (res: any) => { 
         const totalCompradoCalculado = (res.totalAPagar || 0) + (res.totalPagoMes || 0);
+        
         this.kpis = [
-          { titulo: 'Volume Total (Safra)', valor: 'Carregando...', icone: 'scale', type: 'info' },
+          { titulo: 'Volume Total (Safra)', valor: this.formatarPeso(res.volumeTotalAno || 0), icone: 'scale', type: 'info' },
           { titulo: 'Total Comprado (Safra)', valor: this.formatarMoeda(totalCompradoCalculado), icone: 'shopping_cart', type: 'primary' },
           { titulo: 'Saldo em Aberto', valor: this.formatarMoeda(res.totalAPagar || 0), icone: 'account_balance_wallet', type: 'danger' },
           { titulo: 'Notas Pendentes', valor: (res.notasPendentes || 0).toString(), icone: 'description', type: 'warning' }
         ];
 
-        this.relatorioService.obterResumoAnual().subscribe({
-          next: (relatorio: RelatorioAnualResponse) => {
-            this.kpis[0].valor = this.formatarPeso(relatorio.totalKgGeral);
-            this.totalKgCentro = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(relatorio.totalKgGeral || 0);
-            this.barChartData.datasets[0].data = relatorio.volumePorMes || [];
-            this.barChart?.update();
+        this.totalKgCentro = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(res.volumeTotalAno || 0);
 
-            const itensLagosta = (relatorio.itens || [])
-              .filter(item => (item.produto || '').toUpperCase().includes('LAGOSTA'))
-              .sort((a, b) => (b.quantidadeKg || 0) - (a.quantidadeKg || 0));
+        // 🟢 PASSO PARA REATIVAR ANIMAÇÃO (BARRAS):
+        this.isLoadingKPIs = false; // Desliga loading primeiro
+        this.cdr.detectChanges();   // Força o Angular a desenhar o <canvas>
 
-            if (itensLagosta.length > 0) {
-              this.doughnutChartData.labels = itensLagosta.map(i => i.produto);
-              this.doughnutChartData.datasets[0].data = itensLagosta.map(i => i.quantidadeKg);
-              this.donutChart?.update(); 
-            } else {
-              this.doughnutChartData.labels = [];
-              this.doughnutChartData.datasets[0].data = [];
-              this.donutChart?.update();
+        setTimeout(() => {          // Espera o canvas existir no DOM para injetar dados e ANIMAR
+          if (res.volumePorMes) {
+            const dadosMeses = [];
+            for (let i = 1; i <= 12; i++) {
+              dadosMeses.push(res.volumePorMes[i] || 0);
             }
-          },
-          error: (err) => console.error('Erro ao sincronizar dados:', err)
-        });
+            this.barChartData.datasets[0].data = dadosMeses;
+            this.barChart?.update();
+          }
+        }, 50);
       },
-      error: (err) => console.error(err)
+      error: (err) => {
+        console.error('Erro ao carregar KPIs:', err);
+        this.isLoadingKPIs = false;
+      }
+    });
+
+    // 👉 2. GRÁFICO DE ROSCA
+    this.isLoadingRosca = true; 
+    this.relatorioService.obterResumoAnual().subscribe({
+      next: (relatorio: any) => {
+        const itensLagosta = (relatorio.itens || [])
+          .filter((item: any) => (item.produto || '').toUpperCase().includes('LAGOSTA'))
+          .sort((a: any, b: any) => (b.quantidadeKg || 0) - (a.quantidadeKg || 0));
+
+        // 🟢 PASSO PARA REATIVAR ANIMAÇÃO (ROSCA):
+        this.isLoadingRosca = false; 
+        this.cdr.detectChanges();
+
+        setTimeout(() => {
+          if (itensLagosta.length > 0) {
+            this.doughnutChartData.labels = itensLagosta.map((i: any) => i.produto);
+            this.doughnutChartData.datasets[0].data = itensLagosta.map((i: any) => i.quantidadeKg);
+          } else {
+            this.doughnutChartData.labels = [];
+            this.doughnutChartData.datasets[0].data = [];
+          }
+          this.donutChart?.update();
+        }, 50);
+      },
+      error: (err) => {
+        console.error('Erro ao carregar gráfico de rosca:', err);
+        this.isLoadingRosca = false;
+      }
     });
   }
 
   carregarMovimentacoesRecentes(): void {
-  this.notaService.listarTodas().subscribe({
-    next: (notas) => {
-      this.movimentacoes = notas
-        // 1. Ordena as notas por data (mais recente primeiro)
-        .sort((a, b) => {
-          const dataA = a.dataNota ? new Date(a.dataNota).getTime() : 0;
-          const dataB = b.dataNota ? new Date(b.dataNota).getTime() : 0;
-          return dataB - dataA; // Inverte para data mais nova primeiro
-        })
-        // 2. Pega apenas as 4 primeiras após ordenar
-        .slice(0, 4)
-        // 3. Mapeia para o formato visual do Dashboard
-        .map(nota => {
-          return {
-            icone: 'arrow_downward', 
-            tipo: 'Saída', 
-            data: nota.dataNota ? new Date(nota.dataNota).toLocaleDateString('pt-BR') : '---',
-            descricao: nota.descricao || `Compra - ${nota.fornecedorNome || '---'}`,
-            status: nota.status, 
-            valor: this.formatarMoeda(nota.valorTotal), 
-            notaOriginal: nota 
-          };
-        });
-    },
-    error: (err) => { 
-      console.error(err); 
-      this.notify.erro('Erro ao carregar movimentações.'); //
-    }
-  });
-}
+    this.isLoadingMovs = true;
+    this.notaService.listarTodas().subscribe({
+      next: (notas) => {
+        this.movimentacoes = notas
+          .sort((a, b) => {
+            const dataA = a.dataNota ? new Date(a.dataNota).getTime() : 0;
+            const dataB = b.dataNota ? new Date(b.dataNota).getTime() : 0;
+            return dataB - dataA; 
+          })
+          .slice(0, 4)
+          .map(nota => {
+            return {
+              icone: 'arrow_downward', 
+              tipo: 'Saída', 
+              data: nota.dataNota ? new Date(nota.dataNota).toLocaleDateString('pt-BR') : '---',
+              descricao: nota.descricao || `Compra - ${nota.fornecedorNome || '---'}`,
+              status: nota.status, 
+              valor: this.formatarMoeda(nota.valorTotal), 
+              notaOriginal: nota 
+            };
+          });
+        this.isLoadingMovs = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => { 
+        console.error(err); 
+        this.notify.erro('Erro ao carregar movimentações.'); 
+        this.isLoadingMovs = false;
+      }
+    });
+  }
 
   abrirModalHistorico(nota: any): void {
     const idReal = nota?.id || nota?.idNota; 
@@ -308,10 +328,7 @@ export class DashboardComponent implements OnInit {
 
   sair(): void { 
     localStorage.removeItem('token'); 
-    
-    // 👉 ADICIONE ESTA LINHA: Esquece que viu o modal ao fazer logout
     sessionStorage.removeItem('resumo_visto'); 
-    
     this.router.navigate(['/login']); 
   }
 }

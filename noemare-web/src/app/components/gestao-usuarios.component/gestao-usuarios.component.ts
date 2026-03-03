@@ -1,30 +1,30 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, ViewChild, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatTableModule } from '@angular/material/table';
+import { RouterModule } from '@angular/router';
+
+// Angular Material
+import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { FuncionarioService } from '../../services/funcionario.service';
 import { MatCardModule } from '@angular/material/card';
-import { RouterModule } from '@angular/router';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+
+// Services e Componentes
+import { FuncionarioService } from '../../services/funcionario.service';
 import { NotifyService } from '../../services/notify.service'; 
-import { ConfirmService } from '../../services/confirm.service'; // <-- Importado o serviço de confirmação
+import { ConfirmService } from '../../services/confirm.service'; 
 import { RedefinirSenhaDialogComponent } from './redefinir-senha/redefinir-senha-dialog.component';
-import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-gestao-usuarios',
   standalone: true,
   imports: [
-    CommonModule,
-    MatTableModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule,
-    MatSnackBarModule,
-    MatCardModule,
-    RouterModule
+    CommonModule, RouterModule, MatTableModule, MatButtonModule, 
+    MatIconModule, MatTooltipModule, MatSnackBarModule, MatCardModule,
+    MatDialogModule, MatPaginatorModule
   ],
   templateUrl: './gestao-usuarios.component.html',
   styleUrl: './gestao-usuarios.component.scss'
@@ -32,35 +32,50 @@ import { MatDialog } from '@angular/material/dialog';
 export class GestaoUsuariosComponent implements OnInit {
   private readonly funcionarioService = inject(FuncionarioService);
   private readonly notify = inject(NotifyService); 
-  private readonly confirmService = inject(ConfirmService); // <-- Injetado
+  private readonly confirmService = inject(ConfirmService); 
   private readonly dialog = inject(MatDialog);
+  private readonly cdr = inject(ChangeDetectorRef);
 
-  colunasExibidas: string[] = ['nome', 'email', 'role', 'status', 'ultimoLogin', 'acoes']; // 👉 'ultimoLogin' adicionado aqui
+  isLoading: boolean = true; 
   usuarios: any[] = [];
+  dataSource = new MatTableDataSource<any>([]);
+  colunasExibidas: string[] = ['nome', 'email', 'role', 'status', 'ultimoLogin', 'acoes'];
+
+  private _paginator!: MatPaginator;
+  @ViewChild(MatPaginator) set matPaginator(mp: MatPaginator) {
+    if (mp) {
+      this._paginator = mp;
+      this.dataSource.paginator = this._paginator;
+    }
+  }
 
   ngOnInit(): void {
     this.carregarUsuarios();
   }
 
   carregarUsuarios(): void {
+    this.isLoading = true; 
     this.funcionarioService.listarTodos().subscribe({
-      next: (dados) => this.usuarios = dados,
+      next: (dados) => {
+        this.usuarios = dados;
+        this.dataSource.data = dados;
+        this.isLoading = false; 
+        this.cdr.detectChanges();
+      },
       error: (err) => {
         console.error(err);
         this.notify.erro('Não foi possível carregar a lista de usuários.'); 
+        this.isLoading = false;
       }
     });
   }
 
- ativarUsuario(usuario: any): void {
-    // Chama o modal azul de segurança pedindo a senha
+  ativarUsuario(usuario: any): void {
     this.confirmService.autorizacaoComSenha(
       'Autorizar Acesso',
       `Para liberar o acesso de <strong>${usuario.nome}</strong> ao sistema, digite sua senha de Administrador:`,
       'Ativar Conta'
     ).subscribe(senhaDigitada => {
-      
-      // Se a senha foi digitada e confirmada
       if (senhaDigitada) {
         this.funcionarioService.ativarConta(usuario.id, senhaDigitada).subscribe({
           next: () => {
@@ -76,14 +91,11 @@ export class GestaoUsuariosComponent implements OnInit {
     });
   }
 
-  // --- NOVO MÉTODO DE EXCLUSÃO COM MODAL ---
   excluirUsuario(usuario: any): void {
     this.confirmService.perigoComSenha(
       'Autorização Necessária',
       `Para excluir permanentemente o acesso de <strong>${usuario.nome}</strong>, digite sua senha de Administrador:`
     ).subscribe(senhaDigitada => {
-      
-      // Se a senhaDigitada não for nula/vazia, o admin clicou em confirmar
       if (senhaDigitada) {
         this.funcionarioService.excluirComSenha(usuario.id, senhaDigitada).subscribe({
           next: () => {
@@ -91,7 +103,6 @@ export class GestaoUsuariosComponent implements OnInit {
             this.carregarUsuarios();
           },
           error: (err) => {
-            // Se a senha estiver errada, o back-end vai mandar o erro pra cá
             const msg = err.error?.mensagem || 'Erro ao excluir o usuário.';
             this.notify.erro(msg);
           }
@@ -100,21 +111,31 @@ export class GestaoUsuariosComponent implements OnInit {
     });
   }
 
+  /**
+   * 👉 MÉTODO AJUSTADO: Agora lida com o fluxo de segurança do Admin
+   */
   abrirModalRedefinirSenha(usuario: any): void {
+    // 1. Abre o modal único que já pede a senha do Admin e a Nova Senha
     const dialogRef = this.dialog.open(RedefinirSenhaDialogComponent, {
       width: '400px',
       data: { nome: usuario.nome }
     });
 
     dialogRef.afterClosed().subscribe(resultado => {
+      // O 'resultado' aqui já vem preenchido com { senhaAdmin, novaSenhaUsuario }
       if (resultado) {
-        this.funcionarioService.redefinirSenha(usuario.id, resultado).subscribe({
+        // 2. Envia direto para o service sem pedir confirmação extra
+        this.funcionarioService.redefinirSenha(
+          usuario.id, 
+          resultado.novaSenhaUsuario, 
+          resultado.senhaAdmin
+        ).subscribe({
           next: () => {
             this.notify.sucesso(`A senha de ${usuario.nome} foi redefinida com sucesso!`);
-            this.carregarUsuarios(); // Remove o usuário da lista de pendências
+            this.carregarUsuarios();
           },
           error: (err) => {
-            const msg = err.error?.mensagem || 'Erro ao redefinir a senha.';
+            const msg = err.error?.mensagem || 'Senha de administrador incorreta ou erro no servidor.';
             this.notify.erro(msg);
           }
         });

@@ -25,23 +25,32 @@ export class FuncionarioService {
   }
 
   ativarConta(id: number, senhaAdmin: string): Observable<any> {
+    // Envia { senha: '...' } para bater com o ConfirmarSenhaRequest do Java
     return this.http.put<any>(`${this.API}/${id}/ativar`, { senha: senhaAdmin });
   }
 
   excluirComSenha(id: number, senhaAdmin: string): Observable<any> {
+    // Envia { senha: '...' } para bater com o ConfirmarSenhaRequest do Java
     return this.http.post<any>(`${this.API}/${id}/excluir`, { senha: senhaAdmin });
   }
 
-  redefinirSenha(id: number, dados: any): Observable<any> {
-    return this.http.post<any>(`${this.API}/${id}/redefinir-senha`, dados);
+  /**
+   * 👉 MÉTODO CORRIGIDO: Redefinição de senha por um Administrador
+   * Agora aceita os dois parâmetros e monta o objeto conforme o Record Java
+   */
+  redefinirSenha(id: number, novaSenhaUsuario: string, senhaAdmin: string): Observable<any> {
+    const payload = {
+      novaSenhaUsuario: novaSenhaUsuario,
+      senhaAdmin: senhaAdmin
+    };
+    return this.http.post<any>(`${this.API}/${id}/redefinir-senha`, payload);
   }
 
   /**
-   * NOVO MÉTODO: Troca de senha pelo próprio usuário logado
+   * Troca de senha pelo próprio usuário logado
    * @param dados Objeto contendo { senhaAtual, novaSenha }
    */
   alterarSenhaPropria(dados: any): Observable<any> {
-    // Usamos PUT pois é uma atualização de dados do perfil
     return this.http.put<any>(`${this.API}/alterar-senha`, dados);
   }
 }

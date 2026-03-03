@@ -69,6 +69,9 @@ public class NotaFornecedor {
     @OneToMany(mappedBy = "nota", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<NotaItem> itens = new ArrayList<>();
 
+    @Column(name = "total_kg", nullable = false)
+    private BigDecimal totalKg = BigDecimal.ZERO;
+
     @PrePersist
     public void prePersist() {
         if (this.dataNota == null) {
@@ -87,11 +90,16 @@ public class NotaFornecedor {
         this.itens.add(item);
         item.setNota(this);
         
-        // Garante que o valor total do item esteja calculado antes de somar na nota
+        // Garante que o valor total do item esteja calculado
         item.calcularValorTotal(); 
         
         if (item.getValorTotal() != null) {
             this.valorTotal = this.valorTotal.add(item.getValorTotal());
+        }
+
+        // 👉 NOVO: Acumula o peso total da nota para o cache
+        if (item.getQuantidadeKg() != null) {
+            this.totalKg = this.totalKg.add(item.getQuantidadeKg());
         }
     }
     
@@ -107,4 +115,20 @@ public class NotaFornecedor {
             }
         }
     }
+
+    public void recalcularTotais() {
+        this.valorTotal = BigDecimal.ZERO;
+        this.totalKg = BigDecimal.ZERO;
+        for (NotaItem item : itens) {
+            item.calcularValorTotal();
+            if (item.getValorTotal() != null) {
+                this.valorTotal = this.valorTotal.add(item.getValorTotal());
+            }
+            if (item.getQuantidadeKg() != null) {
+                this.totalKg = this.totalKg.add(item.getQuantidadeKg());
+            }
+        }
+    }
+
+    
 }

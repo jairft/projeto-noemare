@@ -59,11 +59,11 @@ public interface NotaFornecedorRepository extends JpaRepository<NotaFornecedor, 
     @Query("SELECT SUM(n.valorTotal) FROM NotaFornecedor n WHERE YEAR(n.dataNota) = :ano")
     BigDecimal somarTotalNotasPorAno(@Param("ano") Integer ano);
 
-    @Query("SELECT MONTH(n.dataNota) as mes, SUM(i.quantidadeKg) as totalKg " +
-           "FROM NotaFornecedor n JOIN n.itens i " +
-           "WHERE YEAR(n.dataNota) = :ano " +
-           "GROUP BY MONTH(n.dataNota)")
-    List<Object[]> somarVolumePorMesNoAno(@Param("ano") Integer ano);
+    @Query("SELECT MONTH(n.dataNota) as mes, SUM(n.totalKg) as totalKg " +
+       "FROM NotaFornecedor n " +
+       "WHERE YEAR(n.dataNota) = :ano " +
+       "GROUP BY MONTH(n.dataNota)")
+       List<Object[]> somarVolumePorMesNoAno(@Param("ano") Integer ano);
 
     @Query("SELECT new com.noemare.api.dtos.response.ProducaoItemResumoResponse(" +
            "p.nome, p.tipo, p.tamanho, SUM(i.quantidadeKg)) " +

@@ -339,3 +339,95 @@ $radius-sm: 10px;
   flex: 0 0 40% !important; // Dá mais espaço para o nome detalhado
   font-weight: 700;
 }
+
+/* ----------------------------------------
+   Estado de Loading (Relatório)
+---------------------------------------- */
+.forn-loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8rem 1rem;
+  color: #64748b; 
+  text-align: center;
+  animation: fadeIn 0.3s ease-in-out;
+
+  .forn-loading-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    color: #2563eb; 
+    margin-bottom: 1.5rem;
+    animation: spin 1s linear infinite;
+  }
+
+  h3 {
+    font-size: 1.25rem;
+    font-family: 'Sora', sans-serif;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 0.5rem 0;
+  }
+
+  p {
+    font-size: 0.9rem;
+    margin: 0;
+    max-width: 320px;
+    line-height: 1.5;
+  }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ----------------------------------------
+   Estado Vazio (Relatório sem dados)
+---------------------------------------- */
+.forn-empty-state-card {
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  padding: 6rem 2rem;
+  margin-top: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: fadeIn 0.4s ease-out;
+
+  .forn-empty-state-content {
+    text-align: center;
+    color: #64748b;
+    max-width: 400px;
+
+    mat-icon {
+      font-size: 64px;
+      width: 64px;
+      height: 64px;
+      color: #cbd5e1;
+      margin-bottom: 1.5rem;
+    }
+
+    h3 {
+      font-size: 1.25rem;
+      font-family: 'Sora', sans-serif;
+      font-weight: 700;
+      color: #0f172a;
+      margin: 0 0 0.5rem 0;
+    }
+
+    p {
+      font-size: 0.95rem;
+      line-height: 1.5;
+      margin: 0;
+    }
+  }
+}

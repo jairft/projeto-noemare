@@ -526,3 +526,49 @@ $radius-sm:     10px;
   h3 { font-size: 1rem; font-weight: 700; color: $text-1; margin: 0.25rem 0 0; }
   p  { font-size: 0.82rem; margin: 0; }
 }
+
+/* ----------------------------------------
+   Estado de Loading (Catálogo de Pescados)
+---------------------------------------- */
+.pesc-loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 5rem 1rem;
+  color: #64748b; 
+  text-align: center;
+  animation: fadeIn 0.3s ease-in-out;
+
+  .pesc-loading-icon {
+    font-size: 42px;
+    width: 42px;
+    height: 42px;
+    color: #0d9488; /* Teal que você usa nessa tela */
+    margin-bottom: 1rem;
+    animation: spin 1s linear infinite;
+  }
+
+  h3 {
+    font-size: 1.15rem;
+    font-family: 'Sora', sans-serif;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 0.5rem 0;
+  }
+
+  p {
+    font-size: 0.85rem;
+    margin: 0;
+  }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}

@@ -20,17 +20,15 @@ export class RelatorioAnualComponent implements OnInit {
   private readonly relatorioService = inject(RelatorioService);
   private readonly anoContexto = inject(AnoContextoService);
 
-  // 👉 Agora 'dados' conterá os campos totalKgGeral e a lista de itens
+  isLoading: boolean = true; // 👉 Novo controle de loading
+
   dados: any = null;
   anoAtivo!: number;
 
-  // 👉 NOVO: Adicionado 'investimento' na lista de colunas para renderizar na tabela
   colunas: string[] = ['nome', 'comprado', 'pago', 'pendente', 'devedor', 'investimento'];
-
   colunasItens: string[] = ['produto', 'quantidadeKg', 'precoUnitario', 'valorTotal'];
 
   ngOnInit() {
-    // Monitora o ano selecionado e recarrega os dados automaticamente
     this.anoContexto.anoSelecionado$.subscribe(ano => {
       this.anoAtivo = ano;
       this.carregarDados();
@@ -38,13 +36,30 @@ export class RelatorioAnualComponent implements OnInit {
   }
 
   carregarDados() {
+    this.isLoading = true; // 👉 Liga o loading
+    this.dados = null;     // Limpa os dados antigos para evitar flashes
+
     this.relatorioService.obterResumoAnual().subscribe({
       next: (res) => {
-        // Armazena a resposta que agora inclui totais financeiros, volumes e lista de produtos
         this.dados = res;
+        this.isLoading = false; // 👉 Desliga o loading
       },
-      error: (err) => console.error('Erro ao buscar relatório anual:', err)
+      error: (err) => {
+        console.error('Erro ao buscar relatório anual:', err);
+        this.isLoading = false; // 👉 Desliga no erro também
+      }
     });
+  }
+
+  // 👉 NOVO: Lógica que verifica se a safra teve alguma movimentação
+  get isRelatorioVazio(): boolean {
+    if (!this.dados) return true;
+    
+    // Se não retornou nenhum fornecedor com movimentação, consideramos o relatório vazio
+    const semFornecedores = !this.dados.fornecedores || this.dados.fornecedores.length === 0;
+    const semVolume = !this.dados.totalKgGeral && !this.dados.totalCompradoGeral;
+    
+    return semFornecedores && semVolume;
   }
 
   imprimir() {

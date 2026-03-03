@@ -53,13 +53,22 @@ export class AdicionarEmprestimoComponent implements OnInit, AfterViewInit {
   private readonly notify = inject(NotifyService);
   private readonly dialog = inject(MatDialog);
 
+  isLoading: boolean = true; 
+
   emprestimoForm: FormGroup;
   fornecedores: any[] = []; 
   dataSource = new MatTableDataSource<any>([]); 
   
   displayedColumns: string[] = ['data', 'fornecedor', 'tipo', 'valorTotal', 'valorPago', 'saldoRestante', 'acoes'];
   
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  // 👉 SOLUÇÃO: Paginador interceptado pelo Setter
+  private _paginator!: MatPaginator;
+  @ViewChild(MatPaginator) set matPaginator(mp: MatPaginator) {
+    if (mp) {
+      this._paginator = mp;
+      this.dataSource.paginator = this._paginator;
+    }
+  }
 
   tiposEmprestimo = ['INVESTIMENTO', 'ADIANTAMENTO'];
 
@@ -77,21 +86,19 @@ export class AdicionarEmprestimoComponent implements OnInit, AfterViewInit {
     this.carregarFornecedores();
     this.carregarEmprestimos();
     
-    // 👉 CONFIGURAÇÃO DO FILTRO: Define como o Angular deve buscar o nome do fornecedor
     this.dataSource.filterPredicate = (data: any, filter: string) => {
       const nomeFornecedor = (data.fornecedorNome || data.fornecedor?.nome || '').toLowerCase();
       return nomeFornecedor.includes(filter);
     };
   }
 
+  // Como estamos usando o Setter, o ngAfterViewInit não precisa mais atribuir o paginador
   ngAfterViewInit(): void {
-    this.dataSource.paginator = this.paginator;
     setTimeout(() => {
       this.cdr.detectChanges();
     }, 50);
   }
 
-  // 👉 APLICAÇÃO DO FILTRO EM TEMPO REAL
   aplicarFiltro(event: Event): void {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
@@ -114,32 +121,34 @@ export class AdicionarEmprestimoComponent implements OnInit, AfterViewInit {
   }
 
   carregarEmprestimos(): void {
+    this.isLoading = true; 
+
     this.emprestimoService.listarTodos().subscribe({
       next: (dados: any[]) => {
-        // 👉 ORDENAÇÃO INTELIGENTE: Saldo devedor primeiro, zerados por último
         const dadosOrdenados = dados.sort((a, b) => {
           const temSaldoA = a.saldoRestante > 0 ? 0 : 1;
           const temSaldoB = b.saldoRestante > 0 ? 0 : 1;
 
-          // 1. Prioriza quem ainda deve (saldoRestante > 0)
           if (temSaldoA !== temSaldoB) {
             return temSaldoA - temSaldoB;
           }
 
-          // 2. Critério de desempate: Mais recente primeiro
           return new Date(b.dataEmprestimo).getTime() - new Date(a.dataEmprestimo).getTime();
         });
 
         this.dataSource.data = dadosOrdenados;
 
-        if (this.paginator) {
-          this.paginator.pageSize = 4;
-          this.dataSource.paginator = this.paginator;
+        // O pageSize agora fica direto no HTML, mas podemos garantir aqui também
+        if (this._paginator) {
+          this._paginator.pageSize = 4;
         }
+
+        this.isLoading = false; 
       },
       error: (err) => {
         console.error(err);
         this.notify.erro('Erro ao carregar o histórico de lançamentos.');
+        this.isLoading = false; 
       }
     });
   }
@@ -162,7 +171,7 @@ export class AdicionarEmprestimoComponent implements OnInit, AfterViewInit {
             dataEmprestimo: new Date(),
             valorTotal: 0 
           });
-          this.carregarEmprestimos();
+          this.carregarEmprestimos(); 
           this.emprestimoForm.enable(); 
         },
         error: (err) => {

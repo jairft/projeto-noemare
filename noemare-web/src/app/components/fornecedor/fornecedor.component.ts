@@ -50,6 +50,8 @@ export class FornecedorComponent implements OnInit {
   private readonly dialog = inject(MatDialog);
   private readonly notify = inject(NotifyService);
 
+  isLoading: boolean = true; // Começa carregando
+
   // 👉 Mudança para MatTableDataSource para suportar busca e paginação
   dataSource = new MatTableDataSource<Fornecedor>([]);
   fornecedores: Fornecedor[] = []; // Mantemos o array para os cards de resumo
@@ -72,14 +74,17 @@ export class FornecedorComponent implements OnInit {
   }
 
   carregarFornecedores(): void {
+    this.isLoading = true;
     this.service.listarTodos().subscribe({
       next: (dados: Fornecedor[]) => { 
         this.fornecedores = dados;
         this.dataSource.data = dados;
         this.dataSource.paginator = this.paginator; // Vincula o paginator
+        this.isLoading = false;
       },
       error: (err: HttpErrorResponse) => {
         this.notify.erro('Erro ao carregar dados do servidor');
+        this.isLoading = false;
       }
     });
   }

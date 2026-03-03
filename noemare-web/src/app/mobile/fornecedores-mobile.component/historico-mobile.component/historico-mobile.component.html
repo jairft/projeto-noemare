@@ -5,59 +5,151 @@
     <div class="title-area">
       <div class="icon-box"><mat-icon>analytics</mat-icon></div>
       <div>
-        <h2>Histórico de Compras</h2>
+        <h2>Histórico Completo</h2>
         <p>{{ data.nome }}</p>
       </div>
     </div>
     <button class="btn-close" (click)="fechar($event)"><mat-icon>close</mat-icon></button>
   </header>
 
-  <div class="sheet-body" *ngIf="!carregando">
-    <div class="kpi-mobile-grid">
-      <div class="kpi-box kpi-box--blue">
-        <span class="label">Peso Total</span>
-        <strong class="value">{{ resumo.kgGeral | number:'1.0-2' }} <small>Kg</small></strong>
-      </div>
-      <div class="kpi-box kpi-box--green">
-        <span class="label">Investimento</span>
-        <strong class="value">{{ resumo.valorGeral | currency:'BRL' }}</strong>
-      </div>
-    </div>
-
-    <div class="list-title">
-      <h3>Detalhamento por Pescado</h3>
-      <span class="badge-count">{{ resumo.itensAgrupados.length }} itens</span>
-    </div>
-
-    <div class="mobile-card-list">
-      <div class="pescado-card" *ngFor="let item of resumo.itensAgrupados">
-        
-        <div class="card-top">
-          <strong class="nome">{{ item.nomeProduto }}</strong>
-          <span class="tipo">{{ item.tipo }}</span>
-        </div>
-
-        <div class="card-metrics">
-          <div class="metric">
-            <span class="m-label">Tamanho</span>
-            <span class="m-value badge-tam">{{ item.tamanho }}</span>
-          </div>
-          <div class="metric text-center">
-            <span class="m-label">Volume</span>
-            <span class="m-value val-kg">{{ item.totalKg | number:'1.0-2' }} <small>Kg</small></span>
-          </div>
-          <div class="metric text-right">
-            <span class="m-label">Investido</span>
-            <span class="m-value val-money">{{ item.totalValor | currency:'BRL' }}</span>
-          </div>
-        </div>
-        
-      </div>
-    </div>
-  </div>
-
   <div class="loading-state" *ngIf="carregando">
     <mat-spinner diameter="36"></mat-spinner>
-    <p>A carregar histórico...</p>
+    <p>Consolidando histórico financeiro...</p>
+  </div>
+
+  <div class="sheet-body" *ngIf="!carregando && resumo">
+    
+    <mat-tab-group class="premium-tabs-mobile" animationDuration="200ms">
+      
+      <mat-tab label="Notas">
+        <div class="tab-content-mobile">
+          
+          <div class="kpi-mobile-grid">
+            <div class="kpi-box kpi-box--blue">
+              <span class="label">Peso Total</span>
+              <strong class="value">{{ resumo.kgGeral | number:'1.0-2' }} <small>Kg</small></strong>
+            </div>
+            <div class="kpi-box kpi-box--green">
+              <span class="label">Investimento</span>
+              <strong class="value">{{ resumo.valorGeral | currency:'BRL' }}</strong>
+            </div>
+          </div>
+
+          <div class="list-title-flex">
+            <h3>Notas Lançadas</h3>
+            <button class="btn-pdf-mobile" (click)="gerarPdfNotas()">
+              <mat-icon>picture_as_pdf</mat-icon> PDF
+            </button>
+          </div>
+
+          <mat-accordion class="mobile-accordion">
+            <mat-expansion-panel *ngFor="let nota of resumo.notas" class="mobile-panel">
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  <div class="panel-header-info">
+                    <span class="panel-main">#{{ nota.numeroNota || nota.id }}</span>
+                    <span class="panel-sub">{{ nota.dataNota | date:'dd/MM/yyyy' }}</span>
+                  </div>
+                </mat-panel-title>
+                <mat-panel-description>
+                  <div class="panel-header-values">
+                    <span class="status-badge {{ getCorStatus(nota.status) }}">{{ nota.status }}</span>
+                    <span class="panel-val">{{ nota.valorTotalNota | currency:'BRL' }}</span>
+                  </div>
+                </mat-panel-description>
+              </mat-expansion-panel-header>
+
+              <div class="panel-items-list">
+                <div class="item-row" *ngFor="let item of nota.itens">
+                  <div class="item-info">
+                    <strong>{{ item.nomeProduto }}</strong>
+                    <small>{{ item.tipo }} - {{ item.tamanho }}</small>
+                  </div>
+                  <div class="item-values">
+                    <span class="val-kg">{{ item.quantidadeKg | number:'1.0-2' }}kg</span>
+                    <span class="val-money">{{ item.valorItem | currency:'BRL' }}</span>
+                  </div>
+                </div>
+              </div>
+            </mat-expansion-panel>
+          </mat-accordion>
+
+          <div *ngIf="resumo.notas.length === 0" class="empty-state-mobile">
+            <mat-icon>receipt_long</mat-icon>
+            <p>Nenhuma nota encontrada.</p>
+          </div>
+
+        </div>
+      </mat-tab>
+
+      <mat-tab label="Investimentos">
+        <div class="tab-content-mobile">
+
+          <div class="kpi-mobile-grid">
+            <div class="kpi-box kpi-box--blue">
+              <span class="label">Total Investido</span>
+              <strong class="value">{{ totalInvestido | currency:'BRL' }}</strong>
+            </div>
+            <div class="kpi-box kpi-box--orange">
+              <span class="label">Saldo Restante</span>
+              <strong class="value">{{ totalSaldoRestante | currency:'BRL' }}</strong>
+            </div>
+          </div>
+
+          <div class="list-title-flex">
+            <h3>Extrato de Adiantamentos</h3>
+            <button class="btn-pdf-mobile" (click)="gerarPdfInvestimentos()">
+              <mat-icon>picture_as_pdf</mat-icon> PDF
+            </button>
+          </div>
+
+          <mat-accordion class="mobile-accordion">
+            <mat-expansion-panel *ngFor="let inv of investimentos" class="mobile-panel">
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  <div class="panel-header-info">
+                    <span class="panel-main">Inv. #{{ inv.id }}</span>
+                    <span class="panel-sub">{{ inv.dataEmprestimo | date:'dd/MM/yyyy' }}</span>
+                  </div>
+                </mat-panel-title>
+                <mat-panel-description>
+                  <div class="panel-header-values">
+                    <span class="status-badge {{ getCorStatus(inv.status) }}">{{ inv.status }}</span>
+                    <span class="panel-val">{{ inv.valorTotal | currency:'BRL' }}</span>
+                  </div>
+                </mat-panel-description>
+              </mat-expansion-panel-header>
+
+              <div class="panel-payments-list">
+                <div class="payment-title">Abatimentos registrados:</div>
+                <div class="payment-row" *ngFor="let pag of inv.pagamentos">
+                  <div class="pay-info">
+                    <strong>{{ pag.descricao || 'Abatimento' }}</strong>
+                    <small>{{ pag.dataPagamento | date:'dd/MM/yyyy HH:mm' }}</small>
+                  </div>
+                  <span class="pay-val">{{ pag.valor | currency:'BRL' }}</span>
+                </div>
+                
+                <div *ngIf="!inv.pagamentos || inv.pagamentos.length === 0" class="pay-empty">
+                  Sem abatimentos registrados.
+                </div>
+
+                <div class="panel-footer-mobile">
+                  <span>Saldo a Receber:</span>
+                  <strong>{{ inv.saldoRestante | currency:'BRL' }}</strong>
+                </div>
+              </div>
+            </mat-expansion-panel>
+          </mat-accordion>
+
+          <div *ngIf="investimentos.length === 0" class="empty-state-mobile">
+            <mat-icon>money_off</mat-icon>
+            <p>Nenhum investimento registrado.</p>
+          </div>
+
+        </div>
+      </mat-tab>
+
+    </mat-tab-group>
   </div>
 </div>

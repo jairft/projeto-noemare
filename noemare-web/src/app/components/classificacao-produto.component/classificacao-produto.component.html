@@ -85,7 +85,7 @@
   </div>
 
   <!-- ===== CARD: TABELA ===== -->
- <div class="pesc-card pesc-card--table">
+<div class="pesc-card pesc-card--table">
 
     <div class="pesc-card__header">
       <div class="pesc-card__header-icon pesc-card__header-icon--teal">
@@ -93,73 +93,78 @@
       </div>
       <div>
         <h2 class="pesc-card__title">Catálogo Cadastrado</h2>
-        <p class="pesc-card__subtitle">{{ produtos.length }} produto{{ produtos.length !== 1 ? 's' : '' }} no catálogo</p>
+        <p class="pesc-card__subtitle" *ngIf="!isLoading">{{ produtos.length }} produto{{ produtos.length !== 1 ? 's' : '' }} no catálogo</p>
+        <p class="pesc-card__subtitle" *ngIf="isLoading">Sincronizando produtos...</p>
       </div>
     </div>
 
-    <div class="pesc-empty" *ngIf="produtos.length === 0">
-      <mat-icon>set_meal</mat-icon>
-      <h3>Nenhum produto cadastrado</h3>
-      <p>Adicione um pescado usando o formulário acima.</p>
+    <div class="pesc-loading-state" *ngIf="isLoading">
+      <mat-icon class="pesc-loading-icon">autorenew</mat-icon>
+      <h3>Buscando catálogo...</h3>
+      <p>Aguarde enquanto carregamos a lista de preços.</p>
     </div>
 
-    <div class="pesc-table-wrapper" *ngIf="produtos.length > 0">
+    <ng-container *ngIf="!isLoading">
       
-      <table mat-table [dataSource]="dataSource" class="pesc-table">
+      <div class="pesc-empty" *ngIf="produtos.length === 0">
+        <mat-icon>set_meal</mat-icon>
+        <h3>Nenhum produto cadastrado</h3>
+        <p>Adicione um pescado usando o formulário acima.</p>
+      </div>
 
-        <ng-container matColumnDef="nome">
-          <th mat-header-cell *matHeaderCellDef>Produto</th>
-          <td mat-cell *matCellDef="let p">
-            <div class="pesc-cell">
-              <div class="pesc-cell__avatar">
-                <mat-icon>set_meal</mat-icon>
+      <div class="pesc-table-wrapper" *ngIf="produtos.length > 0">
+        <table mat-table [dataSource]="dataSource" class="pesc-table">
+
+          <ng-container matColumnDef="nome">
+            <th mat-header-cell *matHeaderCellDef>Produto</th>
+            <td mat-cell *matCellDef="let p">
+              <div class="pesc-cell">
+                <div class="pesc-cell__avatar"><mat-icon>set_meal</mat-icon></div>
+                <span class="pesc-cell__name">{{ p.nome }}</span>
               </div>
-              <span class="pesc-cell__name">{{ p.nome }}</span>
-            </div>
-          </td>
-        </ng-container>
+            </td>
+          </ng-container>
 
-        <ng-container matColumnDef="tipo">
-          <th mat-header-cell *matHeaderCellDef>Tipo</th>
-          <td mat-cell *matCellDef="let p">
-            <span class="pesc-tag">{{ p.tipo }}</span>
-          </td>
-        </ng-container>
+          <ng-container matColumnDef="tipo">
+            <th mat-header-cell *matHeaderCellDef>Tipo</th>
+            <td mat-cell *matCellDef="let p">
+              <span class="pesc-tag">{{ p.tipo }}</span>
+            </td>
+          </ng-container>
 
-        <ng-container matColumnDef="tamanho">
-          <th mat-header-cell *matHeaderCellDef>Tamanho</th>
-          <td mat-cell *matCellDef="let p">
-            <span class="pesc-size">{{ p.tamanho }}</span>
-          </td>
-        </ng-container>
+          <ng-container matColumnDef="tamanho">
+            <th mat-header-cell *matHeaderCellDef>Tamanho</th>
+            <td mat-cell *matCellDef="let p">
+              <span class="pesc-size">{{ p.tamanho || '---' }}</span>
+            </td>
+          </ng-container>
 
-        <ng-container matColumnDef="precoUnitario">
-          <th mat-header-cell *matHeaderCellDef>Preço Base</th>
-          <td mat-cell *matCellDef="let p">
-            <span class="pesc-price">{{ p.precoUnitario | currency:'BRL' }}</span>
-          </td>
-        </ng-container>
+          <ng-container matColumnDef="precoUnitario">
+            <th mat-header-cell *matHeaderCellDef>Preço Base</th>
+            <td mat-cell *matCellDef="let p">
+              <span class="pesc-price">{{ p.precoUnitario | currency:'BRL' }}</span>
+            </td>
+          </ng-container>
 
-        <ng-container matColumnDef="acoes">
-          <th mat-header-cell *matHeaderCellDef class="pesc-th-right">Ações</th>
-          <td mat-cell *matCellDef="let p" class="pesc-td-actions">
-            <button class="pesc-btn-action pesc-btn-action--edit" (click)="editar(p)" matTooltip="Editar">
-              <mat-icon>edit</mat-icon>
-            </button>
-            <button class="pesc-btn-action pesc-btn-action--delete" (click)="excluir(p.id)" matTooltip="Excluir">
-              <mat-icon>delete_outline</mat-icon>
-            </button>
-          </td>
-        </ng-container>
+          <ng-container matColumnDef="acoes">
+            <th mat-header-cell *matHeaderCellDef class="pesc-th-right">Ações</th>
+            <td mat-cell *matCellDef="let p" class="pesc-td-actions">
+              <button class="pesc-btn-action pesc-btn-action--edit" (click)="editar(p)" matTooltip="Editar">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button class="pesc-btn-action pesc-btn-action--delete" (click)="excluir(p.id)" matTooltip="Excluir">
+                <mat-icon>delete_outline</mat-icon>
+              </button>
+            </td>
+          </ng-container>
 
-        <tr mat-header-row *matHeaderRowDef="colunas"></tr>
-        <tr mat-row *matRowDef="let row; columns: colunas;" class="pesc-table__row"></tr>
-
-      </table>
-      
-      <mat-paginator [pageSizeOptions]="[6, 12, 24]" [pageSize]="6" showFirstLastButtons aria-label="Selecionar página"></mat-paginator>
-    </div>
+          <tr mat-header-row *matHeaderRowDef="colunas"></tr>
+          <tr mat-row *matRowDef="let row; columns: colunas;" class="pesc-table__row"></tr>
+        </table>
+        
+        <mat-paginator [pageSizeOptions]="[6, 12, 24]" [pageSize]="6" showFirstLastButtons aria-label="Selecionar página"></mat-paginator>
+      </div>
+    </ng-container>
 
   </div>
-
 </div>

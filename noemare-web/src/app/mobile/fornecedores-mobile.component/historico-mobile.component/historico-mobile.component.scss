@@ -1,5 +1,7 @@
 $primary:   #2563eb;
 $success:   #059669;
+$orange:    #f59e0b;
+$danger:    #ef4444;
 $text-1:    #0f172a;
 $text-2:    #475569;
 $text-3:    #94a3b8;
@@ -10,10 +12,10 @@ $bg:        #f8fafc;
   font-family: 'Sora', sans-serif;
   background: #fff;
   border-radius: 24px 24px 0 0;
-  padding-bottom: 2rem; // Respiro extra para o iPhone bottom bar
+  padding-bottom: 1.5rem;
   display: flex;
   flex-direction: column;
-  max-height: 90vh;
+  max-height: 94vh; // Aumentado para dar mais espaço às abas
 }
 
 .drag-handle {
@@ -22,6 +24,7 @@ $bg:        #f8fafc;
   .pill { width: 40px; height: 5px; background: #cbd5e1; border-radius: 10px; }
 }
 
+/* Header */
 .sheet-header {
   padding: 0.5rem 1.5rem 1rem;
   display: flex; justify-content: space-between; align-items: center;
@@ -41,71 +44,127 @@ $bg:        #f8fafc;
   .btn-close {
     background: #f1f5f9; border: none; width: 32px; height: 32px; border-radius: 50%;
     display: flex; align-items: center; justify-content: center; color: $text-2;
-    &:active { background: #fee2e2; color: #ef4444; }
   }
 }
 
-.sheet-body {
-  padding: 1.25rem 1.5rem;
-  overflow-y: auto;
+/* Customização das Abas Mobile */
+::ng-deep .premium-tabs-mobile {
+  .mat-mdc-tab-header { border-bottom: 1px solid $border; }
+  .mat-mdc-tab .mdc-tab__text-label { 
+    font-family: 'Sora', sans-serif; font-weight: 700; font-size: 0.85rem; color: $text-2; 
+  }
+  .mat-mdc-tab.mdc-tab--active .mdc-tab__text-label { color: $primary; }
+  .mat-mdc-tab-link-active, .mat-mdc-tab.mdc-tab--active { --mdc-tab-indicator-active-indicator-color: #{$primary}; }
 }
 
-// Resumo Mobile (Lado a Lado)
+.tab-content-mobile {
+  padding: 1.25rem 1rem;
+  background: $bg;
+  min-height: 50vh;
+}
+
+/* KPIs */
 .kpi-mobile-grid {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1.5rem;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1.25rem;
 
   .kpi-box {
-    padding: 1rem; border-radius: 16px; border: 1px solid $border;
-    display: flex; flex-direction: column; gap: 0.25rem;
+    padding: 0.85rem; border-radius: 16px; border: 1px solid $border;
+    display: flex; flex-direction: column; gap: 0.25rem; background: #fff;
 
-    .label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; color: $text-3; }
-    .value { font-size: 1.2rem; font-weight: 800; color: $text-1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .label { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; color: $text-3; }
+    .value { font-size: 1.05rem; font-weight: 800; color: $text-1; }
 
-    &--blue { background: linear-gradient(135deg, #fff 0%, #eff6ff 100%); border-bottom: 3px solid $primary; }
-    &--green { background: linear-gradient(135deg, #fff 0%, #ecfdf5 100%); border-bottom: 3px solid $success; }
+    &--blue { border-bottom: 3px solid $primary; }
+    &--green { border-bottom: 3px solid $success; }
+    &--orange { border-bottom: 3px solid $orange; }
   }
 }
 
-.list-title {
-  display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;
-  h3 { margin: 0; font-size: 0.9rem; font-weight: 800; color: $text-1; }
-  .badge-count { font-size: 0.7rem; font-weight: 700; background: $bg; padding: 2px 8px; border-radius: 8px; color: $text-2; }
+/* Títulos e Botão PDF */
+.list-title-flex {
+  display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; padding: 0 0.25rem;
+  h3 { margin: 0; font-size: 0.85rem; font-weight: 800; color: $text-1; text-transform: uppercase; letter-spacing: 0.5px; }
+  
+  .btn-pdf-mobile {
+    display: flex; align-items: center; gap: 4px; background: #fff; border: 1px solid $border;
+    padding: 4px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 700; color: $text-2;
+    mat-icon { font-size: 16px; width: 16px; height: 16px; color: $danger; }
+  }
 }
 
-// Lista de Cards (A Mágica do Mobile)
-.mobile-card-list {
-  display: flex; flex-direction: column; gap: 0.75rem;
-
-  .pescado-card {
-    background: #fff; border: 1px solid $border; border-radius: 16px; padding: 1rem;
-    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
-
-    .card-top {
-      display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem; padding-bottom: 0.75rem; border-bottom: 1px dashed #e2e8f0;
-      .nome { font-size: 0.95rem; font-weight: 800; color: $text-1; }
-      .tipo { font-size: 0.7rem; font-weight: 700; color: $primary; background: rgba($primary, 0.1); padding: 2px 8px; border-radius: 6px; }
-    }
-
-    .card-metrics {
-      display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem;
-      
-      .metric {
-        display: flex; flex-direction: column; gap: 0.35rem;
-        .m-label { font-size: 0.6rem; font-weight: 700; color: $text-3; text-transform: uppercase; letter-spacing: 0.05em; }
-        .m-value { font-size: 0.85rem; color: $text-1; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
-        
-        .badge-tam { display: inline-block; width: fit-content; background: $bg; padding: 2px 6px; border-radius: 6px; border: 1px solid $border; font-size: 0.75rem; font-weight: 800; }
-        .val-money { color: $success; font-weight: 900; }
-        .val-kg small { font-size: 0.7rem; color: $text-3; }
-      }
-      
-      .text-center { align-items: center; text-align: center; }
-      .text-right { align-items: flex-end; text-align: right; }
+/* Acordeon Premium Mobile */
+.mobile-accordion {
+  display: flex; flex-direction: column; gap: 0.5rem;
+  
+  .mobile-panel {
+    border-radius: 12px !important; overflow: hidden; border: 1px solid $border !important; box-shadow: none !important;
+    
+    ::ng-deep .mat-expansion-panel-header {
+      padding: 0 12px; height: 64px !important;
     }
   }
+}
+
+.panel-header-info {
+  display: flex; flex-direction: column;
+  .panel-main { font-weight: 800; color: $text-1; font-size: 0.9rem; }
+  .panel-sub { font-size: 0.7rem; color: $text-3; font-weight: 600; }
+}
+
+.panel-header-values {
+  display: flex; flex-direction: column; align-items: flex-end; gap: 4px;
+  .panel-val { font-weight: 800; color: $text-1; font-size: 0.85rem; }
+}
+
+/* Badges de Status */
+.status-badge {
+  font-size: 0.6rem; font-weight: 800; padding: 2px 6px; border-radius: 4px; text-transform: uppercase;
+  &.status-paga { background: rgba($success, 0.1); color: $success; }
+  &.status-aberta { background: rgba($primary, 0.1); color: $primary; }
+  &.status-parcial { background: rgba($orange, 0.1); color: $orange; }
+}
+
+/* Listagem interna de Itens (Expansão) */
+.panel-items-list, .panel-payments-list {
+  padding: 0.5rem 0;
+  
+  .item-row, .payment-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 0; border-bottom: 1px solid #f1f5f9;
+    &:last-child { border-bottom: none; }
+    
+    .item-info, .pay-info {
+      display: flex; flex-direction: column;
+      strong { font-size: 0.8rem; color: $text-1; }
+      small { font-size: 0.7rem; color: $text-3; }
+    }
+    .item-values, .pay-val {
+      text-align: right;
+      display: flex; flex-direction: column;
+      .val-kg { font-size: 0.75rem; font-weight: 700; color: $text-2; }
+      .val-money, &.pay-val { font-size: 0.8rem; font-weight: 800; color: $text-1; }
+    }
+  }
+}
+
+.payment-title { font-size: 0.7rem; font-weight: 700; color: $text-3; text-transform: uppercase; margin-bottom: 4px; }
+.pay-empty { font-size: 0.75rem; color: $text-3; font-style: italic; padding: 8px 0; }
+
+.panel-footer-mobile {
+  margin-top: 10px; padding-top: 8px; border-top: 1px dashed $border;
+  display: flex; justify-content: space-between; align-items: center;
+  span { font-size: 0.75rem; font-weight: 700; color: $text-2; }
+  strong { font-size: 0.9rem; color: $orange; font-weight: 800; }
+}
+
+/* Estados de Erro/Vazio */
+.empty-state-mobile {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 3rem 1rem; color: $text-3;
+  mat-icon { font-size: 40px; width: 40px; height: 40px; margin-bottom: 12px; opacity: 0.5; }
+  p { font-size: 0.85rem; font-weight: 600; margin: 0; }
 }
 
 .loading-state {
-  display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 3rem 0; gap: 1rem;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4rem 0; gap: 1rem;
   p { font-size: 0.85rem; color: $text-3; font-weight: 600; }
 }

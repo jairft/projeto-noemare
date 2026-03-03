@@ -1,7 +1,7 @@
-import { Component, OnInit, ViewChild, AfterViewInit, inject } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 
 // Angular Material
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -45,13 +45,16 @@ export class NotasFornecedorComponent implements OnInit, AfterViewInit {
   private readonly classificacaoService = inject(ClassificacaoProdutoService);
   private readonly notaService = inject(NotaFornecedorService);
   private readonly notify = inject(NotifyService); 
+  private readonly route = inject(ActivatedRoute);
+  private readonly cdr = inject(ChangeDetectorRef);
+
+  isLoading: boolean = true; // 👉 Controle de loading da tabela
 
   fornecedores: Fornecedor[] = [];
   cardapio: ClassificacaoProduto[] = [];
   itensDaNota: NotaItem[] = [];
   colunasItens: string[] = ['produto', 'tipo', 'tamanho', 'quantidadeKg', 'valorUnitario', 'valorTotal', 'acoes'];
 
-  // 👉 NOVO: Controle de Edição
   notaIdEmEdicao: number | null = null;
 
   notaForm: FormGroup = this.fb.group({
@@ -64,7 +67,14 @@ export class NotasFornecedorComponent implements OnInit, AfterViewInit {
   notasRecentes = new MatTableDataSource<any>([]);
   colunasNotasRecentes: string[] = ['dataHora', 'fornecedor', 'status', 'valor', 'acoes'];
   
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  // 👉 SOLUÇÃO: Paginador interceptado pelo Setter
+  private _paginator!: MatPaginator;
+  @ViewChild(MatPaginator) set matPaginator(mp: MatPaginator) {
+    if (mp) {
+      this._paginator = mp;
+      this.notasRecentes.paginator = this._paginator;
+    }
+  }
 
   itemForm: FormGroup = this.fb.group({
     produtoId: [null, Validators.required],
@@ -77,10 +87,24 @@ export class NotasFornecedorComponent implements OnInit, AfterViewInit {
     this.carregarCardapio();
     this.carregarNotasRecentes();
     this.monitorarSelecaoProduto();
+
+    this.route.queryParams.subscribe(params => {
+      if (params['editId']) {
+        const id = Number(params['editId']);
+        this.notaService.listarTodas().subscribe(notas => {
+          const notaParaEditar = notas.find(n => n.id === id);
+          if (notaParaEditar) {
+            this.editarNota(notaParaEditar);
+          }
+        });
+      }
+    });
   }
 
   ngAfterViewInit(): void {
-    this.notasRecentes.paginator = this.paginator;
+    setTimeout(() => {
+      this.cdr.detectChanges();
+    }, 50);
   }
 
   carregarFornecedores(): void {
@@ -146,7 +170,6 @@ export class NotasFornecedorComponent implements OnInit, AfterViewInit {
     return this.itensDaNota.reduce((total, item) => total + item.valorTotal, 0);
   }
 
-  // 👉 ATUALIZADO: Decide se vai criar (POST) ou editar (PUT)
   salvarNota(): void {
     if (this.notaForm.invalid || this.itensDaNota.length === 0) {
       this.notify.erro('Verifique os dados e adicione pelo menos um item.'); 
@@ -166,24 +189,22 @@ export class NotasFornecedorComponent implements OnInit, AfterViewInit {
     };
 
     if (this.notaIdEmEdicao) {
-      // MODO EDIÇÃO
       this.notaService.editar(this.notaIdEmEdicao, payload).subscribe({
         next: () => {
           this.notify.sucesso('Nota atualizada com sucesso!'); 
           this.limparTela();
-          this.carregarNotasRecentes();
+          this.carregarNotasRecentes(); // Recarrega a tabela de baixo e liga o loading
         },
         error: (err) => {
           this.notify.erro(err.error?.mensagem || 'Erro ao editar a nota.'); 
         }
       });
     } else {
-      // MODO CRIAÇÃO
       this.notaService.salvar(payload).subscribe({
         next: () => {
           this.notify.sucesso('Nota salva com sucesso!'); 
           this.limparTela();
-          this.carregarNotasRecentes();
+          this.carregarNotasRecentes(); // Recarrega a tabela de baixo e liga o loading
         },
         error: (err) => {
           this.notify.erro(err.error?.mensagem || 'Erro ao salvar a nota.'); 
@@ -192,7 +213,6 @@ export class NotasFornecedorComponent implements OnInit, AfterViewInit {
     }
   }
 
-  // 👉 ATUALIZADO: Joga os dados da nota selecionada de volta para o form
   editarNota(nota: any): void {
     if (nota.status !== 'ABERTA') {
       this.notify.erro('Apenas notas com status ABERTA podem ser editadas.');
@@ -201,21 +221,17 @@ export class NotasFornecedorComponent implements OnInit, AfterViewInit {
 
     this.notaIdEmEdicao = nota.id;
 
-    // Formata a data com segurança para YYYY-MM-DD
     const dataFormatada = nota.dataNota ? nota.dataNota.substring(0, 10) : new Date().toISOString().substring(0, 10);
 
-    // Preenche os Dados da Nota
     this.notaForm.patchValue({
-      fornecedorId: nota.fornecedorId || (nota.fornecedor ? nota.fornecedor.id : null), // Fallback se o ID vier aninhado
+      fornecedorId: nota.fornecedorId || (nota.fornecedor ? nota.fornecedor.id : null),
       numeroNota: nota.numeroNota || '',
       dataNota: dataFormatada,
       descricao: nota.descricao || ''
     });
 
-    // Preenche os Itens
     if (nota.itens && nota.itens.length > 0) {
       this.itensDaNota = nota.itens.map((item: any) => {
-        // Usa o cardápio para recuperar o ID correto do produto caso o DTO não traga o produtoId
         const produtoNoCardapio = this.cardapio.find(p => p.nome === (item.produtoNome || item.nomeProduto));
         
         return {
@@ -232,17 +248,16 @@ export class NotasFornecedorComponent implements OnInit, AfterViewInit {
       this.itensDaNota = [];
     }
 
-    // Rola a tela para cima de forma elegante
     window.scrollTo({ top: 0, behavior: 'smooth' });
     this.notify.info('Modo de edição ativado. Altere os dados e clique em Salvar.');
   }
 
- // 👉 ATUALIZADO: Ordenação blindada (Status > Data > ID)
   carregarNotasRecentes(): void {
+    this.isLoading = true; // 👉 Liga o loading da tabela de baixo
+
     this.notaService.listarTodas().subscribe({
       next: (notas) => {
         
-        // Define a ordem de prioridade (menor número aparece primeiro)
         const ordemStatus: { [key: string]: number } = {
           'ABERTA': 1,
           'PARCIAL': 2,
@@ -253,15 +268,12 @@ export class NotasFornecedorComponent implements OnInit, AfterViewInit {
           const statusA = a.status || 'ABERTA';
           const statusB = b.status || 'ABERTA';
 
-          // 1º Critério: Ordem de Status (Aberta -> Parcial -> Paga)
           if (ordemStatus[statusA] !== ordemStatus[statusB]) {
             return ordemStatus[statusA] - ordemStatus[statusB];
           }
 
-          // Função segura para converter a data do Java (YYYY-MM-DD HH:mm:ss) para o Javascript
           const getTempoSeguro = (dataString: string) => {
             if (!dataString) return 0;
-            // Troca o espaço por 'T' para navegadores como Safari/Firefox não quebrarem a data
             const dataSegura = dataString.replace(' ', 'T');
             return new Date(dataSegura).getTime();
           };
@@ -269,23 +281,28 @@ export class NotasFornecedorComponent implements OnInit, AfterViewInit {
           const dataA = getTempoSeguro(a.dataHora || a.dataNota);
           const dataB = getTempoSeguro(b.dataHora || b.dataNota);
 
-          // 2º Critério: Data mais recente primeiro (decrescente)
           if (dataB !== dataA) {
             return dataB - dataA; 
           }
           
-          // 3º Critério (Desempate): Se for o exato mesmo dia, mostra a última que foi lançada no sistema
           return b.id - a.id;
         });
+
+        // O pageSize agora fica direto no HTML, mas garantimos no TS também
+        if (this._paginator) {
+          this._paginator.pageSize = 3;
+        }
+
+        this.isLoading = false; // 👉 Desliga o loading
       },
       error: (err) => {
         console.error(err);
         this.notify.erro('Erro ao carregar o histórico de notas recentes.');
+        this.isLoading = false; // 👉 Desliga o loading no erro
       }
     });
   }
 
-  // 👉 ATUALIZADO: Reseta o controle de edição ao limpar
   limparTela(): void {
     this.notaIdEmEdicao = null;
     this.notaForm.reset({
@@ -294,4 +311,4 @@ export class NotasFornecedorComponent implements OnInit, AfterViewInit {
     this.itemForm.reset();
     this.itensDaNota = [];
   }
-} 
+}

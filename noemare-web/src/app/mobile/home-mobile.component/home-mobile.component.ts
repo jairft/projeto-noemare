@@ -8,7 +8,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from '../../services/auth.service';
 import { DashboardService } from '../../services/dashboard.service'; 
 import { AnoContextoService } from '../../services/ano-contexto.service';
-import { RelatorioService } from '../../services/relatorio.service'; // 👉 Importado para pegar o peso real
 
 @Component({
   selector: 'app-home-mobile',
@@ -26,11 +25,10 @@ export class HomeMobileComponent implements OnInit {
   private authService = inject(AuthService);
   private dashboardService = inject(DashboardService);
   private anoContexto = inject(AnoContextoService);
-  private relatorioService = inject(RelatorioService); // 👉 Injetado aqui
 
   // Variáveis Reativas
   userName: string = 'Carregando...';
-  volumeTotal: string = 'Carregando...'; // Começa com texto de loading
+  volumeTotal: string = '...'; 
   totalComprado: string = 'R$ 0,00';
   
   anosDisponiveis: number[] = [2024, 2025, 2026, 2027];
@@ -57,28 +55,20 @@ export class HomeMobileComponent implements OnInit {
     }
   }
 
-  // 👉 Lógica idêntica à do Dashboard Desktop
+  // 👉 Lógica Otimizada: Uma única chamada resolve tudo!
   carregarResumo(ano: number): void {
-    this.volumeTotal = 'Carregando...'; // Reset visual enquanto busca
+    this.volumeTotal = 'Carregando...';
     
-    // 1. Busca os dados financeiros do Dashboard
+    // 1. Busca o resumo do Dashboard (que já configuramos para trazer o peso total)
     this.dashboardService.obterResumo(ano).subscribe({
-      next: (res) => {
+      next: (res: any) => {
         // Calcula o Total Comprado (A Pagar + Pago no Mês)
         const totalCompradoCalculado = (res.totalAPagar || 0) + (res.totalPagoMes || 0);
         this.totalComprado = this.formatarMoeda(totalCompradoCalculado);
 
-        // 2. Busca o Relatório Anual para extrair o Peso (Volume Total)
-        this.relatorioService.obterResumoAnual().subscribe({
-          next: (relatorio: any) => { 
-            const peso = Number(relatorio.totalKgGeral) || 0;
-            this.volumeTotal = `${peso.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} KG`;
-          },
-          error: (err) => {
-            console.error('Erro ao carregar peso do relatório:', err);
-            this.volumeTotal = '0,00 KG';
-          }
-        });
+        // 👉 EXTRAÇÃO DIRETA: O volume total agora vem do resumo rápido!
+        const peso = res.volumeTotalAno || 0;
+        this.volumeTotal = `${peso.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} KG`;
       },
       error: (err) => {
         console.error('Erro ao carregar os dados financeiros:', err);

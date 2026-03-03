@@ -1,6 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { Router } from '@angular/router';
 import { forkJoin } from 'rxjs'; 
 import { SelectionModel } from '@angular/cdk/collections'; 
 import { FormsModule } from '@angular/forms'; 
@@ -42,6 +43,9 @@ export class FinanceiroComponent implements OnInit {
   private readonly notaService = inject(NotaFornecedorService);
   private readonly dialog = inject(MatDialog);
   private readonly notify = inject(NotifyService); 
+  private readonly router = inject(Router);
+
+  isLoading: boolean = true; // 👉 Começa carregando
 
   todasAsContasOriginais: any[] = []; 
   fornecedoresFiltro: { id: number, nome: string }[] = [];
@@ -51,7 +55,6 @@ export class FinanceiroComponent implements OnInit {
   pageSize = 5;
   pageIndex = 0;
 
-  // 👉 Variáveis dos KPIs Financeiros (Cards do Topo)
   valorTotalComprado: number = 0;
   valorTotalPago: number = 0;
   valorTotalPendente: number = 0;
@@ -62,7 +65,9 @@ export class FinanceiroComponent implements OnInit {
     this.carregarContasPendentes();
   }
 
- carregarContasPendentes(): void {
+  carregarContasPendentes(): void {
+    this.isLoading = true; // 👉 Liga o loading
+    
     this.notaService.listarTodas().subscribe({
       next: (notas) => {
         const todasAsNotas = notas.map(nota => {
@@ -73,7 +78,6 @@ export class FinanceiroComponent implements OnInit {
           return {
             id: nota.id,
             numeroNota: nota.numeroNota || 'S/N', 
-            
             fornecedor: nota.fornecedorNome,
             fornecedorId: nota.fornecedorId,
             data: nota.dataNota ? new Date(nota.dataNota).toLocaleDateString('pt-BR') : '-',
@@ -96,10 +100,13 @@ export class FinanceiroComponent implements OnInit {
 
         this.extrairFornecedoresParaFiltro();
         this.aplicarFiltroFornecedor(); 
+        
+        this.isLoading = false; // 👉 Desliga o loading no sucesso
       },
       error: (err) => {
         console.error(err);
         this.notify.erro('Não foi possível carregar as contas do financeiro.'); 
+        this.isLoading = false; // 👉 Desliga o loading no erro
       }
     });
   }
@@ -138,7 +145,6 @@ export class FinanceiroComponent implements OnInit {
     this.pageIndex = 0;
     this.selecao.clear();
     
-    // 👉 Atualiza os Cards imediatamente após filtrar a tabela
     this.atualizarKpisFinanceiros(); 
   }
 
@@ -299,6 +305,10 @@ export class FinanceiroComponent implements OnInit {
     return numSelected === numRows && numRows > 0;
   }
 
+  editarNota(conta: any): void {
+    this.router.navigate(['/notas-fornecedor'], { queryParams: { editId: conta.id } });
+  }
+
   toggleAllRows(): void {
     if (this.isAllSelected()) {
       this.selecao.clear();
@@ -334,9 +344,9 @@ export class FinanceiroComponent implements OnInit {
   }
 
   handlePageEvent(e: PageEvent) { this.pageIndex = e.pageIndex; }
-    get totalPagas(): number { return this.contasAPagar.filter(c => c.status === 'PAGA').length; }
-    get totalPendentes(): number { return this.contasAPagar.filter(c => c.status !== 'PAGA').length; }
-    get notasPendentesNaVisualizacao(): any[] {
-      return this.contasAPagar.filter(c => c.status !== 'PAGA');
+  get totalPagas(): number { return this.contasAPagar.filter(c => c.status === 'PAGA').length; }
+  get totalPendentes(): number { return this.contasAPagar.filter(c => c.status !== 'PAGA').length; }
+  get notasPendentesNaVisualizacao(): any[] {
+    return this.contasAPagar.filter(c => c.status !== 'PAGA');
   }
 }
